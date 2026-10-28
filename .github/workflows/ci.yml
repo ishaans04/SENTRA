@@ -62,6 +62,40 @@ jobs:
           uv run python -m hive_core.snapshot
           git diff --exit-code ../../apps/console/public/demo
 
+  aegis:
+    name: Gateway, decisions and recovery
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/aegis
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: '0.7.8'
+          enable-cache: true
+
+      - name: Install dependencies from the lockfile
+        run: uv sync --group dev --locked
+
+      - name: Format
+        run: uv run ruff format --check src tests
+
+      - name: Lint
+        run: uv run ruff check src tests
+
+      - name: Types
+        run: uv run mypy
+
+      # Enforcement must not depend on a model, so the suite runs with
+      # interpretation switched off.
+      - name: Tests
+        env:
+          AEGIS_INTERPRETER: 'off'
+        run: uv run pytest -q
+
   console:
     name: Console
     runs-on: ubuntu-latest

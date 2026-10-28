@@ -1,0 +1,82 @@
+[build-system]
+requires = ["hatchling>=1.26.0,<2.0.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "haegis"
+version = "0.1.0"
+description = "HAEGIS: approvals tied to conditions, an MCP gateway that holds and rejects affected agent calls, and dictated recovery checked against the HIVE engine."
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+license = "MIT"
+dependencies = [
+  "hive-core",
+  "fastapi==0.160.0",
+  "fastmcp==3.4.11",
+  "pydantic>=2.9.0,<3.0.0",
+  "pydantic-ai-slim[google,groq]==2.60.0",
+  "networkx>=3.3,<4.0",
+  "PyYAML>=6.0.0,<7.0.0",
+  "uvicorn[standard]>=0.30.0,<1.0.0",
+]
+
+[tool.uv.sources]
+hive-core = { path = "../core", editable = true }
+
+[dependency-groups]
+dev = [
+  "httpx>=0.27.0,<1.0.0",
+  "hypothesis>=6.112.0,<7.0.0",
+  "mypy>=1.13.0,<2.0.0",
+  "pytest>=8.3.0,<9.0.0",
+  "pytest-asyncio>=0.24.0,<1.0.0",
+  "ruff>=0.8.0,<1.0.0",
+  "types-PyYAML>=6.0.0,<7.0.0",
+  "types-networkx>=3.3,<4.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/aegis"]
+
+[tool.pytest.ini_options]
+addopts = "-ra --strict-markers --strict-config --basetemp=.pytest-tmp"
+testpaths = ["tests"]
+pythonpath = ["."]
+asyncio_mode = "auto"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "RET", "ARG"]
+ignore = ["B008"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["ARG002"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["aegis", "hive_core", "tests"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+
+[tool.mypy]
+python_version = "3.12"
+files = ["src", "tests"]
+strict = true
+warn_unused_configs = true
+warn_unreachable = true
+show_error_codes = true
+pretty = true
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+disallow_untyped_calls = false
+disallow_any_generics = false
+warn_return_any = false

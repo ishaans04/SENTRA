@@ -49,3 +49,4 @@ secrets/
 test-results/
 apps/console/test-results/
 
+.pytest-tmp/
