@@ -10,6 +10,13 @@ from aegis.tools.catalogue import ToolSpec
 
 RunStatus = Literal["running", "stale", "completed", "cancelled"]
 
+#: The recovery executor's identity. Only it may call recovery-only tools, and it
+#: is not bound by a decision: it acts on the operator's confirmed plan.
+RECOVERY_ACTOR = "haegis-recovery"
+
+#: How a tool's effect class reads as a HIVE relationship, for control rules.
+_EFFECT_AS_ACTION = {"read": "read", "write": "write", "send": "send"}
+
 
 @dataclass
 class RunState:
@@ -31,9 +38,30 @@ class ToolCall:
     args: dict[str, Any]
 
 
+@dataclass(frozen=True)
+class DenyRule:
+    """A containment control installed in the gateway (from HIVE's ranked list)."""
+
+    capability_id: str
+    control_type: Literal["block_edge", "quarantine_node"]
+    target: str
+    source: str | None = None
+    action: str | None = None
+
+    def denies(self, actor: str | None, tool: ToolSpec) -> bool:
+        if tool.resource != self.target:
+            return False
+        if self.control_type == "quarantine_node":
+            return True
+        return actor == self.source and _EFFECT_AS_ACTION.get(tool.effect) == self.action
+
+
 @dataclass
 class GatewayState:
     runs: dict[str, RunState] = field(default_factory=dict)
     #: The decision ledger's live view, shared by reference. The gateway reads it;
     #: only the decision service changes it.
     decisions: dict[str, Decision] = field(default_factory=dict)
+    deny_rules: list[DenyRule] = field(default_factory=list)
+    #: (actor, tool, target) triples a person approved for one destructive call each.
+    live_approvals: set[tuple[str, str, str]] = field(default_factory=set)

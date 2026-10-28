@@ -10,6 +10,7 @@ from fastmcp import Client
 from fastmcp.exceptions import ToolError
 
 from aegis.clock import LogicalClock
+from aegis.decisions.models import Decision
 from aegis.gateway.server import Gateway
 from aegis.gateway.state import RunState
 from aegis.ledger import LedgerEvent, SessionLedger
@@ -21,6 +22,10 @@ from aegis.world import World
 def gateway(fixtures_dir: Path) -> Gateway:
     ledger = SessionLedger("s-test", LogicalClock())
     gw = Gateway(World.seed(), ledger, Catalogue.load(fixtures_dir / "tools.yaml"))
+    for decision_id, actor in (("D-0", "support-agent"), ("D-1", "reporting-agent")):
+        gw.state.decisions[decision_id] = Decision(
+            id=decision_id, statement="", subject="", actor=actor, status="active"
+        )
     gw.register_run(RunState(id="R-1", actor="reporting-agent", decision_id="D-1", epoch=1))
     gw.register_run(RunState(id="S-1", actor="support-agent", decision_id="D-0", epoch=1))
     return gw

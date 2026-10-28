@@ -135,6 +135,16 @@ class DecisionService:
         self._emit("decision.renewed", "operator", decision_id=decision_id, epoch=decision.epoch)
         return decision
 
+    def suspend(self, decision_id: str) -> Decision:
+        """The operator suspends a live decision by hand (PRD §9.2)."""
+        decision = self.get(decision_id)
+        if decision.status == "suspended":
+            return decision
+        if not decision.live:
+            raise DecisionError(f"{decision_id} is {decision.status} and cannot be suspended.")
+        self._suspend(decision, None, None, {})
+        return decision
+
     def withdraw(self, decision_id: str) -> Decision:
         decision = self.get(decision_id)
         if decision.status in {"withdrawn", "discarded"}:

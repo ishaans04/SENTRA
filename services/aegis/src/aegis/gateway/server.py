@@ -104,6 +104,64 @@ class Gateway:
             payload={"action_id": action.id},
         )
 
+    async def release_due(self) -> list[str]:
+        """Release and deliver every queued send whose approval still stands.
+
+        Each send is re-checked now, not when it was queued: the decision must be
+        active, the run's epoch current and no control in the way. A send that
+        fails the check under a decision that is no longer live is held; anything
+        else keeps waiting.
+        """
+        delivered: list[str] = []
+        for action in self.outbox.all():
+            if action.status != "queued":
+                continue
+            run = self.state.runs[action.run_id]
+            decision = self.state.decisions.get(action.decision_id)
+            call = ToolCall(run.id, run.actor, self.catalogue.get(action.tool), action.args)
+            verdict = enforce(call, self.state)
+            if decision is None or decision.status != "active" or verdict.outcome != "queue":
+                if decision is not None and not decision.live and decision.hold_rule:
+                    self.hold(action, cites=action.cites)
+                continue
+            action.status = "released"
+            self.ledger.append(
+                "action.released",
+                "gateway",
+                actor=action.actor,
+                run_id=action.run_id,
+                decision_id=action.decision_id,
+                epoch=decision.epoch,
+                cites=action.cites,
+                payload={
+                    "action_id": action.id,
+                    "epoch_at_release": run.epoch,
+                    "decision_status": decision.status,
+                },
+            )
+            await self._deliver(action)
+            delivered.append(action.id)
+        return delivered
+
+    async def _deliver(self, action: QueuedAction) -> None:
+        spec = self.catalogue.get(action.tool)
+        token = CALLER.set("gateway-outbox")
+        try:
+            async with Client(self.servers[spec.server]) as client:
+                result = await client.call_tool(spec.local_name, action.args)
+        finally:
+            CALLER.reset(token)
+        action.status = "delivered"
+        self.ledger.append(
+            "action.delivered",
+            "gateway",
+            actor=action.actor,
+            run_id=action.run_id,
+            decision_id=action.decision_id,
+            cites=action.cites,
+            payload={"action_id": action.id, "result": result.structured_content},
+        )
+
     # -- recording ------------------------------------------------------------
 
     def record_call(
