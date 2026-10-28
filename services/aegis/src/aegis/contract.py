@@ -16,7 +16,8 @@ TARGET = Path(__file__).resolve().parents[4] / "contracts" / "openapi" / "haegis
 
 def main() -> None:
     document = create_app().openapi()
-    TARGET.write_text(json.dumps(document, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    body = json.dumps(document, indent=2, sort_keys=True) + "\n"
+    TARGET.write_text(body, encoding="utf-8", newline="\n")
     print(f"wrote {TARGET}")
 
 

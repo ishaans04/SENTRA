@@ -12,7 +12,7 @@
 
 import { useMemo } from 'react';
 
-import type { Finding, GraphEdge } from '../../shared/lib/types';
+import type { Architecture, Finding, GraphEdge, GraphSnapshot } from '../../shared/lib/types';
 import { useConsole } from '../../shared/state/store';
 import { buildLayout, groupParallel, routeEdge, toneFor, type EdgeTone } from './layout';
 
@@ -60,6 +60,7 @@ function Glyph({ kind, accent, severed }: { kind: string; accent: string; severe
   return <rect x={-14} y={-14} width={28} height={28} transform="rotate(45)" {...common} />;
 }
 
+/** The map for the HIVE replay console, fed from its store. */
 export function TopologyMap() {
   const architecture = useConsole((s) => s.architecture);
   const state = useConsole((s) => s.state);
@@ -67,10 +68,24 @@ export function TopologyMap() {
   const selectedId = useConsole((s) => s.selectedFindingId);
 
   const finding: Finding | null = findings.find((f) => f.id === selectedId) ?? findings[0] ?? null;
+  return (
+    <TopologyCanvas architecture={architecture} graph={state?.graph ?? null} finding={finding} />
+  );
+}
 
+/** The map itself: draws exactly the graph and finding it is given. */
+export function TopologyCanvas({
+  architecture,
+  graph,
+  finding,
+}: {
+  architecture: Architecture | null;
+  graph: GraphSnapshot | null;
+  finding: Finding | null;
+}) {
   const layout = useMemo(
-    () => (architecture ? buildLayout(architecture, state?.graph.nodes ?? []) : null),
-    [architecture, state?.graph.nodes],
+    () => (architecture ? buildLayout(architecture, graph?.nodes ?? []) : null),
+    [architecture, graph?.nodes],
   );
 
   const incidentEdges = useMemo(
@@ -88,9 +103,9 @@ export function TopologyMap() {
     );
   }
 
-  const edges = state?.graph.edges ?? [];
+  const edges = graph?.edges ?? [];
   const parallel = groupParallel(edges);
-  const contained = (state?.applied_controls.length ?? 0) > 0;
+  const contained = (graph?.applied_controls.length ?? 0) > 0;
 
   const drawable: { edge: GraphEdge; d: string; tone: EdgeTone }[] = [];
   for (const [, group] of parallel) {

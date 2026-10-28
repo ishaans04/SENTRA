@@ -49,6 +49,18 @@ def snapshot(session: Session) -> dict[str, Any]:
             {"n": b["n"], "title": b["title"], "done": i < s.position}
             for i, b in enumerate(s.beats)
         ],
+        "architecture": {
+            "version": s.bridge.manifest.version,
+            "zones": s.bridge.manifest.zones,
+            "nodes": [n.model_dump() for n in s.bridge.manifest.nodes],
+            "allowed_relationships": [
+                r.model_dump() for r in s.bridge.manifest.allowed_relationships
+            ],
+            "invariants": [i.model_dump() for i in s.bridge.manifest.invariants],
+            "control_capabilities": [
+                c.model_dump() for c in s.bridge.manifest.control_capabilities
+            ],
+        },
         "graph": s.bridge.projection.snapshot(),
         "applied_controls": list(s.bridge.projection.applied_controls),
         "findings": findings,

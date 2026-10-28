@@ -46,7 +46,8 @@ class RecordedResponses:
             "note": "Recorded model outputs, replayed through the same validation as live output.",
             "entries": self.entries,
         }
-        self.path.write_text(json.dumps(body, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        text = json.dumps(body, indent=2, sort_keys=True) + "\n"
+        self.path.write_text(text, encoding="utf-8", newline="\n")
 
     def __len__(self) -> int:
         return len(self.entries)
