@@ -57,3 +57,15 @@ condition_openers:
   - as long as
   - only if
   - if
+
+# Recovery instructions: one clause per step, split on commas, full stops and
+# "and". Each verb family maps to one kind of pre-authorised step.
+recovery:
+  cancel: [stop, cancel, halt, end, kill]
+  cut: [remove, revoke, cut, block, withdraw]
+  rebuild: [rebuild, redo, regenerate, recreate, rerun, remake]
+  keep: [keep, preserve, protect, spare]
+  hold: [hold, pause]
+
+# Short replies that confirm a pending read-back.
+confirmations: [confirm, confirmed, yes, yes run it, run it, go ahead, do it, approved]

@@ -63,3 +63,39 @@ beats:
     title: Late action
     steps:
       - { op: call, run: R-1, tool: webhook.send_report, args: { item: draft-1 } }
+
+  - n: 9
+    title: Dictated recovery
+    steps:
+      - op: recover
+        text: >-
+          Stop this reporting run, remove its scratchpad access, and rebuild the report
+          from approved summaries. Keep the support work.
+
+  # Beat 11, the execution, happens inside the confirmation.
+  - n: 10
+    title: Confirm
+    steps:
+      - { op: confirm_recovery }
+
+  - n: 12
+    title: Replacement
+    steps:
+      - { op: call, run: R-2, tool: report_store.read_summaries, args: {} }
+      - op: call
+        run: R-2
+        tool: report_store.write_draft
+        args: { item: draft-2, content: "Weekly support report: 1 billing ticket resolved. Built from approved summaries only." }
+      - { op: call, run: R-2, tool: webhook.send_report, args: { item: draft-2 } }
+      - { op: release }
+      - { op: complete_run, run: R-2 }
+
+  - n: 13
+    title: Verify
+    steps:
+      - { op: verify }
+
+  - n: 14
+    title: Record
+    steps:
+      - { op: close_record }

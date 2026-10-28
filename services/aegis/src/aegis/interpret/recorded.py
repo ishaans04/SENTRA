@@ -5,19 +5,22 @@ finished plan, and replay it through the same validation the live path uses.
 A recording that stored finished state would prove nothing about the validator.
 
 Entries are keyed by kind and normalised text, so a judge's dictation that
-differs only in spacing or capitalisation still hits the recording.
+differs only in spacing, punctuation or capitalisation still hits the recording.
 """
 
 from __future__ import annotations
 
 import hashlib
 import json
+import re
 from pathlib import Path
 from typing import Any
 
+_PUNCTUATION = re.compile(r"[^\w\s/-]+")
+
 
 def _key(kind: str, text: str) -> str:
-    normalised = " ".join(text.lower().split())
+    normalised = " ".join(_PUNCTUATION.sub(" ", text.lower()).split())
     return f"{kind}:{hashlib.sha256(normalised.encode()).hexdigest()[:16]}"
 
 

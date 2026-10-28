@@ -24,8 +24,10 @@ from aegis.decisions.service import DecisionService
 from aegis.gateway.server import Gateway
 from aegis.gateway.state import RECOVERY_ACTOR, RunState
 from aegis.hive_bridge import HiveBridge
+from aegis.interpret.chain import Interpreter
 from aegis.interpret.grammar import Grammar
 from aegis.ledger import LedgerEvent, SessionLedger
+from aegis.recovery.plan import RecoveryPlan
 from aegis.recovery.service import RecoveryService
 from aegis.tools.catalogue import Catalogue
 from aegis.world import World
@@ -49,6 +51,9 @@ class Session:
         self.finding_listeners: list[FindingListener] = [self.decisions.on_finding]
         self.recovery = RecoveryService(self)
         self.grammar = Grammar.load(self.fixtures_dir)
+        self.interpreter = Interpreter(self)
+        #: The recovery plan the storyline is working on, once one is drafted.
+        self.plan_id: str | None = None
         self.known_decisions: dict[str, Any] = yaml.safe_load(
             (self.fixtures_dir / "decisions.yaml").read_text(encoding="utf-8")
         )
@@ -107,26 +112,49 @@ class Session:
             if run.actor != step["actor"]:
                 raise ValueError(f"{step['decision']} authorises {run.actor}, not {step['actor']}.")
         elif op == "approve":
-            self.approve(step["text"])
+            await self.approve(step["text"])
         elif op == "call":
             await self.agent(step["run"]).call(step["tool"], step.get("args") or {})
         elif op == "human_edit":
             self.human_edit(step["item"], step["content"])
+        elif op == "recover":
+            await self.recover(step["text"])
+        elif op == "confirm_recovery":
+            await self.recovery.confirm(self._plan().id)
+        elif op == "release":
+            await self.gateway.release_due()
+        elif op == "complete_run":
+            self.decisions.complete_run(step["run"])
+        elif op == "verify":
+            await self.recovery.verify(self._plan().id)
+        elif op == "close_record":
+            self.recovery.close_record(self._plan().id)
         else:
             raise ValueError(f"Unknown storyline op {op!r}.")
 
     # -- world actions --------------------------------------------------------
 
-    def approve(self, text: str) -> Decision:
+    async def propose_approval(self, text: str) -> Decision:
+        """Interpret a dictated approval into a proposed decision, ready to read back."""
+        proposal, _ = await self.interpreter.approval(text)
+        return self.decisions.propose(proposal, text)
+
+    async def approve(self, text: str) -> Decision:
         """The operator dictates an approval and confirms its read-back."""
-        decision = self.decisions.propose(self.interpret_approval(text), text)
+        decision = await self.propose_approval(text)
         return self.decisions.confirm(decision.id)
 
-    def interpret_approval(self, text: str) -> DecisionProposal:
-        proposal = self.grammar.parse_approval(text)
-        if proposal is None:
-            raise ValueError("I could not read that as an approval. Try rephrasing, or type it.")
-        return proposal
+    async def recover(self, text: str) -> RecoveryPlan:
+        """Interpret a dictated recovery instruction into a plan, ready to read back."""
+        steps, used = await self.interpreter.recovery(text)
+        plan = self.recovery.draft(steps, text=text, interpreted_by=used)
+        self.plan_id = plan.id
+        return plan
+
+    def _plan(self) -> RecoveryPlan:
+        if self.plan_id is None:
+            raise ValueError("No recovery plan has been drafted yet.")
+        return self.recovery.get(self.plan_id)
 
     def human_edit(self, item_id: str, content: str) -> None:
         """A person edits an item by hand at the console. Writer: ``teammate``."""
