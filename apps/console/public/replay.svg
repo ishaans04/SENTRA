@@ -1,0 +1,262 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 570" width="1200" height="570" role="img" aria-labelledby="t d">
+  <title id="t">HIVE detecting and containing a composed capability path</title>
+  <desc id="d">A twelve-second loop. Six trust zones run from the support interior at the top to external destinations at the bottom. Declared relationships appear first and stay quiet. An undeclared shared scratchpad then appears between the Support Agent and the Reporting Agent, and an ordinary read completes a route from restricted customer data to an external destination. HIVE reports it, severs one relationship, and the declared workflow remains intact.</desc>
+
+  <!--
+    Self-contained and self-playing. No script, no external font, no request:
+    GitHub strips scripts from SVG but keeps CSS, so the whole sequence is one
+    shared 14s timeline with every element keyed to a percentage of it. That
+    keeps the phases in lockstep no matter how the renderer schedules them.
+  -->
+  <style>
+    .bg { fill: #07080a; }
+    .rule { stroke: #1a1e22; stroke-width: 1; }
+    .zone { font: 10px ui-monospace, "SF Mono", Menlo, Consolas, monospace; letter-spacing: 1.7px; fill: #4d5459; }
+    .zone-untrusted { fill: #f2c46b; }
+    .zone-external { fill: #f4543c; }
+    .nlabel { font: 11.5px ui-monospace, "SF Mono", Menlo, Consolas, monospace; fill: #c9c6bf; text-anchor: middle; }
+    .nflag { font: 9px ui-monospace, "SF Mono", Menlo, Consolas, monospace; letter-spacing: 1.3px; text-anchor: middle; }
+    .glyph { fill: #0a0c0e; stroke-width: 1.4; }
+    .cap { font: 15px ui-sans-serif, system-ui, "Segoe UI", Helvetica, Arial, sans-serif; fill: #edeae3; }
+    .cap-dim { fill: #7e858c; }
+    .phase { font: 10px ui-monospace, "SF Mono", Menlo, Consolas, monospace; letter-spacing: 2px; }
+
+    /* ---- one shared timeline -------------------------------------------- */
+    .declared, .amber, .risk, .sever-amber, .scratch, .cap1, .cap2, .cap3,
+    .cap4, .pulse, .tick, .keep, .implicated, .implicated-dot {
+      animation-duration: 14s;
+      animation-iteration-count: infinite;
+      animation-timing-function: linear;
+    }
+
+    /* Declared relationships draw first and then simply persist. */
+    .declared { stroke: #3c444b; stroke-width: 1.3; fill: none; stroke-dasharray: 900; animation-name: draw-declared; }
+    @keyframes draw-declared {
+      0%   { stroke-dashoffset: 900; opacity: 0; }
+      3%   { stroke-dashoffset: 900; opacity: 1; }
+      14%  { stroke-dashoffset: 0; }
+      100% { stroke-dashoffset: 0; opacity: 1; }
+    }
+
+    /* The undeclared resource, and the first relationship into it. */
+    .scratch { animation-name: appear-scratch; }
+    @keyframes appear-scratch {
+      0%, 26%   { opacity: 0; }
+      32%, 78%  { opacity: 1; }
+      86%, 100% { opacity: 0.28; }
+    }
+
+    .amber { stroke: #f2c46b; stroke-width: 1.6; fill: none; stroke-dasharray: 6 5; animation-name: draw-amber; }
+    @keyframes draw-amber {
+      0%, 28%   { opacity: 0; }
+      34%, 100% { opacity: 1; }
+    }
+    .amber-late { animation-name: draw-amber-late; }
+    @keyframes draw-amber-late {
+      0%, 46%   { opacity: 0; }
+      52%, 100% { opacity: 1; }
+    }
+
+    /* The severed relationship retracts when containment is applied. */
+    .sever-amber { stroke: #f2c46b; stroke-width: 1.6; fill: none; stroke-dasharray: 6 5; animation-name: sever; }
+    @keyframes sever {
+      0%, 28%  { opacity: 0; }
+      34%, 76% { opacity: 1; }
+      82%      { opacity: 0; }
+      100%     { opacity: 0; }
+    }
+
+    /* The composed path: drawn hop by hop, held, then cut. */
+    .risk { stroke: #f4543c; stroke-width: 2.6; fill: none; stroke-dasharray: 1000; animation-name: draw-risk; }
+    @keyframes draw-risk {
+      0%, 56%   { stroke-dashoffset: 1000; opacity: 0; }
+      58%       { opacity: 1; }
+      68%       { stroke-dashoffset: 0; opacity: 1; }
+      76%       { stroke-dashoffset: 0; opacity: 1; }
+      82%, 100% { stroke-dashoffset: 0; opacity: 0; }
+    }
+
+    .pulse { animation-name: pulse; transform-box: fill-box; transform-origin: center; }
+    @keyframes pulse {
+      0%, 62%   { opacity: 0; transform: scale(1); }
+      68%       { opacity: 0.6; transform: scale(1); }
+      76%       { opacity: 0; transform: scale(2.1); }
+      100%      { opacity: 0; }
+    }
+
+    /* The declared workflow that containment must not disturb. */
+    .keep { animation-name: keep; }
+    @keyframes keep {
+      0%, 84%   { stroke: #3c444b; }
+      90%, 97%  { stroke: #7ff0c0; }
+      100%      { stroke: #3c444b; }
+    }
+
+    .tick { animation-name: tick; }
+    @keyframes tick {
+      0%, 84%   { opacity: 0; }
+      90%, 97%  { opacity: 1; }
+      100%      { opacity: 0; }
+    }
+
+    .implicated { animation-name: implicate; }
+    @keyframes implicate {
+      0%, 56%   { stroke: #7ff0c0; }
+      60%, 80%  { stroke: #f4543c; }
+      88%, 100% { stroke: #7ff0c0; }
+    }
+    .implicated-dot { animation-name: implicate-dot; }
+    @keyframes implicate-dot {
+      0%, 56%   { fill: #7ff0c0; }
+      60%, 80%  { fill: #f4543c; }
+      88%, 100% { fill: #7ff0c0; }
+    }
+
+    .cap1 { animation-name: c1; } @keyframes c1 { 0%, 4% { opacity: 0 } 8%, 24% { opacity: 1 } 28%, 100% { opacity: 0 } }
+    .cap2 { animation-name: c2; } @keyframes c2 { 0%, 30% { opacity: 0 } 34%, 52% { opacity: 1 } 56%, 100% { opacity: 0 } }
+    .cap3 { animation-name: c3; } @keyframes c3 { 0%, 58% { opacity: 0 } 62%, 76% { opacity: 1 } 80%, 100% { opacity: 0 } }
+    .cap4 { animation-name: c4; } @keyframes c4 { 0%, 82% { opacity: 0 } 86%, 97% { opacity: 1 } 100% { opacity: 0 } }
+
+    /* Anyone who asked the system for less motion gets the end state, held. */
+    @media (prefers-reduced-motion: reduce) {
+      .declared, .amber, .risk, .sever-amber, .scratch, .cap1, .cap2, .cap3,
+      .cap4, .pulse, .tick, .keep, .implicated, .implicated-dot { animation: none; }
+      .implicated { stroke: #f4543c; }
+      .implicated-dot { fill: #f4543c; }
+      .risk, .pulse, .cap1, .cap2, .cap4, .tick { opacity: 0; }
+      .declared { stroke-dashoffset: 0; opacity: 1; }
+      .amber, .sever-amber, .scratch, .cap3 { opacity: 1; }
+    }
+  </style>
+
+  <rect class="bg" width="1200" height="570" />
+
+  <!-- Trust zones, most trusted at the top. -->
+  <g>
+    <rect x="0" y="344" width="1200" height="76" fill="rgba(242,196,107,.03)" />
+    <rect x="0" y="420" width="1200" height="76" fill="rgba(244,84,60,.04)" />
+    <line class="rule" x1="0" y1="40" x2="1200" y2="40" />
+    <line class="rule" x1="0" y1="116" x2="1200" y2="116" />
+    <line class="rule" x1="0" y1="192" x2="1200" y2="192" />
+    <line class="rule" x1="0" y1="268" x2="1200" y2="268" />
+    <line class="rule" x1="0" y1="344" x2="1200" y2="344" />
+    <line class="rule" x1="0" y1="420" x2="1200" y2="420" />
+    <line class="rule" x1="0" y1="496" x2="1200" y2="496" />
+    <line class="rule" x1="176" y1="0" x2="176" y2="496" />
+
+    <text class="zone" x="20" y="82">SUPPORT</text>
+    <text class="zone" x="20" y="158">ANALYTICS</text>
+    <text class="zone" x="20" y="234">REPORTING</text>
+    <text class="zone" x="20" y="310">APPROVED STATE</text>
+    <text class="zone zone-untrusted" x="20" y="386">SHARED STATE</text>
+    <text class="zone zone-external" x="20" y="462">EXTERNAL</text>
+  </g>
+
+  <!-- Declared relationships. -->
+  <g>
+    <path class="declared" d="M 980 78 C 860 44, 500 44, 400 78" />
+    <path class="keep declared" d="M 400 78 C 400 190, 520 200, 520 306" />
+    <path class="keep declared" d="M 700 154 C 700 240, 540 230, 520 306" />
+    <path class="keep declared" d="M 700 154 C 700 240, 760 230, 760 306" />
+    <path class="keep declared" d="M 880 230 C 880 280, 790 276, 760 306" />
+    <path class="declared" d="M 880 230 C 940 300, 940 390, 880 458" />
+  </g>
+
+  <!-- Relationships the manifest never declared. -->
+  <path class="sever-amber" d="M 400 95 L 400 365" />
+  <path class="amber amber-late" d="M 862 240 C 700 300, 560 340, 420 375" />
+
+  <!-- The composed path, drawn on top once it closes. -->
+  <g>
+    <path class="risk" d="M 980 78 C 860 44, 500 44, 400 78" />
+    <path class="risk" d="M 400 95 L 400 365" />
+    <path class="risk" d="M 862 240 C 700 300, 560 340, 420 375" />
+    <path class="risk" d="M 880 230 C 940 300, 940 390, 880 458" />
+  </g>
+
+  <!-- Actors and resources. -->
+  <g>
+    <g transform="translate(980 78)">
+      <rect class="glyph" x="-14" y="-14" width="28" height="28" transform="rotate(45)" stroke="#b79cf0" />
+      <circle r="2.8" fill="#b79cf0" />
+      <text class="nlabel" y="38">Fictional CRM</text>
+      <text class="nflag" y="52" fill="#b79cf0">RESTRICTED</text>
+    </g>
+
+    <g transform="translate(400 78)">
+      <circle class="pulse" r="16" fill="none" stroke="#f4543c" stroke-width="1.2" />
+      <circle class="glyph implicated" r="16" stroke="#7ff0c0" />
+      <circle class="implicated-dot" r="2.8" fill="#7ff0c0" />
+      <text class="nlabel" y="38" fill="#f6f3ed">Support Agent</text>
+    </g>
+
+    <g transform="translate(700 154)">
+      <circle class="glyph" r="16" stroke="#7ff0c0" />
+      <circle r="2.8" fill="#7ff0c0" />
+      <text class="nlabel" y="38">Analytics Agent</text>
+    </g>
+
+    <g transform="translate(880 230)">
+      <circle class="pulse" r="16" fill="none" stroke="#f4543c" stroke-width="1.2" />
+      <circle class="glyph implicated" r="16" stroke="#7ff0c0" />
+      <circle class="implicated-dot" r="2.8" fill="#7ff0c0" />
+      <text class="nlabel" y="38" fill="#f6f3ed">Reporting Agent</text>
+    </g>
+
+    <g transform="translate(520 306)">
+      <rect class="glyph" x="-13" y="-13" width="26" height="26" transform="rotate(45)" stroke="#7ff0c0" />
+      <circle r="2.6" fill="#7ff0c0" />
+      <text class="nlabel" y="36">Approved Ticket Store</text>
+    </g>
+
+    <g transform="translate(760 306)">
+      <rect class="glyph" x="-13" y="-13" width="26" height="26" transform="rotate(45)" stroke="#7ff0c0" />
+      <circle r="2.6" fill="#7ff0c0" />
+      <text class="nlabel" y="36">Internal Report Store</text>
+    </g>
+
+    <g class="scratch" transform="translate(400 382)">
+      <rect class="glyph" x="-14" y="-14" width="28" height="28" transform="rotate(45)" stroke="#f2c46b" />
+      <circle r="2.8" fill="#f2c46b" />
+      <text class="nlabel" y="38">Unregistered Shared Scratchpad</text>
+      <text class="nflag" y="52" fill="#f2c46b">UNDECLARED</text>
+    </g>
+
+    <g transform="translate(880 458)">
+      <rect class="glyph" x="-14" y="-14" width="28" height="28" stroke="#f4543c" />
+      <circle r="2.8" fill="#f4543c" />
+      <text class="nlabel" y="36" fill="#f6f3ed">Simulated External Webhook</text>
+    </g>
+  </g>
+
+  <!-- Containment confirmation, on the relationships that survived. -->
+  <g class="tick">
+    <text class="nflag" x="520" y="278" fill="#7ff0c0">INTACT</text>
+    <text class="nflag" x="760" y="278" fill="#7ff0c0">INTACT</text>
+    <g transform="translate(400 240)">
+      <line x1="-13" y1="-13" x2="13" y2="13" stroke="#7ff0c0" stroke-width="2" />
+      <line x1="13" y1="-13" x2="-13" y2="13" stroke="#7ff0c0" stroke-width="2" />
+      <text class="nflag" y="30" fill="#7ff0c0">SEVERED</text>
+    </g>
+  </g>
+
+  <!-- The narration, one line at a time. -->
+  <g transform="translate(20 534)">
+    <g class="cap1">
+      <text class="phase" fill="#7e858c" y="0">BASELINE</text>
+      <text class="cap" x="110" y="0">Three agents work exactly as the architecture declares.</text>
+    </g>
+    <g class="cap2">
+      <text class="phase" fill="#f2c46b" y="0">EMERGENCE</text>
+      <text class="cap" x="110" y="0">An undeclared scratchpad appears between two of them.<tspan class="cap-dim"> No rule is broken.</tspan></text>
+    </g>
+    <g class="cap3">
+      <text class="phase" fill="#f4543c" y="0">PS-001</text>
+      <text class="cap" x="110" y="0">An ordinary read completes a route from restricted data to the outside world.</text>
+    </g>
+    <g class="cap4">
+      <text class="phase" fill="#7ff0c0" y="0">CONTAINED</text>
+      <text class="cap" x="110" y="0">One relationship severed.<tspan class="cap-dim"> Every declared workflow still runs.</tspan></text>
+    </g>
+  </g>
+</svg>

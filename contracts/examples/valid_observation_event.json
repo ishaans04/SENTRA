@@ -1,0 +1,18 @@
+{
+  "event_id": "p0-ev-10",
+  "sequence": 10,
+  "occurred_at": "2026-09-19T10:23:00Z",
+  "actor": "Support Agent",
+  "action": "write",
+  "target": "Unregistered Shared Scratchpad",
+  "context": {
+    "workflow": "ticket-resolution",
+    "phase": "emergence",
+    "content_fingerprint": "ticket-derived-summary"
+  },
+  "provenance": {
+    "adapter": "hive-sdk-python",
+    "collector": "local-simulator"
+  },
+  "result": "success"
+}

@@ -1,0 +1,189 @@
+# Expected architecture — customer support reporting estate
+#
+# This manifest is the declaration of what the agent population is *meant* to do.
+# HIVE compares observed behaviour against it; nothing in here is inferred from
+# traffic. Every node, relationship, invariant and control below was written by
+# an operator, which is what makes a deviation meaningful rather than merely
+# statistically unusual.
+#
+# All actors, stores and destinations are fictional. The external webhook is a
+# simulated endpoint; HIVE never contacts it.
+
+version: "support-estate/v1"
+
+# Trust posture per zone. Detectors read trust from here rather than matching
+# node names, so the rules stay independent of this particular scenario.
+zones:
+  support:
+    order: 1
+    label: Support
+    trust: internal
+    description: Handles customer tickets using customer context.
+  analytics:
+    order: 2
+    label: Analytics
+    trust: internal
+    description: Aggregates ticket outcomes into internal reporting.
+  reporting:
+    order: 3
+    label: Reporting
+    trust: internal
+    description: Distributes approved aggregate reports.
+  approved-state:
+    order: 4
+    label: Approved state
+    trust: internal
+    description: Storage the architecture sanctions for hand-offs.
+  shared-state:
+    order: 5
+    label: Shared state
+    trust: untrusted
+    description: Ad-hoc storage that no approved workflow relies on.
+  external:
+    order: 6
+    label: External
+    trust: external
+    description: Anything outside the estate boundary.
+
+nodes:
+  - id: Support Agent
+    kind: agent
+    label: Support Agent
+    zone: support
+    data_classification: internal
+    registration: expected
+
+  - id: Analytics Agent
+    kind: agent
+    label: Analytics Agent
+    zone: analytics
+    data_classification: internal
+    registration: expected
+
+  - id: Reporting Agent
+    kind: agent
+    label: Reporting Agent
+    zone: reporting
+    data_classification: internal
+    registration: expected
+
+  - id: Fictional CRM
+    kind: datasource
+    label: Fictional CRM
+    zone: support
+    data_classification: restricted
+    registration: expected
+
+  - id: Approved Ticket Store
+    kind: store
+    label: Approved Ticket Store
+    zone: approved-state
+    data_classification: internal
+    registration: expected
+
+  - id: Internal Report Store
+    kind: store
+    label: Internal Report Store
+    zone: approved-state
+    data_classification: internal
+    registration: expected
+
+  # Present in the manifest so the console can show what it is, but marked
+  # unregistered: no approved workflow is allowed to depend on it.
+  - id: Unregistered Shared Scratchpad
+    kind: store
+    label: Unregistered Shared Scratchpad
+    zone: shared-state
+    data_classification: internal
+    registration: unregistered
+
+  - id: Simulated External Webhook
+    kind: destination
+    label: Simulated External Webhook
+    zone: external
+    data_classification: public
+    registration: expected
+
+# The complete set of interactions this estate sanctions. Anything observed and
+# absent from this list is marked unexpected — including the external send,
+# which is deliberately declared: sending approved reports outward is the
+# Reporting Agent's job. The risk is never that hop on its own.
+allowed_relationships:
+  - { source: Support Agent,   action: read,  target: Fictional CRM }
+  - { source: Support Agent,   action: write, target: Approved Ticket Store }
+  - { source: Analytics Agent, action: read,  target: Approved Ticket Store }
+  - { source: Analytics Agent, action: write, target: Internal Report Store }
+  - { source: Reporting Agent, action: read,  target: Internal Report Store }
+  - { source: Reporting Agent, action: send,  target: Simulated External Webhook }
+
+invariants:
+  - id: no-restricted-egress-via-unregistered-state
+    description: >-
+      Restricted customer data must not become reachable from an external
+      destination through storage the architecture does not declare.
+    source_data_class: restricted
+    sink_zone: external
+    required_bridge_registration: unregistered
+    status: prohibited
+
+# Pre-authorised, reversible interventions. HIVE may propose only what appears
+# here; it cannot invent an action and has no general kill switch. Costs are
+# operator estimates of business disruption and are what the planner minimises.
+control_capabilities:
+  - id: block-support-scratchpad-write
+    type: block_edge
+    label: Block Support Agent writes to the unregistered scratchpad
+    source: Support Agent
+    action: write
+    target: Unregistered Shared Scratchpad
+    reversible: true
+    cost: 1
+    rationale: >-
+      Severs the single relationship that moves ticket-derived data out of the
+      approved path. No declared workflow uses it.
+
+  - id: block-reporting-scratchpad-read
+    type: block_edge
+    label: Block Reporting Agent reads from the unregistered scratchpad
+    source: Reporting Agent
+    action: read
+    target: Unregistered Shared Scratchpad
+    reversible: true
+    cost: 2
+    rationale: >-
+      Also breaks the path, but leaves data accumulating in shared state where a
+      future reader could pick it up.
+
+  - id: quarantine-shared-scratchpad
+    type: quarantine_node
+    label: Quarantine the unregistered scratchpad entirely
+    target: Unregistered Shared Scratchpad
+    reversible: true
+    cost: 4
+    rationale: >-
+      Isolates the resource completely. Certain to work, but heavier than
+      necessary when a single relationship is the problem.
+
+  - id: block-reporting-external-send
+    type: block_edge
+    label: Block Reporting Agent sends to the external webhook
+    source: Reporting Agent
+    action: send
+    target: Simulated External Webhook
+    reversible: true
+    cost: 6
+    rationale: >-
+      Would break the path, but the external send is a declared capability the
+      business depends on. Cutting it treats a legitimate function as the fault.
+
+  - id: block-support-crm-read
+    type: block_edge
+    label: Block Support Agent reads from the CRM
+    source: Support Agent
+    action: read
+    target: Fictional CRM
+    reversible: true
+    cost: 9
+    rationale: >-
+      Removes restricted data from the path by stopping support from doing its
+      job. Included so the planner must reject it on evidence, not on intuition.

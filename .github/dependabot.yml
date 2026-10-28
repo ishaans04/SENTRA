@@ -1,0 +1,51 @@
+version: 2
+
+# Updates arrive grouped and monthly, and majors are left alone.
+#
+# Every toolchain version in this repository is pinned and every install is
+# from a lockfile, because the CI gate asserts that a clean checkout
+# reproduces the recorded demo byte for byte. An unreviewed major bump does
+# not improve that property, it breaks it — so majors are raised by hand,
+# and only grouped minor and patch updates open on their own.
+#
+# Dependabot security alerts are configured on the repository, not here, and
+# are unaffected by any of this.
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 2
+    groups:
+      console:
+        patterns: ['*']
+        update-types: [minor, patch]
+    ignore:
+      - dependency-name: '*'
+        update-types: [version-update:semver-major]
+
+  - package-ecosystem: pip
+    directory: /services/core
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 2
+    groups:
+      core:
+        patterns: ['*']
+        update-types: [minor, patch]
+    ignore:
+      - dependency-name: '*'
+        update-types: [version-update:semver-major]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 2
+    groups:
+      actions:
+        patterns: ['*']
+        update-types: [minor, patch]
+    ignore:
+      - dependency-name: '*'
+        update-types: [version-update:semver-major]

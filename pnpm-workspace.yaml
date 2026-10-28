@@ -1,0 +1,8 @@
+packages:
+  - apps/*
+  - packages/*
+
+# Playwright compiles no native code here; approving it explicitly keeps a
+# fresh `pnpm install` from stopping to ask.
+allowBuilds:
+  esbuild: false

@@ -1,0 +1,181 @@
+@import 'tailwindcss';
+
+/* ---------------------------------------------------------------------------
+   HIVE console design tokens.
+
+   Colour carries meaning here and nothing else. Structure is achromatic — the
+   ground, the hairlines and the type are all neutral — and the three saturated
+   hues each have exactly one job:
+
+     mint   a relationship the architecture declares, or a risk now contained
+     amber  a relationship the architecture does not declare
+     red    a composed path that the architecture forbids
+
+   Nothing is encoded by colour alone: every state also carries a stroke style
+   and a written label, so the console reads correctly in greyscale and to a
+   screen reader.
+--------------------------------------------------------------------------- */
+
+@theme {
+  --font-display: Archivo, 'Helvetica Neue', Arial, sans-serif;
+  --font-body: 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  --color-ground: #07080a;
+  --color-surface: #0a0c0e;
+  --color-raised: #0d1012;
+  --color-rule: #23272c;
+  --color-rule-soft: #14181c;
+
+  --color-ink: #edeae3;
+  --color-ink-bright: #f6f3ed;
+  --color-ink-soft: #c9c6bf;
+  --color-muted: #9ba1a7;
+  --color-muted-deep: #7e858c;
+
+  --color-mint: #7ff0c0;
+  --color-amber: #f2c46b;
+  --color-red: #f4543c;
+  --color-violet: #b79cf0;
+}
+
+/* --- base ---------------------------------------------------------------- */
+
+html {
+  background: var(--color-ground);
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--color-ground);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  text-wrap: pretty;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+::selection {
+  background: var(--color-mint);
+  color: var(--color-ground);
+}
+
+/* Keyboard focus must always be visible; the console is operable without a
+   mouse and a security tool should never hide where the focus is. */
+:focus-visible {
+  outline: 1px solid var(--color-mint);
+  outline-offset: 2px;
+}
+
+/* --- utilities ----------------------------------------------------------- */
+
+@utility label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-muted-deep);
+}
+
+@utility rule-box {
+  border: 1px solid var(--color-rule);
+  border-radius: 2px;
+}
+
+@utility tabular {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- motion -------------------------------------------------------------- */
+
+/* The pulse that marks an actor as live, carried over from the original
+   interface language. */
+@keyframes hvPing {
+  0% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  70%,
+  100% {
+    opacity: 0;
+    transform: scale(2.1);
+  }
+}
+
+/* Undeclared relationships march, so a deviation is legible in motion as well
+   as in colour. */
+@keyframes hvDash {
+  to {
+    stroke-dashoffset: -16;
+  }
+}
+
+/* The one orchestrated moment: when a path closes, it draws itself. */
+@keyframes hvDraw {
+  from {
+    stroke-dashoffset: var(--draw-length);
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes hvFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes hvSweep {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(400%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* --- scrollbars ---------------------------------------------------------- */
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-rule) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--color-rule);
+  border-radius: 4px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}

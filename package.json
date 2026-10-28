@@ -1,0 +1,43 @@
+{
+  "name": "hive-platform",
+  "version": "0.0.0",
+  "private": true,
+  "description": "HIVE: detects risky capabilities that emerge between individually legitimate AI agents, and contains them with the smallest pre-authorised action that preserves declared work.",
+  "packageManager": "pnpm@11.19.0",
+  "engines": {
+    "node": ">=22.16.0",
+    "pnpm": ">=11.19.0 <12"
+  },
+  "scripts": {
+    "console:dev": "pnpm --filter @hive/console dev",
+    "console:build": "pnpm --filter @hive/console build",
+    "build": "pnpm run console:build",
+    "console:check": "pnpm --filter @hive/console check",
+    "console:test": "pnpm --filter @hive/console test",
+    "console:e2e": "pnpm --filter @hive/console test:e2e",
+    "check": "pnpm run console:check",
+    "format:write": "pnpm --filter @hive/console format:write"
+  },
+  "keywords": [
+    "ai-security",
+    "agent-security",
+    "multi-agent-systems",
+    "ai-agents",
+    "llm-security",
+    "cybersecurity",
+    "threat-detection",
+    "prompt-injection",
+    "data-exfiltration",
+    "graph-analysis",
+    "defensive-security",
+    "agentic-ai"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ishaans04/SENTRA.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ishaans04/SENTRA/issues"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "event_id": "invalid-ev-01",
+  "sequence": 1,
+  "occurred_at": "2026-09-19T10:00:00Z",
+  "actor": "Support Agent",
+  "action": "exfiltrate",
+  "target": "Simulated External Webhook",
+  "context": {},
+  "provenance": {},
+  "result": "success"
+}

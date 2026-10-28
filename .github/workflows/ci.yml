@@ -1,0 +1,98 @@
+name: CI
+
+# Runs the same commands the README tells a reader to run. If the badge is
+# green, a clean checkout reproduces the demo.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  core:
+    name: Security core
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/core
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: '0.7.8'
+          enable-cache: true
+
+      - name: Install dependencies from the lockfile
+        run: uv sync --group dev --locked
+
+      - name: Format
+        run: uv run ruff format --check src tests
+
+      - name: Lint
+        run: uv run ruff check src tests
+
+      - name: Types
+        run: uv run mypy
+
+      - name: Tests
+        run: uv run pytest -q
+
+      # The committed OpenAPI document is generated from the service. This
+      # fails if the two have drifted, so the contract in the repository is
+      # always the contract the service implements.
+      - name: Contract is current
+        run: |
+          uv run python -m hive_core.contract
+          git diff --exit-code ../../contracts/openapi/hive-core-v1.json
+
+      # The hosted console replays a recording of this engine. If the engine
+      # changes, the recording has to change with it.
+      - name: Recorded demo is current
+        run: |
+          uv run python -m hive_core.snapshot
+          git diff --exit-code ../../apps/console/public/demo
+
+  console:
+    name: Console
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/console
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22.16.0
+          cache: pnpm
+
+      - name: Install dependencies from the lockfile
+        run: pnpm install --frozen-lockfile
+
+      - name: Format, lint, types, tests
+        run: pnpm run check
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Install the browser
+        run: pnpm exec playwright install --with-deps chromium
+
+      # The journey runs against the recorded snapshot, with no core service
+      # listening — the same path the hosted demo takes.
+      - name: Operator journey
+        run: pnpm run test:e2e

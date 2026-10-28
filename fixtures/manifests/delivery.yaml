@@ -1,0 +1,172 @@
+# Expected architecture — automated software delivery estate
+#
+# A second declared architecture, used to show that HIVE's rules are properties
+# of a topology rather than special cases tuned to one story. Nothing in the
+# detection or containment code refers to these node names.
+#
+# All actors, stores and sources are fictional. The public source is a simulated
+# endpoint; HIVE never contacts it.
+
+version: "delivery-estate/v1"
+
+zones:
+  research:
+    order: 1
+    label: Research
+    trust: internal
+    description: Gathers context from sanctioned public sources.
+  planning:
+    order: 2
+    label: Planning
+    trust: internal
+    description: Turns research into approved work items.
+  build:
+    order: 3
+    label: Build
+    trust: internal
+    description: Executes approved work items and publishes artifacts.
+  approved-state:
+    order: 4
+    label: Approved state
+    trust: internal
+    description: Storage the architecture sanctions for hand-offs.
+  shared-state:
+    order: 5
+    label: Shared state
+    trust: untrusted
+    description: Ad-hoc storage that no approved workflow relies on.
+  external:
+    order: 6
+    label: External
+    trust: external
+    description: Anything outside the estate boundary.
+
+nodes:
+  - id: Research Agent
+    kind: agent
+    label: Research Agent
+    zone: research
+    data_classification: internal
+    registration: expected
+
+  - id: Planner Agent
+    kind: agent
+    label: Planner Agent
+    zone: planning
+    data_classification: internal
+    registration: expected
+
+  - id: Build Agent
+    kind: agent
+    label: Build Agent
+    zone: build
+    data_classification: internal
+    registration: expected
+
+  - id: Simulated Public Source
+    kind: api
+    label: Simulated Public Source
+    zone: external
+    data_classification: public
+    registration: expected
+
+  - id: Approved Job Store
+    kind: store
+    label: Approved Job Store
+    zone: approved-state
+    data_classification: internal
+    registration: expected
+
+  - id: Artifact Store
+    kind: store
+    label: Artifact Store
+    zone: approved-state
+    data_classification: internal
+    registration: expected
+
+  - id: Unregistered Shared Task Queue
+    kind: store
+    label: Unregistered Shared Task Queue
+    zone: shared-state
+    data_classification: internal
+    registration: unregistered
+
+# Executing approved jobs is declared: that is precisely what a build agent is
+# for. The architecture sanctions the capability, not every channel that can
+# reach it.
+allowed_relationships:
+  - { source: Research Agent, action: call,    target: Simulated Public Source }
+  - { source: Research Agent, action: write,   target: Approved Job Store }
+  - { source: Planner Agent,  action: read,    target: Approved Job Store }
+  - { source: Planner Agent,  action: write,   target: Approved Job Store }
+  - { source: Build Agent,    action: read,    target: Approved Job Store }
+  - { source: Build Agent,    action: execute, target: Approved Job Store }
+  - { source: Build Agent,    action: write,   target: Artifact Store }
+
+invariants:
+  - id: no-cross-actor-execution-via-unregistered-state
+    description: >-
+      An actor must not execute content authored by a different actor through
+      storage the architecture does not declare.
+    source_data_class: public
+    sink_zone: build
+    required_bridge_registration: unregistered
+    status: prohibited
+
+control_capabilities:
+  - id: block-research-queue-write
+    type: block_edge
+    label: Block Research Agent writes to the unregistered task queue
+    source: Research Agent
+    action: write
+    target: Unregistered Shared Task Queue
+    reversible: true
+    cost: 1
+    rationale: >-
+      Closes the instruction channel at its source while leaving both actors
+      fully able to do their declared work.
+
+  - id: block-build-queue-execute
+    type: block_edge
+    label: Block Build Agent execution from the unregistered task queue
+    source: Build Agent
+    action: execute
+    target: Unregistered Shared Task Queue
+    reversible: true
+    cost: 2
+    rationale: >-
+      Also closes the channel, but leaves untrusted content accumulating where a
+      future consumer could reach it.
+
+  - id: quarantine-shared-task-queue
+    type: quarantine_node
+    label: Quarantine the unregistered task queue entirely
+    target: Unregistered Shared Task Queue
+    reversible: true
+    cost: 3
+    rationale: >-
+      Isolates the resource completely. Certain to work, heavier than needed.
+
+  - id: block-research-public-call
+    type: block_edge
+    label: Block Research Agent calls to the public source
+    source: Research Agent
+    action: call
+    target: Simulated Public Source
+    reversible: true
+    cost: 6
+    rationale: >-
+      Removes the untrusted upstream but leaves the cross-actor execution channel
+      standing. Included so the planner must show the channel is the problem.
+
+  - id: block-build-job-execute
+    type: block_edge
+    label: Block Build Agent execution of approved jobs
+    source: Build Agent
+    action: execute
+    target: Approved Job Store
+    reversible: true
+    cost: 9
+    rationale: >-
+      Stops the build agent from doing its declared job without touching the
+      unregistered channel at all.

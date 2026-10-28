@@ -1,0 +1,51 @@
+# Operating systems and editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# JavaScript / TypeScript
+node_modules/
+.pnpm-store/
+dist/
+coverage/
+.vite/
+playwright-report/
+test-results/
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+.coverage
+htmlcov/
+build/
+*.egg-info/
+
+# Local HIVE runtime state and evidence databases
+.local/
+*.sqlite
+*.sqlite3
+*.db
+*.db-shm
+*.db-wal
+
+# Secrets and machine-local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+
+# Local tooling scratch
+test-results/
+apps/console/test-results/
+
