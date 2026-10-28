@@ -18,7 +18,7 @@ const BEAT_MS = 1400;
 export function StoryControls() {
   const snapshot = useAegis((s) => s.snapshot);
   const busy = useAegis((s) => s.busy);
-  const live = useAegis((s) => s.mode === 'live');
+  const live = useAegis((s) => s.mode !== 'connecting' && s.snapshot !== null);
   const step = useAegis((s) => s.step);
   const reset = useAegis((s) => s.reset);
   const [playing, setPlaying] = useState(false);

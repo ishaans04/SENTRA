@@ -48,8 +48,9 @@ export function HaegisView() {
       {mode === 'connecting' && <p className="label">Starting your sandbox</p>}
       {mode === 'recorded' && (
         <p className="mb-6 text-[13px] text-amber">
-          The live sandbox is not reachable from here. The recorded replay of this storyline plays
-          the same events with commands disabled.
+          {snapshot
+            ? 'Recorded replay. These are the events the live sandbox produced for this storyline, played back with commands disabled. Use Step or Play to move through it.'
+            : 'The live sandbox is not reachable from here, and no recording was found.'}
         </p>
       )}
       {problem && (

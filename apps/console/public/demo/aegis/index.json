@@ -1,0 +1,65 @@
+{
+ "frames": [
+  {
+   "file": "beat-00.json",
+   "n": 0,
+   "title": "Seed"
+  },
+  {
+   "file": "beat-01.json",
+   "n": 1,
+   "title": "Approve"
+  },
+  {
+   "file": "beat-02.json",
+   "n": 2,
+   "title": "Support works"
+  },
+  {
+   "file": "beat-03.json",
+   "n": 3,
+   "title": "Reporting works"
+  },
+  {
+   "file": "beat-04.json",
+   "n": 4,
+   "title": "Human edit"
+  },
+  {
+   "file": "beat-05.json",
+   "n": 5,
+   "title": "Unexpected connection"
+  },
+  {
+   "file": "beat-08.json",
+   "n": 8,
+   "title": "Late action"
+  },
+  {
+   "file": "beat-09.json",
+   "n": 9,
+   "title": "Dictated recovery"
+  },
+  {
+   "file": "beat-10.json",
+   "n": 10,
+   "title": "Confirm"
+  },
+  {
+   "file": "beat-12.json",
+   "n": 12,
+   "title": "Replacement"
+  },
+  {
+   "file": "beat-13.json",
+   "n": 13,
+   "title": "Verify"
+  },
+  {
+   "file": "beat-14.json",
+   "n": 14,
+   "title": "Record"
+  }
+ ],
+ "note": "Recorded from the HAEGIS service with interpretation off. Not a live session."
+}

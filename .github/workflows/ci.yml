@@ -101,6 +101,13 @@ jobs:
           uv run python -m aegis.contract
           git diff --exit-code ../../contracts/openapi/haegis-v1.json
 
+      # The fallback link replays a recording of this service. If the service
+      # changes, the recording has to change with it.
+      - name: Recorded storyline is current
+        run: |
+          uv run python -m aegis.record
+          git diff --exit-code ../../apps/console/public/demo/aegis
+
   console:
     name: Console
     runs-on: ubuntu-latest

@@ -6,7 +6,7 @@
  * at the local service. The session lives in an HTTP-only cookie.
  */
 
-import type { ProposedDecision, RecoveryPlanView, Snapshot } from '../lib/aegisTypes';
+import type { LedgerEvent, ProposedDecision, RecoveryPlanView, Snapshot } from '../lib/aegisTypes';
 
 export const HAEGIS_BASE = (import.meta.env.VITE_HAEGIS_API_BASE ?? '').replace(/\/$/, '');
 
@@ -52,7 +52,11 @@ export async function isLive(timeoutMs = 2500): Promise<boolean> {
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const response = await fetch(`${HAEGIS_BASE}/healthz`, { signal: controller.signal });
-    return response.ok;
+    if (!response.ok) return false;
+    // A static host answers every path with the page itself, so only the
+    // service's own answer counts as live.
+    const body = (await response.json()) as { status?: string };
+    return body.status === 'ok';
   } catch {
     return false;
   } finally {
@@ -83,3 +87,30 @@ export const api = {
 };
 
 export const EVENTS_URL = `${HAEGIS_BASE}/api/events`;
+
+/** One beat of the recorded storyline, as `python -m aegis.record` wrote it. */
+export interface RecordedFrame {
+  n: number;
+  title: string;
+  file: string;
+}
+
+const RECORDING = `${import.meta.env.BASE_URL}demo/aegis`;
+
+export async function loadRecordingIndex(): Promise<RecordedFrame[] | null> {
+  try {
+    const response = await fetch(`${RECORDING}/index.json`);
+    if (!response.ok) return null;
+    return ((await response.json()) as { frames: RecordedFrame[] }).frames;
+  } catch {
+    return null;
+  }
+}
+
+export async function loadRecordedFrame(
+  frame: RecordedFrame,
+): Promise<{ snapshot: Snapshot; ledger: LedgerEvent[] }> {
+  const response = await fetch(`${RECORDING}/${frame.file}`);
+  if (!response.ok) throw new AegisError('The recording could not be loaded.', 'recording', 0);
+  return (await response.json()) as { snapshot: Snapshot; ledger: LedgerEvent[] };
+}

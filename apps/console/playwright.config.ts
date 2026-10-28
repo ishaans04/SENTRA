@@ -22,7 +22,7 @@ export default defineConfig({
   projects: [
     {
       name: 'journey',
-      testMatch: /journey\.spec\.ts/,
+      testMatch: /(journey|replay)\.spec\.ts/,
       use: { ...devices['Desktop Chrome'], baseURL: 'http://127.0.0.1:4173' },
     },
     {

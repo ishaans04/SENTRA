@@ -1,0 +1,2683 @@
+{
+ "ledger": [
+  {
+   "actor": null,
+   "at": "2026-10-28T10:00:01Z",
+   "cites": [],
+   "decision_id": null,
+   "epoch": null,
+   "event_id": "ev-000001",
+   "kind": "session.seeded",
+   "payload": {
+    "fictional": true,
+    "manifest_version": "reporting-estate/v1"
+   },
+   "producer": "scenario",
+   "run_id": null,
+   "seq": 1,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": null,
+   "at": "2026-10-28T10:00:02Z",
+   "cites": [],
+   "decision_id": "D-0",
+   "epoch": null,
+   "event_id": "ev-000002",
+   "kind": "decision.proposed",
+   "payload": {
+    "conditions": [],
+    "decision": {
+     "actor": "support-agent",
+     "bases": [
+      {
+       "accepted": true,
+       "conditions": [],
+       "id": "B-1"
+      }
+     ],
+     "dictated_text": "",
+     "epoch": 1,
+     "hold_rule": true,
+     "id": "D-0",
+     "provenance": [],
+     "statement": "Support work may proceed",
+     "status": "proposed",
+     "subject": "Support"
+    }
+   },
+   "producer": "scenario",
+   "run_id": null,
+   "seq": 2,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": null,
+   "at": "2026-10-28T10:00:03Z",
+   "cites": [],
+   "decision_id": "D-0",
+   "epoch": 1,
+   "event_id": "ev-000003",
+   "kind": "decision.confirmed",
+   "payload": {},
+   "producer": "operator",
+   "run_id": null,
+   "seq": 3,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": null,
+   "at": "2026-10-28T10:00:04Z",
+   "cites": [],
+   "decision_id": "D-1",
+   "epoch": null,
+   "event_id": "ev-000004",
+   "kind": "decision.proposed",
+   "payload": {
+    "conditions": [
+     {
+      "id": "C-1",
+      "last_result": null,
+      "plain": "this agent receives only sanitized summaries",
+      "predicate": {
+       "actor": "reporting-agent",
+       "kind": "ReadsOnlyFrom",
+       "resources": [
+        "report_store/approved_summaries"
+       ]
+      },
+      "witnesses": []
+     }
+    ],
+    "decision": {
+     "actor": "reporting-agent",
+     "bases": [
+      {
+       "accepted": true,
+       "conditions": [
+        "C-1"
+       ],
+       "id": "B-2"
+      }
+     ],
+     "dictated_text": "Approve reporting, on the condition that the Reporting Agent only reads from the approved, sanitized report store.",
+     "epoch": 1,
+     "hold_rule": true,
+     "id": "D-1",
+     "provenance": [],
+     "statement": "Reporting may proceed",
+     "status": "proposed",
+     "subject": "Reporting"
+    }
+   },
+   "producer": "interpret",
+   "run_id": null,
+   "seq": 4,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": null,
+   "at": "2026-10-28T10:00:05Z",
+   "cites": [],
+   "decision_id": "D-1",
+   "epoch": 1,
+   "event_id": "ev-000005",
+   "kind": "decision.confirmed",
+   "payload": {},
+   "producer": "operator",
+   "run_id": null,
+   "seq": 5,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": "support-agent",
+   "at": "2026-10-28T10:00:06Z",
+   "cites": [],
+   "decision_id": "D-0",
+   "epoch": 1,
+   "event_id": "ev-000006",
+   "kind": "run.started",
+   "payload": {
+    "fresh_context": false
+   },
+   "producer": "gateway",
+   "run_id": "S-1",
+   "seq": 6,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": "support-agent",
+   "at": "2026-10-28T10:00:07Z",
+   "cites": [],
+   "decision_id": "D-0",
+   "epoch": 1,
+   "event_id": "ev-000007",
+   "kind": "gateway.call",
+   "payload": {
+    "args": {
+     "customer_id": "cust-1042"
+    },
+    "effect": "read",
+    "outcome": "executed",
+    "resource": "crm",
+    "result": {
+     "email": "customer1042@example.invalid",
+     "id": "cust-1042",
+     "issue": "Billing address out of date.",
+     "name": "Fictional Customer 1042"
+    },
+    "tool": "crm.read_customer_records"
+   },
+   "producer": "gateway",
+   "run_id": "S-1",
+   "seq": 7,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": "support-agent",
+   "at": "2026-10-28T10:00:08Z",
+   "cites": [],
+   "decision_id": "D-0",
+   "epoch": 1,
+   "event_id": "ev-000008",
+   "kind": "gateway.call",
+   "payload": {
+    "args": {
+     "content": "Ticket 1042 resolved: billing address corrected. No personal data included.",
+     "item": "summary-1"
+    },
+    "effect": "write",
+    "outcome": "executed",
+    "resource": "report_store/approved_summaries",
+    "result": {
+     "item": "summary-1",
+     "version": 1
+    },
+    "tool": "report_store.write_summary"
+   },
+   "producer": "gateway",
+   "run_id": "S-1",
+   "seq": 8,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": "reporting-agent",
+   "at": "2026-10-28T10:00:09Z",
+   "cites": [],
+   "decision_id": "D-1",
+   "epoch": 1,
+   "event_id": "ev-000009",
+   "kind": "run.started",
+   "payload": {
+    "fresh_context": false
+   },
+   "producer": "gateway",
+   "run_id": "R-1",
+   "seq": 9,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": "reporting-agent",
+   "at": "2026-10-28T10:00:10Z",
+   "cites": [],
+   "decision_id": "D-1",
+   "epoch": 1,
+   "event_id": "ev-000010",
+   "kind": "gateway.call",
+   "payload": {
+    "args": {},
+    "effect": "read",
+    "outcome": "executed",
+    "resource": "report_store/approved_summaries",
+    "result": {
+     "result": [
+      {
+       "content": "Ticket 1042 resolved: billing address corrected. No personal data included.",
+       "item": "summary-1",
+       "version": 1
+      }
+     ]
+    },
+    "tool": "report_store.read_summaries"
+   },
+   "producer": "gateway",
+   "run_id": "R-1",
+   "seq": 10,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": null,
+   "at": "2026-10-28T10:00:11Z",
+   "cites": [
+    "ev-000010",
+    "ev-000010"
+   ],
+   "decision_id": "D-1",
+   "epoch": 1,
+   "event_id": "ev-000011",
+   "kind": "condition.evaluated",
+   "payload": {
+    "cause": "ev-000010",
+    "condition_id": "C-1",
+    "result": "HOLDS",
+    "witnesses": [
+     "ev-000010"
+    ]
+   },
+   "producer": "aegis",
+   "run_id": null,
+   "seq": 11,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": "reporting-agent",
+   "at": "2026-10-28T10:00:12Z",
+   "cites": [],
+   "decision_id": "D-1",
+   "epoch": 1,
+   "event_id": "ev-000012",
+   "kind": "gateway.call",
+   "payload": {
+    "args": {
+     "content": "Weekly support report: 1 ticket resolved (billing).",
+     "item": "draft-1"
+    },
+    "effect": "write",
+    "outcome": "executed",
+    "resource": "report_store/drafts",
+    "result": {
+     "item": "draft-1",
+     "version": 1
+    },
+    "tool": "report_store.write_draft"
+   },
+   "producer": "gateway",
+   "run_id": "R-1",
+   "seq": 12,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": "reporting-agent",
+   "at": "2026-10-28T10:00:13Z",
+   "cites": [],
+   "decision_id": "D-1",
+   "epoch": 1,
+   "event_id": "ev-000013",
+   "kind": "gateway.call",
+   "payload": {
+    "action_id": "A-1",
+    "args": {
+     "item": "draft-1"
+    },
+    "effect": "send",
+    "outcome": "queued",
+    "resource": "webhook",
+    "tool": "webhook.send_report"
+   },
+   "producer": "gateway",
+   "run_id": "R-1",
+   "seq": 13,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": "reporting-agent",
+   "at": "2026-10-28T10:00:14Z",
+   "cites": [
+    "ev-000013"
+   ],
+   "decision_id": "D-1",
+   "epoch": 1,
+   "event_id": "ev-000014",
+   "kind": "action.queued",
+   "payload": {
+    "action_id": "A-1",
+    "args": {
+     "item": "draft-1"
+    },
+    "tool": "webhook.send_report"
+   },
+   "producer": "gateway",
+   "run_id": "R-1",
+   "seq": 14,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": "teammate",
+   "at": "2026-10-28T10:00:15Z",
+   "cites": [],
+   "decision_id": null,
+   "epoch": null,
+   "event_id": "ev-000015",
+   "kind": "item.version_changed",
+   "payload": {
+    "item": "draft-1",
+    "version": 2,
+    "writer": "teammate"
+   },
+   "producer": "human",
+   "run_id": null,
+   "seq": 15,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": "support-agent",
+   "at": "2026-10-28T10:00:16Z",
+   "cites": [],
+   "decision_id": "D-0",
+   "epoch": 1,
+   "event_id": "ev-000016",
+   "kind": "gateway.call",
+   "payload": {
+    "args": {
+     "content": "Customer 1042 contact details for follow-up.",
+     "item": "note-1"
+    },
+    "effect": "write",
+    "outcome": "executed",
+    "resource": "scratchpad",
+    "result": {
+     "item": "note-1",
+     "version": 1
+    },
+    "tool": "scratchpad.write"
+   },
+   "producer": "gateway",
+   "run_id": "S-1",
+   "seq": 16,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": "support-agent",
+   "at": "2026-10-28T10:00:17Z",
+   "cites": [],
+   "decision_id": "D-0",
+   "epoch": 1,
+   "event_id": "ev-000017",
+   "kind": "gateway.call",
+   "payload": {
+    "args": {
+     "grantee": "reporting-agent"
+    },
+    "effect": "grant",
+    "outcome": "executed",
+    "resource": "scratchpad",
+    "result": {
+     "granted": "reporting-agent",
+     "resource": "scratchpad"
+    },
+    "tool": "scratchpad.grant_access"
+   },
+   "producer": "gateway",
+   "run_id": "S-1",
+   "seq": 17,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": "reporting-agent",
+   "at": "2026-10-28T10:00:18Z",
+   "cites": [],
+   "decision_id": "D-1",
+   "epoch": 1,
+   "event_id": "ev-000018",
+   "kind": "gateway.call",
+   "payload": {
+    "args": {},
+    "effect": "read",
+    "outcome": "executed",
+    "resource": "scratchpad",
+    "result": {
+     "result": [
+      {
+       "content": "Customer 1042 contact details for follow-up.",
+       "item": "note-1"
+      }
+     ]
+    },
+    "tool": "scratchpad.read"
+   },
+   "producer": "gateway",
+   "run_id": "R-1",
+   "seq": 18,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": null,
+   "at": "2026-10-28T10:00:19Z",
+   "cites": [
+    "ev-000007",
+    "ev-000016",
+    "ev-000018",
+    "ev-000013"
+   ],
+   "decision_id": null,
+   "epoch": null,
+   "event_id": "ev-000019",
+   "kind": "finding.raised",
+   "payload": {
+    "detected_at_sequence": 18,
+    "emergence_score": 1.0,
+    "evidence_event_ids": [
+     "ev-000007",
+     "ev-000016",
+     "ev-000018",
+     "ev-000013"
+    ],
+    "explanation": "support-agent reads crm, which holds restricted data, and writes to scratchpad \u2014 shared state that is not part of the declared architecture. reporting-agent reads from that same resource and sends to webhook, outside the estate. Each action is individually permitted; together they compose a route from restricted data to external egress that no single agent was granted and the architecture does not allow.",
+    "id": "finding-ps001",
+    "incident_edge_ids": [
+     "support-agent--read-->crm",
+     "support-agent--write-->scratchpad",
+     "reporting-agent--read-->scratchpad",
+     "reporting-agent--send-->webhook"
+    ],
+    "incident_node_ids": [
+     "crm",
+     "support-agent",
+     "scratchpad",
+     "reporting-agent",
+     "webhook"
+    ],
+    "incident_path": [
+     {
+      "action": "read",
+      "evidence_event_ids": [
+       "ev-000007"
+      ],
+      "expected_status": "expected",
+      "role": "ingest: restricted data enters the population",
+      "source": "support-agent",
+      "target": "crm"
+     },
+     {
+      "action": "write",
+      "evidence_event_ids": [
+       "ev-000016"
+      ],
+      "expected_status": "unexpected",
+      "role": "bridge write: data lands in unregistered shared state",
+      "source": "support-agent",
+      "target": "scratchpad"
+     },
+     {
+      "action": "read",
+      "evidence_event_ids": [
+       "ev-000018"
+      ],
+      "expected_status": "unexpected",
+      "role": "bridge read: a second actor picks the data up",
+      "source": "reporting-agent",
+      "target": "scratchpad"
+     },
+     {
+      "action": "send",
+      "evidence_event_ids": [
+       "ev-000013"
+      ],
+      "expected_status": "expected",
+      "role": "egress: the data leaves for an external destination",
+      "source": "reporting-agent",
+      "target": "webhook"
+     }
+    ],
+    "manifest_version": "reporting-estate/v1",
+    "policy_basis": "No path may connect restricted data to an external destination through shared state that is absent from the declared architecture.",
+    "risk_factors": [
+     {
+      "detail": "scratchpad carries data between actors but is not declared in the architecture manifest.",
+      "id": "unregistered_bridge",
+      "label": "Unregistered shared state on the path",
+      "present": true,
+      "weight": 0.25
+     },
+     {
+      "detail": "support-agent reads crm, classified restricted.",
+      "id": "restricted_source_reachable",
+      "label": "Restricted data enters the path",
+      "present": true,
+      "weight": 0.25
+     },
+     {
+      "detail": "reporting-agent transmits to webhook, an external destination.",
+      "id": "external_egress_reachable",
+      "label": "Path terminates outside the estate",
+      "present": true,
+      "weight": 0.2
+     },
+     {
+      "detail": "support-agent deposits and reporting-agent withdraws; neither actor holds the end-to-end capability alone.",
+      "id": "cross_agent_composition",
+      "label": "Capability is composed across two different actors",
+      "present": true,
+      "weight": 0.15
+     },
+     {
+      "detail": "support-agent --write--> scratchpad, reporting-agent --read--> scratchpad",
+      "id": "undeclared_relationship",
+      "label": "At least one hop is absent from the manifest",
+      "present": true,
+      "weight": 0.15
+     }
+    ],
+    "rule_id": "PS-001",
+    "severity": "critical",
+    "status": "open",
+    "title": "Restricted data can reach external egress via unregistered shared state",
+    "uncertainty": "HIVE observes reported interactions, not payloads. This finding establishes that the path exists, not that restricted data traversed it or that any actor intended it to."
+   },
+   "producer": "hive",
+   "run_id": null,
+   "seq": 19,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": null,
+   "at": "2026-10-28T10:00:20Z",
+   "cites": [
+    "ev-000019"
+   ],
+   "decision_id": null,
+   "epoch": null,
+   "event_id": "ev-000020",
+   "kind": "containment.proposed",
+   "payload": {
+    "candidates": [
+     {
+      "broken_expected_relationships": [],
+      "capability_id": "deny-reporting-scratchpad-read",
+      "cost": 1,
+      "label": "Deny the Reporting Agent reads from the scratchpad",
+      "preserves_workflow": true,
+      "rejection_reason": "",
+      "removes_unsafe_path": true,
+      "viable": true
+     },
+     {
+      "broken_expected_relationships": [],
+      "capability_id": "quarantine-scratchpad",
+      "cost": 4,
+      "label": "Quarantine the scratchpad for every actor",
+      "preserves_workflow": true,
+      "rejection_reason": "",
+      "removes_unsafe_path": true,
+      "viable": true
+     },
+     {
+      "broken_expected_relationships": [
+       "reporting-agent--send-->webhook"
+      ],
+      "capability_id": "block-reporting-webhook-send",
+      "cost": 6,
+      "label": "Block the Reporting Agent sends to the webhook",
+      "preserves_workflow": false,
+      "rejection_reason": "Breaks declared relationships that are currently in use: reporting-agent--send-->webhook",
+      "removes_unsafe_path": true,
+      "viable": false
+     },
+     {
+      "broken_expected_relationships": [
+       "support-agent--read-->crm"
+      ],
+      "capability_id": "deny-support-crm-read",
+      "cost": 9,
+      "label": "Deny the Support Agent reads from the CRM",
+      "preserves_workflow": false,
+      "rejection_reason": "Breaks declared relationships that are currently in use: support-agent--read-->crm",
+      "removes_unsafe_path": true,
+      "viable": false
+     }
+    ],
+    "cost_breakdown": {
+     "candidates_evaluated": 4,
+     "candidates_viable": 2,
+     "cheapest_rejected_cost": 6,
+     "recommended_cost": 1
+    },
+    "finding_id": "finding-ps001",
+    "id": "plan-finding-ps001",
+    "impact": "Deny the Reporting Agent reads from the scratchpad removes every path this finding names, at an estimated disruption cost of 1. Every declared relationship currently in use remains intact.",
+    "manifest_version": "reporting-estate/v1",
+    "recommended_capability_id": "deny-reporting-scratchpad-read",
+    "state": "proposed",
+    "verification": {}
+   },
+   "producer": "hive",
+   "run_id": null,
+   "seq": 20,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": null,
+   "at": "2026-10-28T10:00:21Z",
+   "cites": [
+    "ev-000018",
+    "ev-000019"
+   ],
+   "decision_id": "D-1",
+   "epoch": 1,
+   "event_id": "ev-000021",
+   "kind": "condition.evaluated",
+   "payload": {
+    "cause": "finding-ps001",
+    "condition_id": "C-1",
+    "result": "FAILS",
+    "witnesses": [
+     "ev-000018"
+    ]
+   },
+   "producer": "aegis",
+   "run_id": null,
+   "seq": 21,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": null,
+   "at": "2026-10-28T10:00:22Z",
+   "cites": [
+    "ev-000019"
+   ],
+   "decision_id": "D-1",
+   "epoch": null,
+   "event_id": "ev-000022",
+   "kind": "basis.withdrawn",
+   "payload": {
+    "basis_id": "B-2"
+   },
+   "producer": "aegis",
+   "run_id": null,
+   "seq": 22,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": null,
+   "at": "2026-10-28T10:00:23Z",
+   "cites": [
+    "ev-000019"
+   ],
+   "decision_id": "D-1",
+   "epoch": 2,
+   "event_id": "ev-000023",
+   "kind": "decision.suspended",
+   "payload": {
+    "needs_review": [
+     "R-1",
+     "A-1"
+    ],
+    "new_epoch": 2
+   },
+   "producer": "aegis",
+   "run_id": null,
+   "seq": 23,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": "reporting-agent",
+   "at": "2026-10-28T10:00:24Z",
+   "cites": [
+    "ev-000019"
+   ],
+   "decision_id": "D-1",
+   "epoch": null,
+   "event_id": "ev-000024",
+   "kind": "action.held",
+   "payload": {
+    "action_id": "A-1"
+   },
+   "producer": "gateway",
+   "run_id": "R-1",
+   "seq": 24,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": null,
+   "at": "2026-10-28T10:00:25Z",
+   "cites": [
+    "ev-000019"
+   ],
+   "decision_id": "D-1",
+   "epoch": null,
+   "event_id": "ev-000025",
+   "kind": "alert.raised",
+   "payload": {
+    "finding_id": "finding-ps001",
+    "held_actions": [
+     "A-1"
+    ],
+    "text": "Reporting was approved on the condition that this agent receives only sanitized summaries. It has now read an undeclared shared scratchpad. An external report is queued. This run needs review."
+   },
+   "producer": "aegis",
+   "run_id": null,
+   "seq": 25,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": "reporting-agent",
+   "at": "2026-10-28T10:00:26Z",
+   "cites": [],
+   "decision_id": "D-1",
+   "epoch": 1,
+   "event_id": "ev-000026",
+   "kind": "gateway.call",
+   "payload": {
+    "args": {
+     "item": "draft-1"
+    },
+    "effect": "send",
+    "outcome": "rejected",
+    "reason": "stale_epoch",
+    "resource": "webhook",
+    "tool": "webhook.send_report"
+   },
+   "producer": "gateway",
+   "run_id": "R-1",
+   "seq": 26,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": null,
+   "at": "2026-10-28T10:00:27Z",
+   "cites": [
+    "ev-000019"
+   ],
+   "decision_id": null,
+   "epoch": null,
+   "event_id": "ev-000027",
+   "kind": "recovery.plan_drafted",
+   "payload": {
+    "dictated_text": "Stop this reporting run, remove its scratchpad access, and rebuild the report from approved summaries. Keep the support work.",
+    "errors": [],
+    "finding_id": "finding-ps001",
+    "id": "P-1",
+    "interpreted_by": "grammar",
+    "read_back": "I will:\n 1. Cancel reporting run R-1 and its held external send A-1. Later calls from R-1 will be rejected.\n 2. Cut the route: deny the Reporting Agent reads from the scratchpad (HIVE's recommended control) and revoke the access the Support Agent granted.\n 3. Prepare a correction for draft-1. A person edited draft-1 after the agent wrote it, so I will not overwrite it. I will ask you.\n 4. Renew approval D-1 and start a fresh reporting run that reads approved summaries only.\nI will keep: all Support Agent work.\nCannot be undone: nothing in this plan sends anything.\nInterpreted by: grammar (no model call)",
+    "status": "read_back",
+    "steps": [
+     {
+      "kind": "CANCEL_RUN",
+      "run_id": "R-1"
+     },
+     {
+      "control_id": "deny-reporting-scratchpad-read",
+      "kind": "APPLY_CONTROL"
+     },
+     {
+      "actor": "reporting-agent",
+      "kind": "REVOKE_ACCESS",
+      "resource": "scratchpad"
+     },
+     {
+      "call_event": "ev-000012",
+      "kind": "COMPENSATE"
+     },
+     {
+      "decision_id": "D-1",
+      "kind": "REBUILD",
+      "sources": [
+       "report_store/approved_summaries"
+      ]
+     },
+     {
+      "kind": "PRESERVE",
+      "scope": "support-agent"
+     }
+    ]
+   },
+   "producer": "interpret",
+   "run_id": null,
+   "seq": 27,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": null,
+   "at": "2026-10-28T10:00:28Z",
+   "cites": [],
+   "decision_id": null,
+   "epoch": null,
+   "event_id": "ev-000028",
+   "kind": "recovery.plan_confirmed",
+   "payload": {
+    "plan_id": "P-1"
+   },
+   "producer": "operator",
+   "run_id": null,
+   "seq": 28,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": null,
+   "at": "2026-10-28T10:00:29Z",
+   "cites": [
+    "ev-000028"
+   ],
+   "decision_id": null,
+   "epoch": null,
+   "event_id": "ev-000029",
+   "kind": "recovery.step_started",
+   "payload": {
+    "index": 0,
+    "plan_id": "P-1",
+    "step": {
+     "kind": "CANCEL_RUN",
+     "run_id": "R-1"
+    }
+   },
+   "producer": "recovery",
+   "run_id": null,
+   "seq": 29,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": "reporting-agent",
+   "at": "2026-10-28T10:00:30Z",
+   "cites": [
+    "ev-000029"
+   ],
+   "decision_id": "D-1",
+   "epoch": 1,
+   "event_id": "ev-000030",
+   "kind": "run.cancelled",
+   "payload": {},
+   "producer": "recovery",
+   "run_id": "R-1",
+   "seq": 30,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": "reporting-agent",
+   "at": "2026-10-28T10:00:31Z",
+   "cites": [
+    "ev-000029"
+   ],
+   "decision_id": "D-1",
+   "epoch": null,
+   "event_id": "ev-000031",
+   "kind": "action.cancelled",
+   "payload": {
+    "action_id": "A-1"
+   },
+   "producer": "recovery",
+   "run_id": "R-1",
+   "seq": 31,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": null,
+   "at": "2026-10-28T10:00:32Z",
+   "cites": [
+    "ev-000029"
+   ],
+   "decision_id": null,
+   "epoch": null,
+   "event_id": "ev-000032",
+   "kind": "recovery.step_succeeded",
+   "payload": {
+    "detail": "R-1 cancelled. A-1 cancelled before it was sent.",
+    "evidence": {
+     "cancelled_actions": [
+      "A-1"
+     ]
+    },
+    "index": 0,
+    "plan_id": "P-1",
+    "step": {
+     "kind": "CANCEL_RUN",
+     "run_id": "R-1"
+    }
+   },
+   "producer": "recovery",
+   "run_id": null,
+   "seq": 32,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": null,
+   "at": "2026-10-28T10:00:33Z",
+   "cites": [
+    "ev-000028"
+   ],
+   "decision_id": null,
+   "epoch": null,
+   "event_id": "ev-000033",
+   "kind": "recovery.step_started",
+   "payload": {
+    "index": 1,
+    "plan_id": "P-1",
+    "step": {
+     "control_id": "deny-reporting-scratchpad-read",
+     "kind": "APPLY_CONTROL"
+    }
+   },
+   "producer": "recovery",
+   "run_id": null,
+   "seq": 33,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": null,
+   "at": "2026-10-28T10:00:34Z",
+   "cites": [
+    "ev-000033"
+   ],
+   "decision_id": null,
+   "epoch": null,
+   "event_id": "ev-000034",
+   "kind": "containment.applied",
+   "payload": {
+    "capability_id": "deny-reporting-scratchpad-read",
+    "finding_id": "finding-ps001",
+    "plan_id": "P-1"
+   },
+   "producer": "recovery",
+   "run_id": null,
+   "seq": 34,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": null,
+   "at": "2026-10-28T10:00:35Z",
+   "cites": [
+    "ev-000033"
+   ],
+   "decision_id": null,
+   "epoch": null,
+   "event_id": "ev-000035",
+   "kind": "recovery.step_succeeded",
+   "payload": {
+    "detail": "Control deny-reporting-scratchpad-read is enforced at the gateway.",
+    "index": 1,
+    "plan_id": "P-1",
+    "step": {
+     "control_id": "deny-reporting-scratchpad-read",
+     "kind": "APPLY_CONTROL"
+    }
+   },
+   "producer": "recovery",
+   "run_id": null,
+   "seq": 35,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": null,
+   "at": "2026-10-28T10:00:36Z",
+   "cites": [
+    "ev-000028"
+   ],
+   "decision_id": null,
+   "epoch": null,
+   "event_id": "ev-000036",
+   "kind": "recovery.step_started",
+   "payload": {
+    "index": 2,
+    "plan_id": "P-1",
+    "step": {
+     "actor": "reporting-agent",
+     "kind": "REVOKE_ACCESS",
+     "resource": "scratchpad"
+    }
+   },
+   "producer": "recovery",
+   "run_id": null,
+   "seq": 36,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": "haegis-recovery",
+   "at": "2026-10-28T10:00:37Z",
+   "cites": [],
+   "decision_id": "",
+   "epoch": 0,
+   "event_id": "ev-000037",
+   "kind": "gateway.call",
+   "payload": {
+    "args": {
+     "grantee": "reporting-agent"
+    },
+    "effect": "grant",
+    "outcome": "executed",
+    "resource": "scratchpad",
+    "result": {
+     "resource": "scratchpad",
+     "revoked": "reporting-agent"
+    },
+    "tool": "scratchpad.revoke_access"
+   },
+   "producer": "gateway",
+   "run_id": "X-1",
+   "seq": 37,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": null,
+   "at": "2026-10-28T10:00:38Z",
+   "cites": [
+    "ev-000036"
+   ],
+   "decision_id": null,
+   "epoch": null,
+   "event_id": "ev-000038",
+   "kind": "recovery.step_succeeded",
+   "payload": {
+    "detail": "Access for reporting-agent revoked.",
+    "evidence": {
+     "grantee": "reporting-agent"
+    },
+    "index": 2,
+    "plan_id": "P-1",
+    "step": {
+     "actor": "reporting-agent",
+     "kind": "REVOKE_ACCESS",
+     "resource": "scratchpad"
+    }
+   },
+   "producer": "recovery",
+   "run_id": null,
+   "seq": 38,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": null,
+   "at": "2026-10-28T10:00:39Z",
+   "cites": [
+    "ev-000028"
+   ],
+   "decision_id": null,
+   "epoch": null,
+   "event_id": "ev-000039",
+   "kind": "recovery.step_started",
+   "payload": {
+    "index": 3,
+    "plan_id": "P-1",
+    "step": {
+     "call_event": "ev-000012",
+     "kind": "COMPENSATE"
+    }
+   },
+   "producer": "recovery",
+   "run_id": null,
+   "seq": 39,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": null,
+   "at": "2026-10-28T10:00:40Z",
+   "cites": [
+    "ev-000039"
+   ],
+   "decision_id": null,
+   "epoch": null,
+   "event_id": "ev-000040",
+   "kind": "recovery.step_conflict",
+   "payload": {
+    "detail": "draft-1 was changed by teammate after the agent wrote it. It was not overwritten.",
+    "evidence": {
+     "current_version": 2,
+     "current_writer": "teammate",
+     "item": "draft-1",
+     "produced_version": 1
+    },
+    "index": 3,
+    "plan_id": "P-1",
+    "step": {
+     "call_event": "ev-000012",
+     "kind": "COMPENSATE"
+    }
+   },
+   "producer": "recovery",
+   "run_id": null,
+   "seq": 40,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": null,
+   "at": "2026-10-28T10:00:41Z",
+   "cites": [
+    "ev-000028"
+   ],
+   "decision_id": null,
+   "epoch": null,
+   "event_id": "ev-000041",
+   "kind": "recovery.step_started",
+   "payload": {
+    "index": 4,
+    "plan_id": "P-1",
+    "step": {
+     "decision_id": "D-1",
+     "kind": "REBUILD",
+     "sources": [
+      "report_store/approved_summaries"
+     ]
+    }
+   },
+   "producer": "recovery",
+   "run_id": null,
+   "seq": 41,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": null,
+   "at": "2026-10-28T10:00:42Z",
+   "cites": [],
+   "decision_id": "D-1",
+   "epoch": 2,
+   "event_id": "ev-000042",
+   "kind": "decision.renewed",
+   "payload": {},
+   "producer": "operator",
+   "run_id": null,
+   "seq": 42,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": "reporting-agent",
+   "at": "2026-10-28T10:00:43Z",
+   "cites": [],
+   "decision_id": "D-1",
+   "epoch": 2,
+   "event_id": "ev-000043",
+   "kind": "run.started",
+   "payload": {
+    "fresh_context": true
+   },
+   "producer": "gateway",
+   "run_id": "R-2",
+   "seq": 43,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": null,
+   "at": "2026-10-28T10:00:44Z",
+   "cites": [
+    "ev-000041"
+   ],
+   "decision_id": null,
+   "epoch": null,
+   "event_id": "ev-000044",
+   "kind": "recovery.step_succeeded",
+   "payload": {
+    "detail": "D-1 renewed. R-2 started with fresh context.",
+    "evidence": {
+     "run_id": "R-2",
+     "sources": [
+      "report_store/approved_summaries"
+     ]
+    },
+    "index": 4,
+    "plan_id": "P-1",
+    "step": {
+     "decision_id": "D-1",
+     "kind": "REBUILD",
+     "sources": [
+      "report_store/approved_summaries"
+     ]
+    }
+   },
+   "producer": "recovery",
+   "run_id": null,
+   "seq": 44,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": "reporting-agent",
+   "at": "2026-10-28T10:00:45Z",
+   "cites": [],
+   "decision_id": "D-1",
+   "epoch": 2,
+   "event_id": "ev-000045",
+   "kind": "gateway.call",
+   "payload": {
+    "args": {},
+    "effect": "read",
+    "outcome": "executed",
+    "resource": "report_store/approved_summaries",
+    "result": {
+     "result": [
+      {
+       "content": "Ticket 1042 resolved: billing address corrected. No personal data included.",
+       "item": "summary-1",
+       "version": 1
+      }
+     ]
+    },
+    "tool": "report_store.read_summaries"
+   },
+   "producer": "gateway",
+   "run_id": "R-2",
+   "seq": 45,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": null,
+   "at": "2026-10-28T10:00:46Z",
+   "cites": [
+    "ev-000045",
+    "ev-000045"
+   ],
+   "decision_id": "D-1",
+   "epoch": 2,
+   "event_id": "ev-000046",
+   "kind": "condition.evaluated",
+   "payload": {
+    "cause": "ev-000045",
+    "condition_id": "C-1",
+    "result": "HOLDS",
+    "witnesses": [
+     "ev-000045"
+    ]
+   },
+   "producer": "aegis",
+   "run_id": null,
+   "seq": 46,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": "reporting-agent",
+   "at": "2026-10-28T10:00:47Z",
+   "cites": [],
+   "decision_id": "D-1",
+   "epoch": 2,
+   "event_id": "ev-000047",
+   "kind": "gateway.call",
+   "payload": {
+    "args": {
+     "content": "Weekly support report: 1 billing ticket resolved. Built from approved summaries only.",
+     "item": "draft-2"
+    },
+    "effect": "write",
+    "outcome": "executed",
+    "resource": "report_store/drafts",
+    "result": {
+     "item": "draft-2",
+     "version": 1
+    },
+    "tool": "report_store.write_draft"
+   },
+   "producer": "gateway",
+   "run_id": "R-2",
+   "seq": 47,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": "reporting-agent",
+   "at": "2026-10-28T10:00:48Z",
+   "cites": [],
+   "decision_id": "D-1",
+   "epoch": 2,
+   "event_id": "ev-000048",
+   "kind": "gateway.call",
+   "payload": {
+    "action_id": "A-2",
+    "args": {
+     "item": "draft-2"
+    },
+    "effect": "send",
+    "outcome": "queued",
+    "resource": "webhook",
+    "tool": "webhook.send_report"
+   },
+   "producer": "gateway",
+   "run_id": "R-2",
+   "seq": 48,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": "reporting-agent",
+   "at": "2026-10-28T10:00:49Z",
+   "cites": [
+    "ev-000048"
+   ],
+   "decision_id": "D-1",
+   "epoch": 2,
+   "event_id": "ev-000049",
+   "kind": "action.queued",
+   "payload": {
+    "action_id": "A-2",
+    "args": {
+     "item": "draft-2"
+    },
+    "tool": "webhook.send_report"
+   },
+   "producer": "gateway",
+   "run_id": "R-2",
+   "seq": 49,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": "reporting-agent",
+   "at": "2026-10-28T10:00:50Z",
+   "cites": [
+    "ev-000048"
+   ],
+   "decision_id": "D-1",
+   "epoch": 2,
+   "event_id": "ev-000050",
+   "kind": "action.released",
+   "payload": {
+    "action_id": "A-2",
+    "decision_status": "active",
+    "epoch_at_release": 2
+   },
+   "producer": "gateway",
+   "run_id": "R-2",
+   "seq": 50,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": "reporting-agent",
+   "at": "2026-10-28T10:00:51Z",
+   "cites": [
+    "ev-000048"
+   ],
+   "decision_id": "D-1",
+   "epoch": null,
+   "event_id": "ev-000051",
+   "kind": "action.delivered",
+   "payload": {
+    "action_id": "A-2",
+    "result": {
+     "delivered": "draft-2",
+     "version": 1
+    }
+   },
+   "producer": "gateway",
+   "run_id": "R-2",
+   "seq": 51,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": "reporting-agent",
+   "at": "2026-10-28T10:00:52Z",
+   "cites": [],
+   "decision_id": "D-1",
+   "epoch": 2,
+   "event_id": "ev-000052",
+   "kind": "run.completed",
+   "payload": {},
+   "producer": "gateway",
+   "run_id": "R-2",
+   "seq": 52,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": "reporting-agent",
+   "at": "2026-10-28T10:00:53Z",
+   "cites": [],
+   "decision_id": "D-1",
+   "epoch": 1,
+   "event_id": "ev-000053",
+   "kind": "gateway.call",
+   "payload": {
+    "args": {},
+    "effect": "read",
+    "outcome": "rejected",
+    "reason": "run_cancelled",
+    "resource": "report_store/approved_summaries",
+    "tool": "report_store.read_summaries"
+   },
+   "producer": "gateway",
+   "run_id": "R-1",
+   "seq": 53,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": null,
+   "at": "2026-10-28T10:00:54Z",
+   "cites": [
+    "ev-000034"
+   ],
+   "decision_id": null,
+   "epoch": null,
+   "event_id": "ev-000054",
+   "kind": "verification.check",
+   "payload": {
+    "detail": "HIVE re-ran its rules on the contained graph: no route.",
+    "name": "route_closed",
+    "passed": true,
+    "plan_id": "P-1"
+   },
+   "producer": "verification",
+   "run_id": null,
+   "seq": 54,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": null,
+   "at": "2026-10-28T10:00:55Z",
+   "cites": [
+    "ev-000054"
+   ],
+   "decision_id": null,
+   "epoch": null,
+   "event_id": "ev-000055",
+   "kind": "evidence.recorded",
+   "payload": {
+    "applies": true,
+    "cites": [
+     "ev-000034"
+    ],
+    "id": "E-1",
+    "kind": "checked",
+    "source": "check:route_closed",
+    "verifies": "P-1"
+   },
+   "producer": "verification",
+   "run_id": null,
+   "seq": 55,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": null,
+   "at": "2026-10-28T10:00:56Z",
+   "cites": [
+    "ev-000053"
+   ],
+   "decision_id": null,
+   "epoch": null,
+   "event_id": "ev-000056",
+   "kind": "verification.check",
+   "payload": {
+    "detail": "A probe call from each cancelled run was rejected by the gateway.",
+    "name": "stale_run_rejected",
+    "passed": true,
+    "plan_id": "P-1"
+   },
+   "producer": "verification",
+   "run_id": null,
+   "seq": 56,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": null,
+   "at": "2026-10-28T10:00:57Z",
+   "cites": [
+    "ev-000056"
+   ],
+   "decision_id": null,
+   "epoch": null,
+   "event_id": "ev-000057",
+   "kind": "evidence.recorded",
+   "payload": {
+    "applies": true,
+    "cites": [
+     "ev-000053"
+    ],
+    "id": "E-2",
+    "kind": "checked",
+    "source": "check:stale_run_rejected",
+    "verifies": "P-1"
+   },
+   "producer": "verification",
+   "run_id": null,
+   "seq": 57,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": null,
+   "at": "2026-10-28T10:00:58Z",
+   "cites": [
+    "ev-000045"
+   ],
+   "decision_id": null,
+   "epoch": null,
+   "event_id": "ev-000058",
+   "kind": "verification.check",
+   "payload": {
+    "detail": "The fresh run finished its job from approved sources only, and its report went out.",
+    "name": "replacement_completed",
+    "passed": true,
+    "plan_id": "P-1"
+   },
+   "producer": "verification",
+   "run_id": null,
+   "seq": 58,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": null,
+   "at": "2026-10-28T10:00:59Z",
+   "cites": [
+    "ev-000058"
+   ],
+   "decision_id": null,
+   "epoch": null,
+   "event_id": "ev-000059",
+   "kind": "evidence.recorded",
+   "payload": {
+    "applies": true,
+    "cites": [
+     "ev-000045"
+    ],
+    "id": "E-3",
+    "kind": "checked",
+    "source": "check:replacement_completed",
+    "verifies": "P-1"
+   },
+   "producer": "verification",
+   "run_id": null,
+   "seq": 59,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": null,
+   "at": "2026-10-28T10:01:00Z",
+   "cites": [],
+   "decision_id": null,
+   "epoch": null,
+   "event_id": "ev-000060",
+   "kind": "verification.check",
+   "payload": {
+    "detail": "Unchanged since the plan was confirmed: draft-1, note-1, summary-1.",
+    "name": "preserved_work_unchanged",
+    "passed": true,
+    "plan_id": "P-1"
+   },
+   "producer": "verification",
+   "run_id": null,
+   "seq": 60,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": null,
+   "at": "2026-10-28T10:01:01Z",
+   "cites": [
+    "ev-000060"
+   ],
+   "decision_id": null,
+   "epoch": null,
+   "event_id": "ev-000061",
+   "kind": "evidence.recorded",
+   "payload": {
+    "applies": true,
+    "cites": [],
+    "id": "E-4",
+    "kind": "checked",
+    "source": "check:preserved_work_unchanged",
+    "verifies": "P-1"
+   },
+   "producer": "verification",
+   "run_id": null,
+   "seq": 61,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": null,
+   "at": "2026-10-28T10:01:02Z",
+   "cites": [
+    "ev-000034"
+   ],
+   "decision_id": null,
+   "epoch": null,
+   "event_id": "ev-000062",
+   "kind": "containment.verified",
+   "payload": {
+    "finding_id": "finding-ps001",
+    "plan_id": "P-1"
+   },
+   "producer": "verification",
+   "run_id": null,
+   "seq": 62,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": null,
+   "at": "2026-10-28T10:01:03Z",
+   "cites": [],
+   "decision_id": null,
+   "epoch": null,
+   "event_id": "ev-000063",
+   "kind": "record.closed",
+   "payload": {
+    "approval": {
+     "conditions": [
+      {
+       "id": "C-1",
+       "plain": "this agent receives only sanitized summaries",
+       "typed": {
+        "actor": "reporting-agent",
+        "kind": "ReadsOnlyFrom",
+        "resources": [
+         "report_store/approved_summaries"
+        ]
+       }
+      }
+     ],
+     "dictated_text": "Approve reporting, on the condition that the Reporting Agent only reads from the approved, sanitized report store.",
+     "id": "D-1",
+     "statement": "Reporting may proceed"
+    },
+    "checks": [
+     {
+      "detail": "HIVE re-ran its rules on the contained graph: no route.",
+      "name": "route_closed",
+      "passed": true,
+      "plan_id": "P-1"
+     },
+     {
+      "detail": "A probe call from each cancelled run was rejected by the gateway.",
+      "name": "stale_run_rejected",
+      "passed": true,
+      "plan_id": "P-1"
+     },
+     {
+      "detail": "The fresh run finished its job from approved sources only, and its report went out.",
+      "name": "replacement_completed",
+      "passed": true,
+      "plan_id": "P-1"
+     },
+     {
+      "detail": "Unchanged since the plan was confirmed: draft-1, note-1, summary-1.",
+      "name": "preserved_work_unchanged",
+      "passed": true,
+      "plan_id": "P-1"
+     }
+    ],
+    "conflicts": [
+     "draft-1: a person edited it after the agent wrote it. The human version was kept for review."
+    ],
+    "finding": {
+     "cited_events": [
+      "ev-000007",
+      "ev-000016",
+      "ev-000018",
+      "ev-000013"
+     ],
+     "id": "finding-ps001",
+     "rule_id": "PS-001",
+     "title": "Restricted data can reach external egress via unregistered shared state"
+    },
+    "plan": {
+     "controls": [
+      "deny-reporting-scratchpad-read"
+     ],
+     "dictated_text": "Stop this reporting run, remove its scratchpad access, and rebuild the report from approved summaries. Keep the support work.",
+     "interpreted_by": "grammar",
+     "read_back": "I will:\n 1. Cancel reporting run R-1 and its held external send A-1. Later calls from R-1 will be rejected.\n 2. Cut the route: deny the Reporting Agent reads from the scratchpad (HIVE's recommended control) and revoke the access the Support Agent granted.\n 3. Prepare a correction for draft-1. A person edited draft-1 after the agent wrote it, so I will not overwrite it. I will ask you.\n 4. Renew approval D-1 and start a fresh reporting run that reads approved summaries only.\nI will keep: all Support Agent work.\nCannot be undone: nothing in this plan sends anything.\nInterpreted by: grammar (no model call)"
+    },
+    "plan_id": "P-1",
+    "status": "verified_with_conflicts",
+    "steps": [
+     {
+      "detail": "R-1 cancelled. A-1 cancelled before it was sent.",
+      "evidence": {
+       "cancelled_actions": [
+        "A-1"
+       ]
+      },
+      "index": 0,
+      "kind": "succeeded",
+      "plan_id": "P-1",
+      "step": {
+       "kind": "CANCEL_RUN",
+       "run_id": "R-1"
+      }
+     },
+     {
+      "detail": "Control deny-reporting-scratchpad-read is enforced at the gateway.",
+      "index": 1,
+      "kind": "succeeded",
+      "plan_id": "P-1",
+      "step": {
+       "control_id": "deny-reporting-scratchpad-read",
+       "kind": "APPLY_CONTROL"
+      }
+     },
+     {
+      "detail": "Access for reporting-agent revoked.",
+      "evidence": {
+       "grantee": "reporting-agent"
+      },
+      "index": 2,
+      "kind": "succeeded",
+      "plan_id": "P-1",
+      "step": {
+       "actor": "reporting-agent",
+       "kind": "REVOKE_ACCESS",
+       "resource": "scratchpad"
+      }
+     },
+     {
+      "detail": "draft-1 was changed by teammate after the agent wrote it. It was not overwritten.",
+      "evidence": {
+       "current_version": 2,
+       "current_writer": "teammate",
+       "item": "draft-1",
+       "produced_version": 1
+      },
+      "index": 3,
+      "kind": "conflict",
+      "plan_id": "P-1",
+      "step": {
+       "call_event": "ev-000012",
+       "kind": "COMPENSATE"
+      }
+     },
+     {
+      "detail": "D-1 renewed. R-2 started with fresh context.",
+      "evidence": {
+       "run_id": "R-2",
+       "sources": [
+        "report_store/approved_summaries"
+       ]
+      },
+      "index": 4,
+      "kind": "succeeded",
+      "plan_id": "P-1",
+      "step": {
+       "decision_id": "D-1",
+       "kind": "REBUILD",
+       "sources": [
+        "report_store/approved_summaries"
+       ]
+      }
+     }
+    ],
+    "summary": [
+     "Affected send cancelled.",
+     "Unexpected access removed.",
+     "Report rebuilt from approved sources.",
+     "Support work preserved."
+    ]
+   },
+   "producer": "recovery",
+   "run_id": null,
+   "seq": 63,
+   "session_id": "s-recorded"
+  }
+ ],
+ "snapshot": {
+  "actions": [
+   {
+    "args": {
+     "item": "draft-1"
+    },
+    "decision_id": "D-1",
+    "id": "A-1",
+    "run_id": "R-1",
+    "status": "cancelled",
+    "tool": "webhook.send_report"
+   },
+   {
+    "args": {
+     "item": "draft-2"
+    },
+    "decision_id": "D-1",
+    "id": "A-2",
+    "run_id": "R-2",
+    "status": "delivered",
+    "tool": "webhook.send_report"
+   }
+  ],
+  "alerts": [
+   {
+    "decision_id": "D-1",
+    "event_id": "ev-000025",
+    "finding_id": "finding-ps001",
+    "held_actions": [
+     "A-1"
+    ],
+    "text": "Reporting was approved on the condition that this agent receives only sanitized summaries. It has now read an undeclared shared scratchpad. An external report is queued. This run needs review."
+   }
+  ],
+  "applied_controls": [
+   "deny-reporting-scratchpad-read"
+  ],
+  "architecture": {
+   "allowed_relationships": [
+    {
+     "action": "read",
+     "source": "support-agent",
+     "target": "crm"
+    },
+    {
+     "action": "write",
+     "source": "support-agent",
+     "target": "report_store/approved_summaries"
+    },
+    {
+     "action": "read",
+     "source": "reporting-agent",
+     "target": "report_store/approved_summaries"
+    },
+    {
+     "action": "write",
+     "source": "reporting-agent",
+     "target": "report_store/drafts"
+    },
+    {
+     "action": "read",
+     "source": "reporting-agent",
+     "target": "report_store/drafts"
+    },
+    {
+     "action": "send",
+     "source": "reporting-agent",
+     "target": "webhook"
+    }
+   ],
+   "control_capabilities": [
+    {
+     "action": "read",
+     "cost": 1,
+     "id": "deny-reporting-scratchpad-read",
+     "label": "Deny the Reporting Agent reads from the scratchpad",
+     "rationale": "Cuts the withdrawal hop. No declared workflow reads the scratchpad.",
+     "reversible": true,
+     "source": "reporting-agent",
+     "target": "scratchpad",
+     "type": "block_edge"
+    },
+    {
+     "action": null,
+     "cost": 4,
+     "id": "quarantine-scratchpad",
+     "label": "Quarantine the scratchpad for every actor",
+     "rationale": "Certain to close the route, but heavier than cutting one relationship.",
+     "reversible": true,
+     "source": null,
+     "target": "scratchpad",
+     "type": "quarantine_node"
+    },
+    {
+     "action": "send",
+     "cost": 6,
+     "id": "block-reporting-webhook-send",
+     "label": "Block the Reporting Agent sends to the webhook",
+     "rationale": "Closes the route by stopping declared external reporting.",
+     "reversible": true,
+     "source": "reporting-agent",
+     "target": "webhook",
+     "type": "block_edge"
+    },
+    {
+     "action": "read",
+     "cost": 9,
+     "id": "deny-support-crm-read",
+     "label": "Deny the Support Agent reads from the CRM",
+     "rationale": "Closes the route by stopping declared support work.",
+     "reversible": true,
+     "source": "support-agent",
+     "target": "crm",
+     "type": "block_edge"
+    }
+   ],
+   "invariants": [
+    {
+     "description": "Customer records must not become reachable from the external webhook through storage the architecture does not declare.",
+     "id": "no-restricted-egress-via-unregistered-state",
+     "required_bridge_registration": "unregistered",
+     "sink_zone": "external",
+     "source_data_class": "restricted",
+     "status": "prohibited"
+    }
+   ],
+   "nodes": [
+    {
+     "data_classification": "internal",
+     "id": "support-agent",
+     "kind": "agent",
+     "label": "Support Agent",
+     "registration": "expected",
+     "zone": "support"
+    },
+    {
+     "data_classification": "internal",
+     "id": "reporting-agent",
+     "kind": "agent",
+     "label": "Reporting Agent",
+     "registration": "expected",
+     "zone": "reporting"
+    },
+    {
+     "data_classification": "restricted",
+     "id": "crm",
+     "kind": "datasource",
+     "label": "Customer records (CRM)",
+     "registration": "expected",
+     "zone": "restricted"
+    },
+    {
+     "data_classification": "internal",
+     "id": "report_store/approved_summaries",
+     "kind": "store",
+     "label": "Approved summaries",
+     "registration": "expected",
+     "zone": "approved-state"
+    },
+    {
+     "data_classification": "internal",
+     "id": "report_store/drafts",
+     "kind": "store",
+     "label": "Report drafts",
+     "registration": "expected",
+     "zone": "approved-state"
+    },
+    {
+     "data_classification": "internal",
+     "id": "scratchpad",
+     "kind": "store",
+     "label": "Shared scratchpad",
+     "registration": "unregistered",
+     "zone": "shared-state"
+    },
+    {
+     "data_classification": "public",
+     "id": "webhook",
+     "kind": "destination",
+     "label": "External report webhook",
+     "registration": "expected",
+     "zone": "external"
+    }
+   ],
+   "version": "reporting-estate/v1",
+   "zones": {
+    "approved-state": {
+     "description": "Sanitized summaries and internal report drafts.",
+     "label": "Report store",
+     "order": 4,
+     "trust": "internal"
+    },
+    "external": {
+     "description": "Anything outside the estate boundary.",
+     "label": "External",
+     "order": 6,
+     "trust": "external"
+    },
+    "reporting": {
+     "description": "Prepares and sends approved external reports.",
+     "label": "Reporting",
+     "order": 3,
+     "trust": "internal"
+    },
+    "restricted": {
+     "description": "Customer records. Read by Support only.",
+     "label": "Restricted",
+     "order": 1,
+     "trust": "internal"
+    },
+    "shared-state": {
+     "description": "Ad-hoc storage that no declared workflow relies on.",
+     "label": "Shared state",
+     "order": 5,
+     "trust": "untrusted"
+    },
+    "support": {
+     "description": "Resolves tickets using customer context.",
+     "label": "Support",
+     "order": 2,
+     "trust": "internal"
+    }
+   }
+  },
+  "at_end": true,
+  "beat": 14,
+  "checks": [
+   {
+    "detail": "HIVE re-ran its rules on the contained graph: no route.",
+    "event_id": "ev-000054",
+    "name": "route_closed",
+    "passed": true,
+    "plan_id": "P-1"
+   },
+   {
+    "detail": "A probe call from each cancelled run was rejected by the gateway.",
+    "event_id": "ev-000056",
+    "name": "stale_run_rejected",
+    "passed": true,
+    "plan_id": "P-1"
+   },
+   {
+    "detail": "The fresh run finished its job from approved sources only, and its report went out.",
+    "event_id": "ev-000058",
+    "name": "replacement_completed",
+    "passed": true,
+    "plan_id": "P-1"
+   },
+   {
+    "detail": "Unchanged since the plan was confirmed: draft-1, note-1, summary-1.",
+    "event_id": "ev-000060",
+    "name": "preserved_work_unchanged",
+    "passed": true,
+    "plan_id": "P-1"
+   }
+  ],
+  "conflicts": [
+   {
+    "detail": "draft-1 was changed by teammate after the agent wrote it. It was not overwritten.",
+    "id": "K-1",
+    "item": "draft-1",
+    "plan_id": "P-1",
+    "status": "open"
+   }
+  ],
+  "decisions": [
+   {
+    "actor": "support-agent",
+    "bases": [
+     {
+      "accepted": true,
+      "conditions": [],
+      "id": "B-1"
+     }
+    ],
+    "conditions": [],
+    "dictated_text": "",
+    "epoch": 1,
+    "hold_rule": true,
+    "id": "D-0",
+    "statement": "Support work may proceed",
+    "status": "active",
+    "subject": "Support"
+   },
+   {
+    "actor": "reporting-agent",
+    "bases": [
+     {
+      "accepted": true,
+      "conditions": [
+       "C-1"
+      ],
+      "id": "B-2"
+     }
+    ],
+    "conditions": [
+     {
+      "id": "C-1",
+      "last_result": "HOLDS",
+      "plain": "this agent receives only sanitized summaries",
+      "typed": "ReadsOnlyFrom(reporting-agent, [report_store/approved_summaries])",
+      "witnesses": [
+       "ev-000045"
+      ],
+      "words": "Reporting Agent only reads from Approved summaries"
+     }
+    ],
+    "dictated_text": "Approve reporting, on the condition that the Reporting Agent only reads from the approved, sanitized report store.",
+    "epoch": 2,
+    "hold_rule": true,
+    "id": "D-1",
+    "statement": "Reporting may proceed",
+    "status": "active",
+    "subject": "Reporting"
+   }
+  ],
+  "deliveries": [
+   {
+    "content": "Weekly support report: 1 billing ticket resolved. Built from approved summaries only.",
+    "item": "draft-2",
+    "version": 1
+   }
+  ],
+  "findings": [],
+  "graph": {
+   "applied_controls": [
+    "deny-reporting-scratchpad-read"
+   ],
+   "edges": [
+    {
+     "action": "read",
+     "evidence_event_ids": [
+      "ev-000007"
+     ],
+     "expected_status": "expected",
+     "first_seen": "2026-10-28T10:00:07Z",
+     "id": "support-agent--read-->crm",
+     "last_seen": "2026-10-28T10:00:07Z",
+     "observation_count": 1,
+     "source": "support-agent",
+     "target": "crm"
+    },
+    {
+     "action": "write",
+     "evidence_event_ids": [
+      "ev-000008"
+     ],
+     "expected_status": "expected",
+     "first_seen": "2026-10-28T10:00:08Z",
+     "id": "support-agent--write-->report_store/approved_summaries",
+     "last_seen": "2026-10-28T10:00:08Z",
+     "observation_count": 1,
+     "source": "support-agent",
+     "target": "report_store/approved_summaries"
+    },
+    {
+     "action": "read",
+     "evidence_event_ids": [
+      "ev-000010",
+      "ev-000045"
+     ],
+     "expected_status": "expected",
+     "first_seen": "2026-10-28T10:00:10Z",
+     "id": "reporting-agent--read-->report_store/approved_summaries",
+     "last_seen": "2026-10-28T10:00:45Z",
+     "observation_count": 2,
+     "source": "reporting-agent",
+     "target": "report_store/approved_summaries"
+    },
+    {
+     "action": "write",
+     "evidence_event_ids": [
+      "ev-000012",
+      "ev-000047"
+     ],
+     "expected_status": "expected",
+     "first_seen": "2026-10-28T10:00:12Z",
+     "id": "reporting-agent--write-->report_store/drafts",
+     "last_seen": "2026-10-28T10:00:47Z",
+     "observation_count": 2,
+     "source": "reporting-agent",
+     "target": "report_store/drafts"
+    },
+    {
+     "action": "send",
+     "evidence_event_ids": [
+      "ev-000013",
+      "ev-000048"
+     ],
+     "expected_status": "expected",
+     "first_seen": "2026-10-28T10:00:13Z",
+     "id": "reporting-agent--send-->webhook",
+     "last_seen": "2026-10-28T10:00:48Z",
+     "observation_count": 2,
+     "source": "reporting-agent",
+     "target": "webhook"
+    },
+    {
+     "action": "write",
+     "evidence_event_ids": [
+      "ev-000016"
+     ],
+     "expected_status": "unexpected",
+     "first_seen": "2026-10-28T10:00:16Z",
+     "id": "support-agent--write-->scratchpad",
+     "last_seen": "2026-10-28T10:00:16Z",
+     "observation_count": 1,
+     "source": "support-agent",
+     "target": "scratchpad"
+    }
+   ],
+   "nodes": [
+    {
+     "data_classification": "internal",
+     "declared": true,
+     "id": "support-agent",
+     "kind": "agent",
+     "label": "Support Agent",
+     "registration": "expected",
+     "trust": "internal",
+     "zone": "support"
+    },
+    {
+     "data_classification": "internal",
+     "declared": true,
+     "id": "reporting-agent",
+     "kind": "agent",
+     "label": "Reporting Agent",
+     "registration": "expected",
+     "trust": "internal",
+     "zone": "reporting"
+    },
+    {
+     "data_classification": "restricted",
+     "declared": true,
+     "id": "crm",
+     "kind": "datasource",
+     "label": "Customer records (CRM)",
+     "registration": "expected",
+     "trust": "internal",
+     "zone": "restricted"
+    },
+    {
+     "data_classification": "internal",
+     "declared": true,
+     "id": "report_store/approved_summaries",
+     "kind": "store",
+     "label": "Approved summaries",
+     "registration": "expected",
+     "trust": "internal",
+     "zone": "approved-state"
+    },
+    {
+     "data_classification": "internal",
+     "declared": true,
+     "id": "report_store/drafts",
+     "kind": "store",
+     "label": "Report drafts",
+     "registration": "expected",
+     "trust": "internal",
+     "zone": "approved-state"
+    },
+    {
+     "data_classification": "internal",
+     "declared": true,
+     "id": "scratchpad",
+     "kind": "store",
+     "label": "Shared scratchpad",
+     "registration": "unregistered",
+     "trust": "untrusted",
+     "zone": "shared-state"
+    },
+    {
+     "data_classification": "public",
+     "declared": true,
+     "id": "webhook",
+     "kind": "destination",
+     "label": "External report webhook",
+     "registration": "expected",
+     "trust": "external",
+     "zone": "external"
+    }
+   ]
+  },
+  "items": [
+   {
+    "content": "Ticket 1042 resolved: billing address corrected. No personal data included.",
+    "id": "summary-1",
+    "resource": "report_store/approved_summaries",
+    "version": 1,
+    "writer": "support-agent"
+   },
+   {
+    "content": "Weekly support report: 1 billing ticket resolved within SLA. Reviewed by the support lead.",
+    "id": "draft-1",
+    "resource": "report_store/drafts",
+    "version": 2,
+    "writer": "teammate"
+   },
+   {
+    "content": "Customer 1042 contact details for follow-up.",
+    "id": "note-1",
+    "resource": "scratchpad",
+    "version": 1,
+    "writer": "support-agent"
+   },
+   {
+    "content": "Weekly support report: 1 billing ticket resolved. Built from approved summaries only.",
+    "id": "draft-2",
+    "resource": "report_store/drafts",
+    "version": 1,
+    "writer": "reporting-agent"
+   }
+  ],
+  "labels": {
+   "data": "Fictional data",
+   "mode": "Recorded replay"
+  },
+  "last_seq": 63,
+  "manifest_version": "reporting-estate/v1",
+  "plans": [
+   {
+    "dictated_text": "Stop this reporting run, remove its scratchpad access, and rebuild the report from approved summaries. Keep the support work.",
+    "errors": [],
+    "finding_id": "finding-ps001",
+    "id": "P-1",
+    "interpreted_by": "grammar",
+    "read_back": "I will:\n 1. Cancel reporting run R-1 and its held external send A-1. Later calls from R-1 will be rejected.\n 2. Cut the route: deny the Reporting Agent reads from the scratchpad (HIVE's recommended control) and revoke the access the Support Agent granted.\n 3. Prepare a correction for draft-1. A person edited draft-1 after the agent wrote it, so I will not overwrite it. I will ask you.\n 4. Renew approval D-1 and start a fresh reporting run that reads approved summaries only.\nI will keep: all Support Agent work.\nCannot be undone: nothing in this plan sends anything.\nInterpreted by: grammar (no model call)",
+    "status": "verified_with_conflicts",
+    "steps": [
+     {
+      "kind": "CANCEL_RUN",
+      "run_id": "R-1"
+     },
+     {
+      "control_id": "deny-reporting-scratchpad-read",
+      "kind": "APPLY_CONTROL"
+     },
+     {
+      "actor": "reporting-agent",
+      "kind": "REVOKE_ACCESS",
+      "resource": "scratchpad"
+     },
+     {
+      "call_event": "ev-000012",
+      "kind": "COMPENSATE"
+     },
+     {
+      "decision_id": "D-1",
+      "kind": "REBUILD",
+      "sources": [
+       "report_store/approved_summaries"
+      ]
+     },
+     {
+      "kind": "PRESERVE",
+      "scope": "support-agent"
+     }
+    ]
+   }
+  ],
+  "record": {
+   "approval": {
+    "conditions": [
+     {
+      "id": "C-1",
+      "plain": "this agent receives only sanitized summaries",
+      "typed": {
+       "actor": "reporting-agent",
+       "kind": "ReadsOnlyFrom",
+       "resources": [
+        "report_store/approved_summaries"
+       ]
+      }
+     }
+    ],
+    "dictated_text": "Approve reporting, on the condition that the Reporting Agent only reads from the approved, sanitized report store.",
+    "id": "D-1",
+    "statement": "Reporting may proceed"
+   },
+   "checks": [
+    {
+     "detail": "HIVE re-ran its rules on the contained graph: no route.",
+     "name": "route_closed",
+     "passed": true,
+     "plan_id": "P-1"
+    },
+    {
+     "detail": "A probe call from each cancelled run was rejected by the gateway.",
+     "name": "stale_run_rejected",
+     "passed": true,
+     "plan_id": "P-1"
+    },
+    {
+     "detail": "The fresh run finished its job from approved sources only, and its report went out.",
+     "name": "replacement_completed",
+     "passed": true,
+     "plan_id": "P-1"
+    },
+    {
+     "detail": "Unchanged since the plan was confirmed: draft-1, note-1, summary-1.",
+     "name": "preserved_work_unchanged",
+     "passed": true,
+     "plan_id": "P-1"
+    }
+   ],
+   "conflicts": [
+    "draft-1: a person edited it after the agent wrote it. The human version was kept for review."
+   ],
+   "finding": {
+    "cited_events": [
+     "ev-000007",
+     "ev-000016",
+     "ev-000018",
+     "ev-000013"
+    ],
+    "id": "finding-ps001",
+    "rule_id": "PS-001",
+    "title": "Restricted data can reach external egress via unregistered shared state"
+   },
+   "plan": {
+    "controls": [
+     "deny-reporting-scratchpad-read"
+    ],
+    "dictated_text": "Stop this reporting run, remove its scratchpad access, and rebuild the report from approved summaries. Keep the support work.",
+    "interpreted_by": "grammar",
+    "read_back": "I will:\n 1. Cancel reporting run R-1 and its held external send A-1. Later calls from R-1 will be rejected.\n 2. Cut the route: deny the Reporting Agent reads from the scratchpad (HIVE's recommended control) and revoke the access the Support Agent granted.\n 3. Prepare a correction for draft-1. A person edited draft-1 after the agent wrote it, so I will not overwrite it. I will ask you.\n 4. Renew approval D-1 and start a fresh reporting run that reads approved summaries only.\nI will keep: all Support Agent work.\nCannot be undone: nothing in this plan sends anything.\nInterpreted by: grammar (no model call)"
+   },
+   "plan_id": "P-1",
+   "status": "verified_with_conflicts",
+   "steps": [
+    {
+     "detail": "R-1 cancelled. A-1 cancelled before it was sent.",
+     "evidence": {
+      "cancelled_actions": [
+       "A-1"
+      ]
+     },
+     "index": 0,
+     "kind": "succeeded",
+     "plan_id": "P-1",
+     "step": {
+      "kind": "CANCEL_RUN",
+      "run_id": "R-1"
+     }
+    },
+    {
+     "detail": "Control deny-reporting-scratchpad-read is enforced at the gateway.",
+     "index": 1,
+     "kind": "succeeded",
+     "plan_id": "P-1",
+     "step": {
+      "control_id": "deny-reporting-scratchpad-read",
+      "kind": "APPLY_CONTROL"
+     }
+    },
+    {
+     "detail": "Access for reporting-agent revoked.",
+     "evidence": {
+      "grantee": "reporting-agent"
+     },
+     "index": 2,
+     "kind": "succeeded",
+     "plan_id": "P-1",
+     "step": {
+      "actor": "reporting-agent",
+      "kind": "REVOKE_ACCESS",
+      "resource": "scratchpad"
+     }
+    },
+    {
+     "detail": "draft-1 was changed by teammate after the agent wrote it. It was not overwritten.",
+     "evidence": {
+      "current_version": 2,
+      "current_writer": "teammate",
+      "item": "draft-1",
+      "produced_version": 1
+     },
+     "index": 3,
+     "kind": "conflict",
+     "plan_id": "P-1",
+     "step": {
+      "call_event": "ev-000012",
+      "kind": "COMPENSATE"
+     }
+    },
+    {
+     "detail": "D-1 renewed. R-2 started with fresh context.",
+     "evidence": {
+      "run_id": "R-2",
+      "sources": [
+       "report_store/approved_summaries"
+      ]
+     },
+     "index": 4,
+     "kind": "succeeded",
+     "plan_id": "P-1",
+     "step": {
+      "decision_id": "D-1",
+      "kind": "REBUILD",
+      "sources": [
+       "report_store/approved_summaries"
+      ]
+     }
+    }
+   ],
+   "summary": [
+    "Affected send cancelled.",
+    "Unexpected access removed.",
+    "Report rebuilt from approved sources.",
+    "Support work preserved."
+   ]
+  },
+  "rejected_calls": [
+   {
+    "event_id": "ev-000026",
+    "reason": "stale_epoch",
+    "run_id": "R-1",
+    "tool": "webhook.send_report"
+   },
+   {
+    "event_id": "ev-000053",
+    "reason": "run_cancelled",
+    "run_id": "R-1",
+    "tool": "report_store.read_summaries"
+   }
+  ],
+  "runs": [
+   {
+    "actor": "support-agent",
+    "decision_id": "D-0",
+    "epoch": 1,
+    "fresh_context": false,
+    "id": "S-1",
+    "status": "running"
+   },
+   {
+    "actor": "reporting-agent",
+    "decision_id": "D-1",
+    "epoch": 1,
+    "fresh_context": false,
+    "id": "R-1",
+    "status": "cancelled"
+   },
+   {
+    "actor": "reporting-agent",
+    "decision_id": "D-1",
+    "epoch": 2,
+    "fresh_context": true,
+    "id": "R-2",
+    "status": "completed"
+   }
+  ],
+  "session_id": "s-recorded",
+  "steps": [
+   {
+    "detail": "R-1 cancelled. A-1 cancelled before it was sent.",
+    "event_id": "ev-000032",
+    "evidence": {
+     "cancelled_actions": [
+      "A-1"
+     ]
+    },
+    "index": 0,
+    "kind": "succeeded",
+    "plan_id": "P-1",
+    "step": {
+     "kind": "CANCEL_RUN",
+     "run_id": "R-1"
+    }
+   },
+   {
+    "detail": "Control deny-reporting-scratchpad-read is enforced at the gateway.",
+    "event_id": "ev-000035",
+    "index": 1,
+    "kind": "succeeded",
+    "plan_id": "P-1",
+    "step": {
+     "control_id": "deny-reporting-scratchpad-read",
+     "kind": "APPLY_CONTROL"
+    }
+   },
+   {
+    "detail": "Access for reporting-agent revoked.",
+    "event_id": "ev-000038",
+    "evidence": {
+     "grantee": "reporting-agent"
+    },
+    "index": 2,
+    "kind": "succeeded",
+    "plan_id": "P-1",
+    "step": {
+     "actor": "reporting-agent",
+     "kind": "REVOKE_ACCESS",
+     "resource": "scratchpad"
+    }
+   },
+   {
+    "detail": "draft-1 was changed by teammate after the agent wrote it. It was not overwritten.",
+    "event_id": "ev-000040",
+    "evidence": {
+     "current_version": 2,
+     "current_writer": "teammate",
+     "item": "draft-1",
+     "produced_version": 1
+    },
+    "index": 3,
+    "kind": "conflict",
+    "plan_id": "P-1",
+    "step": {
+     "call_event": "ev-000012",
+     "kind": "COMPENSATE"
+    }
+   },
+   {
+    "detail": "D-1 renewed. R-2 started with fresh context.",
+    "event_id": "ev-000044",
+    "evidence": {
+     "run_id": "R-2",
+     "sources": [
+      "report_store/approved_summaries"
+     ]
+    },
+    "index": 4,
+    "kind": "succeeded",
+    "plan_id": "P-1",
+    "step": {
+     "decision_id": "D-1",
+     "kind": "REBUILD",
+     "sources": [
+      "report_store/approved_summaries"
+     ]
+    }
+   }
+  ],
+  "storyline": [
+   {
+    "done": true,
+    "n": 0,
+    "title": "Seed"
+   },
+   {
+    "done": true,
+    "n": 1,
+    "title": "Approve"
+   },
+   {
+    "done": true,
+    "n": 2,
+    "title": "Support works"
+   },
+   {
+    "done": true,
+    "n": 3,
+    "title": "Reporting works"
+   },
+   {
+    "done": true,
+    "n": 4,
+    "title": "Human edit"
+   },
+   {
+    "done": true,
+    "n": 5,
+    "title": "Unexpected connection"
+   },
+   {
+    "done": true,
+    "n": 8,
+    "title": "Late action"
+   },
+   {
+    "done": true,
+    "n": 9,
+    "title": "Dictated recovery"
+   },
+   {
+    "done": true,
+    "n": 10,
+    "title": "Confirm"
+   },
+   {
+    "done": true,
+    "n": 12,
+    "title": "Replacement"
+   },
+   {
+    "done": true,
+    "n": 13,
+    "title": "Verify"
+   },
+   {
+    "done": true,
+    "n": 14,
+    "title": "Record"
+   }
+  ]
+ }
+}

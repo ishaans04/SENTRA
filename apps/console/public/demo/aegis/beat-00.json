@@ -1,0 +1,438 @@
+{
+ "ledger": [
+  {
+   "actor": null,
+   "at": "2026-10-28T10:00:01Z",
+   "cites": [],
+   "decision_id": null,
+   "epoch": null,
+   "event_id": "ev-000001",
+   "kind": "session.seeded",
+   "payload": {
+    "fictional": true,
+    "manifest_version": "reporting-estate/v1"
+   },
+   "producer": "scenario",
+   "run_id": null,
+   "seq": 1,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": null,
+   "at": "2026-10-28T10:00:02Z",
+   "cites": [],
+   "decision_id": "D-0",
+   "epoch": null,
+   "event_id": "ev-000002",
+   "kind": "decision.proposed",
+   "payload": {
+    "conditions": [],
+    "decision": {
+     "actor": "support-agent",
+     "bases": [
+      {
+       "accepted": true,
+       "conditions": [],
+       "id": "B-1"
+      }
+     ],
+     "dictated_text": "",
+     "epoch": 1,
+     "hold_rule": true,
+     "id": "D-0",
+     "provenance": [],
+     "statement": "Support work may proceed",
+     "status": "proposed",
+     "subject": "Support"
+    }
+   },
+   "producer": "scenario",
+   "run_id": null,
+   "seq": 2,
+   "session_id": "s-recorded"
+  },
+  {
+   "actor": null,
+   "at": "2026-10-28T10:00:03Z",
+   "cites": [],
+   "decision_id": "D-0",
+   "epoch": 1,
+   "event_id": "ev-000003",
+   "kind": "decision.confirmed",
+   "payload": {},
+   "producer": "operator",
+   "run_id": null,
+   "seq": 3,
+   "session_id": "s-recorded"
+  }
+ ],
+ "snapshot": {
+  "actions": [],
+  "alerts": [],
+  "applied_controls": [],
+  "architecture": {
+   "allowed_relationships": [
+    {
+     "action": "read",
+     "source": "support-agent",
+     "target": "crm"
+    },
+    {
+     "action": "write",
+     "source": "support-agent",
+     "target": "report_store/approved_summaries"
+    },
+    {
+     "action": "read",
+     "source": "reporting-agent",
+     "target": "report_store/approved_summaries"
+    },
+    {
+     "action": "write",
+     "source": "reporting-agent",
+     "target": "report_store/drafts"
+    },
+    {
+     "action": "read",
+     "source": "reporting-agent",
+     "target": "report_store/drafts"
+    },
+    {
+     "action": "send",
+     "source": "reporting-agent",
+     "target": "webhook"
+    }
+   ],
+   "control_capabilities": [
+    {
+     "action": "read",
+     "cost": 1,
+     "id": "deny-reporting-scratchpad-read",
+     "label": "Deny the Reporting Agent reads from the scratchpad",
+     "rationale": "Cuts the withdrawal hop. No declared workflow reads the scratchpad.",
+     "reversible": true,
+     "source": "reporting-agent",
+     "target": "scratchpad",
+     "type": "block_edge"
+    },
+    {
+     "action": null,
+     "cost": 4,
+     "id": "quarantine-scratchpad",
+     "label": "Quarantine the scratchpad for every actor",
+     "rationale": "Certain to close the route, but heavier than cutting one relationship.",
+     "reversible": true,
+     "source": null,
+     "target": "scratchpad",
+     "type": "quarantine_node"
+    },
+    {
+     "action": "send",
+     "cost": 6,
+     "id": "block-reporting-webhook-send",
+     "label": "Block the Reporting Agent sends to the webhook",
+     "rationale": "Closes the route by stopping declared external reporting.",
+     "reversible": true,
+     "source": "reporting-agent",
+     "target": "webhook",
+     "type": "block_edge"
+    },
+    {
+     "action": "read",
+     "cost": 9,
+     "id": "deny-support-crm-read",
+     "label": "Deny the Support Agent reads from the CRM",
+     "rationale": "Closes the route by stopping declared support work.",
+     "reversible": true,
+     "source": "support-agent",
+     "target": "crm",
+     "type": "block_edge"
+    }
+   ],
+   "invariants": [
+    {
+     "description": "Customer records must not become reachable from the external webhook through storage the architecture does not declare.",
+     "id": "no-restricted-egress-via-unregistered-state",
+     "required_bridge_registration": "unregistered",
+     "sink_zone": "external",
+     "source_data_class": "restricted",
+     "status": "prohibited"
+    }
+   ],
+   "nodes": [
+    {
+     "data_classification": "internal",
+     "id": "support-agent",
+     "kind": "agent",
+     "label": "Support Agent",
+     "registration": "expected",
+     "zone": "support"
+    },
+    {
+     "data_classification": "internal",
+     "id": "reporting-agent",
+     "kind": "agent",
+     "label": "Reporting Agent",
+     "registration": "expected",
+     "zone": "reporting"
+    },
+    {
+     "data_classification": "restricted",
+     "id": "crm",
+     "kind": "datasource",
+     "label": "Customer records (CRM)",
+     "registration": "expected",
+     "zone": "restricted"
+    },
+    {
+     "data_classification": "internal",
+     "id": "report_store/approved_summaries",
+     "kind": "store",
+     "label": "Approved summaries",
+     "registration": "expected",
+     "zone": "approved-state"
+    },
+    {
+     "data_classification": "internal",
+     "id": "report_store/drafts",
+     "kind": "store",
+     "label": "Report drafts",
+     "registration": "expected",
+     "zone": "approved-state"
+    },
+    {
+     "data_classification": "internal",
+     "id": "scratchpad",
+     "kind": "store",
+     "label": "Shared scratchpad",
+     "registration": "unregistered",
+     "zone": "shared-state"
+    },
+    {
+     "data_classification": "public",
+     "id": "webhook",
+     "kind": "destination",
+     "label": "External report webhook",
+     "registration": "expected",
+     "zone": "external"
+    }
+   ],
+   "version": "reporting-estate/v1",
+   "zones": {
+    "approved-state": {
+     "description": "Sanitized summaries and internal report drafts.",
+     "label": "Report store",
+     "order": 4,
+     "trust": "internal"
+    },
+    "external": {
+     "description": "Anything outside the estate boundary.",
+     "label": "External",
+     "order": 6,
+     "trust": "external"
+    },
+    "reporting": {
+     "description": "Prepares and sends approved external reports.",
+     "label": "Reporting",
+     "order": 3,
+     "trust": "internal"
+    },
+    "restricted": {
+     "description": "Customer records. Read by Support only.",
+     "label": "Restricted",
+     "order": 1,
+     "trust": "internal"
+    },
+    "shared-state": {
+     "description": "Ad-hoc storage that no declared workflow relies on.",
+     "label": "Shared state",
+     "order": 5,
+     "trust": "untrusted"
+    },
+    "support": {
+     "description": "Resolves tickets using customer context.",
+     "label": "Support",
+     "order": 2,
+     "trust": "internal"
+    }
+   }
+  },
+  "at_end": false,
+  "beat": 0,
+  "checks": [],
+  "conflicts": [],
+  "decisions": [
+   {
+    "actor": "support-agent",
+    "bases": [
+     {
+      "accepted": true,
+      "conditions": [],
+      "id": "B-1"
+     }
+    ],
+    "conditions": [],
+    "dictated_text": "",
+    "epoch": 1,
+    "hold_rule": true,
+    "id": "D-0",
+    "statement": "Support work may proceed",
+    "status": "active",
+    "subject": "Support"
+   }
+  ],
+  "deliveries": [],
+  "findings": [],
+  "graph": {
+   "applied_controls": [],
+   "edges": [],
+   "nodes": [
+    {
+     "data_classification": "internal",
+     "declared": true,
+     "id": "support-agent",
+     "kind": "agent",
+     "label": "Support Agent",
+     "registration": "expected",
+     "trust": "internal",
+     "zone": "support"
+    },
+    {
+     "data_classification": "internal",
+     "declared": true,
+     "id": "reporting-agent",
+     "kind": "agent",
+     "label": "Reporting Agent",
+     "registration": "expected",
+     "trust": "internal",
+     "zone": "reporting"
+    },
+    {
+     "data_classification": "restricted",
+     "declared": true,
+     "id": "crm",
+     "kind": "datasource",
+     "label": "Customer records (CRM)",
+     "registration": "expected",
+     "trust": "internal",
+     "zone": "restricted"
+    },
+    {
+     "data_classification": "internal",
+     "declared": true,
+     "id": "report_store/approved_summaries",
+     "kind": "store",
+     "label": "Approved summaries",
+     "registration": "expected",
+     "trust": "internal",
+     "zone": "approved-state"
+    },
+    {
+     "data_classification": "internal",
+     "declared": true,
+     "id": "report_store/drafts",
+     "kind": "store",
+     "label": "Report drafts",
+     "registration": "expected",
+     "trust": "internal",
+     "zone": "approved-state"
+    },
+    {
+     "data_classification": "internal",
+     "declared": true,
+     "id": "scratchpad",
+     "kind": "store",
+     "label": "Shared scratchpad",
+     "registration": "unregistered",
+     "trust": "untrusted",
+     "zone": "shared-state"
+    },
+    {
+     "data_classification": "public",
+     "declared": true,
+     "id": "webhook",
+     "kind": "destination",
+     "label": "External report webhook",
+     "registration": "expected",
+     "trust": "external",
+     "zone": "external"
+    }
+   ]
+  },
+  "items": [],
+  "labels": {
+   "data": "Fictional data",
+   "mode": "Recorded replay"
+  },
+  "last_seq": 3,
+  "manifest_version": "reporting-estate/v1",
+  "plans": [],
+  "record": null,
+  "rejected_calls": [],
+  "runs": [],
+  "session_id": "s-recorded",
+  "steps": [],
+  "storyline": [
+   {
+    "done": true,
+    "n": 0,
+    "title": "Seed"
+   },
+   {
+    "done": false,
+    "n": 1,
+    "title": "Approve"
+   },
+   {
+    "done": false,
+    "n": 2,
+    "title": "Support works"
+   },
+   {
+    "done": false,
+    "n": 3,
+    "title": "Reporting works"
+   },
+   {
+    "done": false,
+    "n": 4,
+    "title": "Human edit"
+   },
+   {
+    "done": false,
+    "n": 5,
+    "title": "Unexpected connection"
+   },
+   {
+    "done": false,
+    "n": 8,
+    "title": "Late action"
+   },
+   {
+    "done": false,
+    "n": 9,
+    "title": "Dictated recovery"
+   },
+   {
+    "done": false,
+    "n": 10,
+    "title": "Confirm"
+   },
+   {
+    "done": false,
+    "n": 12,
+    "title": "Replacement"
+   },
+   {
+    "done": false,
+    "n": 13,
+    "title": "Verify"
+   },
+   {
+    "done": false,
+    "n": 14,
+    "title": "Record"
+   }
+  ]
+ }
+}
