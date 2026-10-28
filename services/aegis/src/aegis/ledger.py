@@ -99,7 +99,8 @@ class SessionLedger:
         self.session_id = session_id
         self.clock = clock
         self._events: list[LedgerEvent] = []
-        self._subscribers: list[asyncio.Queue[LedgerEvent]] = []
+        self._subscribers: list[asyncio.Queue[LedgerEvent | None]] = []
+        self.closed = False
         #: Called synchronously on every append, in order. Projections that must
         #: never lag the ledger (the decision graph) register here.
         self.listeners: list[Callable[[LedgerEvent], None]] = []
@@ -149,14 +150,28 @@ class SessionLedger:
                 return event
         return None
 
-    def subscribe(self) -> asyncio.Queue[LedgerEvent]:
-        queue: asyncio.Queue[LedgerEvent] = asyncio.Queue()
-        self._subscribers.append(queue)
+    def subscribe(self) -> asyncio.Queue[LedgerEvent | None]:
+        queue: asyncio.Queue[LedgerEvent | None] = asyncio.Queue()
+        if self.closed:
+            queue.put_nowait(None)
+        else:
+            self._subscribers.append(queue)
         return queue
 
-    def unsubscribe(self, queue: asyncio.Queue[LedgerEvent]) -> None:
+    def unsubscribe(self, queue: asyncio.Queue[LedgerEvent | None]) -> None:
         if queue in self._subscribers:
             self._subscribers.remove(queue)
+
+    @property
+    def subscriber_count(self) -> int:
+        return len(self._subscribers)
+
+    def close(self) -> None:
+        """The session is gone: end every open stream with a ``None`` sentinel."""
+        self.closed = True
+        for queue in self._subscribers:
+            queue.put_nowait(None)
+        self._subscribers.clear()
 
     def to_jsonl(self) -> str:
         return "".join(json.dumps(e.model_dump(), sort_keys=True) + "\n" for e in self._events)

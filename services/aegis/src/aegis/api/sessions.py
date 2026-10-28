@@ -34,7 +34,15 @@ class Sandbox:
 
 
 class RateLimited(Exception):
-    """Too many interpretation requests from one session in the last minute."""
+    """Too many requests in the last minute."""
+
+
+class SessionsFull(Exception):
+    """Every sandbox slot is taken by a visitor who is still active."""
+
+
+#: Open event streams allowed on one session (a few tabs, not a flood).
+MAX_STREAMS_PER_SESSION = 4
 
 
 class SessionManager:
@@ -55,20 +63,35 @@ class SessionManager:
         self.interpret_per_minute = interpret_per_minute or int(
             os.getenv("AEGIS_INTERPRET_PER_MINUTE", "10")
         )
+        self.creates_per_minute = int(os.getenv("AEGIS_SESSIONS_PER_MINUTE", "30"))
         self.clock = clock
         self._sandboxes: OrderedDict[str, Sandbox] = OrderedDict()
+        self._creates: deque[float] = deque()
 
     def new_id(self) -> str:
         return "s-" + secrets.token_urlsafe(9)
 
-    def create(self, session_id: str | None = None) -> Sandbox:
-        """A fresh seeded sandbox. Reusing an id resets that visitor's world."""
+    def create(self, replacing: str | None = None) -> Sandbox:
+        """A fresh seeded sandbox under a new, server-minted id.
+
+        *replacing* is the visitor's current session, if any: it is closed (its
+        open streams end) and its slot reused. A new visitor is refused rather
+        than evicting someone who is still using the site.
+        """
         self._evict()
-        session_id = session_id or self.new_id()
-        self._sandboxes.pop(session_id, None)
-        while len(self._sandboxes) >= self.cap:
-            self._sandboxes.popitem(last=False)
-        sandbox = Sandbox(Session(session_id, self.fixtures_dir), last_used=self.clock())
+        now = self.clock()
+        while self._creates and now - self._creates[0] > 60:
+            self._creates.popleft()
+        if len(self._creates) >= self.creates_per_minute:
+            raise RateLimited()
+        old = self._sandboxes.pop(replacing, None) if replacing else None
+        if old is not None:
+            old.session.ledger.close()
+        elif len(self._sandboxes) >= self.cap:
+            raise SessionsFull()
+        self._creates.append(now)
+        session_id = self.new_id()
+        sandbox = Sandbox(Session(session_id, self.fixtures_dir), last_used=now)
         self._sandboxes[session_id] = sandbox
         return sandbox
 
@@ -99,4 +122,4 @@ class SessionManager:
         for session_id in [
             sid for sid, box in self._sandboxes.items() if now - box.last_used > self.idle_seconds
         ]:
-            del self._sandboxes[session_id]
+            self._sandboxes.pop(session_id).session.ledger.close()

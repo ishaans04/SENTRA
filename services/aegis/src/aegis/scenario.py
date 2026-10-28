@@ -54,6 +54,8 @@ class Session:
         self.interpreter = Interpreter(self)
         #: The recovery plan the storyline is working on, once one is drafted.
         self.plan_id: str | None = None
+        #: Who drafted it: the storyline may confirm its own plans, never the operator's.
+        self.plan_by = "story"
         self.known_decisions: dict[str, Any] = yaml.safe_load(
             (self.fixtures_dir / "decisions.yaml").read_text(encoding="utf-8")
         )
@@ -85,9 +87,9 @@ class Session:
         if self.at_end:
             raise IndexError("The storyline has no more beats.")
         beat = self.beats[self.position]
-        self.position += 1
         for step in beat["steps"]:
             await self._perform(step)
+        self.position += 1
         return int(beat["n"])
 
     async def run_to(self, n: int) -> None:
@@ -114,14 +116,22 @@ class Session:
         elif op == "approve":
             await self._storyline_approval(step["text"])
         elif op == "call":
+            if step["run"] not in self.gateway.state.runs:
+                raise ValueError(
+                    f"Run {step['run']} does not exist: the recovery plan did not start a "
+                    "replacement run. Reset to start the story again."
+                )
             await self.agent(step["run"]).call(step["tool"], step.get("args") or {})
         elif op == "human_edit":
             self.human_edit(step["item"], step["content"])
         elif op == "recover":
             if self.plan_id is None:
-                await self.recover(step["text"])
+                await self.recover(step["text"], by="story")
         elif op == "confirm_recovery":
-            await self.recovery.confirm(self._plan().id)
+            plan = self._plan()
+            if plan.status == "read_back" and self.plan_by == "operator":
+                raise ValueError("Confirm or cancel the recovery read-back first.")
+            await self.recovery.confirm(plan.id)
         elif op == "release":
             await self.gateway.release_due()
         elif op == "complete_run":
@@ -153,13 +163,14 @@ class Session:
         if not existing:
             await self.approve(text)
         elif existing[-1].status == "proposed":
-            self.decisions.confirm(existing[-1].id)
+            raise ValueError("Confirm or cancel the approval read-back first.")
 
-    async def recover(self, text: str) -> RecoveryPlan:
+    async def recover(self, text: str, by: str = "operator") -> RecoveryPlan:
         """Interpret a dictated recovery instruction into a plan, ready to read back."""
         steps, used = await self.interpreter.recovery(text)
         plan = self.recovery.draft(steps, text=text, interpreted_by=used)
         self.plan_id = plan.id
+        self.plan_by = by
         return plan
 
     def _plan(self) -> RecoveryPlan:

@@ -68,4 +68,8 @@ recovery:
   hold: [hold, pause]
 
 # Short replies that confirm a pending read-back.
-confirmations: [confirm, confirmed, yes, yes run it, run it, go ahead, do it, approved]
+# Quoted: unquoted yes is a boolean in YAML.
+confirmations: ["confirm", "confirmed", "yes", "yep", "run it", "go ahead", "do it", "approved"]
+
+# Fillers removed wherever they appear, not only at the start.
+fillers_anywhere: ["um", "uh", "erm", "hmm", "please"]

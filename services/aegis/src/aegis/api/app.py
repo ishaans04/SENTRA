@@ -14,14 +14,21 @@ from collections.abc import AsyncIterator
 from pathlib import Path
 from typing import Annotated, Any
 
-from fastapi import Cookie, FastAPI, Header, Request, Response
+from fastapi import Cookie, Depends, FastAPI, Header, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, PlainTextResponse
 from fastapi.sse import EventSourceResponse, ServerSentEvent
 from fastapi.staticfiles import StaticFiles
+from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field
 
-from aegis.api.sessions import RateLimited, Sandbox, SessionManager
+from aegis.api.sessions import (
+    MAX_STREAMS_PER_SESSION,
+    RateLimited,
+    Sandbox,
+    SessionManager,
+    SessionsFull,
+)
 from aegis.api.snapshot import channel, snapshot
 from aegis.decisions.service import DecisionError
 from aegis.interpret.readback import read_back_decision
@@ -50,6 +57,15 @@ class EditBody(BaseModel):
 
 class ChoiceBody(BaseModel):
     choice: str
+
+
+class ConfirmBody(BaseModel):
+    #: The read-back revision the operator saw. Omitted only by older clients.
+    revision: str | None = None
+
+
+#: Failures a command can meet that are the operator's to fix, not a server fault.
+_EXPECTED = (DecisionError, RecoveryError, ValueError, KeyError, ToolError)
 
 
 def create_app(
@@ -87,6 +103,16 @@ def create_app(
             raise ApiError(413, "text_too_long", f"Keep it under {MAX_TEXT} characters.")
         return body.text
 
+    async def require_sandbox(haegis_session: SessionCookie = None) -> Sandbox:
+        """Resolved before any response starts, so a stream can still answer 404."""
+        return sandbox_for(haegis_session)
+
+    def interpret_slot(sandbox: Sandbox) -> None:
+        try:
+            sessions.check_interpret_rate(sandbox)
+        except RateLimited:
+            raise ApiError(429, "rate_limited", "Too many requests. Wait a minute.") from None
+
     def failed(exc: Exception) -> ApiError:
         message = str(exc.args[0]) if exc.args else str(exc)
         if message.startswith(("No ", "There is no")):
@@ -103,7 +129,17 @@ def create_app(
     async def create_session(
         response: Response, haegis_session: SessionCookie = None
     ) -> dict[str, Any]:
-        sandbox = sessions.create(haegis_session)
+        try:
+            sandbox = sessions.create(replacing=haegis_session)
+        except SessionsFull:
+            raise ApiError(
+                503,
+                "sandbox_full",
+                "Every live sandbox is in use right now. Try again in a few minutes, "
+                "or open the recorded replay.",
+            ) from None
+        except RateLimited:
+            raise ApiError(429, "rate_limited", "Too many new sessions. Wait a minute.") from None
         response.set_cookie(
             COOKIE, sandbox.session.session_id, httponly=True, samesite="lax", max_age=6 * 3600
         )
@@ -113,14 +149,22 @@ def create_app(
     async def state(haegis_session: SessionCookie = None) -> dict[str, Any]:
         return snapshot(sandbox_for(haegis_session).session)
 
+    async def stream_slot(sandbox: Sandbox = Depends(require_sandbox)) -> Sandbox:
+        if sandbox.session.ledger.subscriber_count >= MAX_STREAMS_PER_SESSION:
+            raise ApiError(429, "too_many_streams", "Close another tab of this sandbox first.")
+        return sandbox
+
     @app.get("/api/events", response_class=EventSourceResponse)
     async def events(
-        haegis_session: SessionCookie = None,
         follow: bool = True,
+        sandbox: Sandbox = Depends(stream_slot),
         last_event_id: Annotated[str | None, Header()] = None,
     ) -> AsyncIterator[ServerSentEvent]:
-        session = sandbox_for(haegis_session).session
+        session = sandbox.session
         after = int(last_event_id) if last_event_id and last_event_id.isdigit() else 0
+        history = session.ledger.events()
+        if history and after > history[-1].seq:
+            after = 0  # an id from an earlier session: replay this one from the start
         queue = session.ledger.subscribe()
         try:
             for event in session.ledger.events():
@@ -130,13 +174,13 @@ def create_app(
                         data=event.model_dump(), event=channel(event), id=str(event.seq)
                     )
             while follow:
-                event = await queue.get()
-                if event.seq <= after:
+                live = await queue.get()
+                if live is None:
+                    return  # the session was reset or evicted: end this stream
+                if live.seq <= after:
                     continue
-                after = event.seq
-                yield ServerSentEvent(
-                    data=event.model_dump(), event=channel(event), id=str(event.seq)
-                )
+                after = live.seq
+                yield ServerSentEvent(data=live.model_dump(), event=channel(live), id=str(live.seq))
         finally:
             session.ledger.unsubscribe(queue)
 
@@ -163,7 +207,7 @@ def create_app(
                 )
             try:
                 await sandbox.session.step()
-            except (DecisionError, RecoveryError, ValueError) as exc:
+            except _EXPECTED as exc:
                 raise failed(exc) from exc
             return snapshot(sandbox.session)
 
@@ -171,8 +215,11 @@ def create_app(
     async def story_play(haegis_session: SessionCookie = None) -> dict[str, Any]:
         sandbox = sandbox_for(haegis_session)
         async with sandbox.lock:
-            while not sandbox.session.at_end:
-                await sandbox.session.step()
+            try:
+                while not sandbox.session.at_end:
+                    await sandbox.session.step()
+            except _EXPECTED as exc:
+                raise failed(exc) from exc
             return snapshot(sandbox.session)
 
     @app.post("/api/story/reset")
@@ -189,10 +236,7 @@ def create_app(
     ) -> dict[str, Any]:
         sandbox = sandbox_for(haegis_session)
         text = text_of(body)
-        try:
-            sessions.check_interpret_rate(sandbox)
-        except RateLimited:
-            raise ApiError(429, "rate_limited", "Too many requests. Wait a minute.") from None
+        interpret_slot(sandbox)
         async with sandbox.lock:
             s = sandbox.session
             try:
@@ -236,17 +280,14 @@ def create_app(
         sandbox = sandbox_for(haegis_session)
         text = text_of(body)
         s = sandbox.session
-        pending = next((p for p in s.recovery.plans.values() if p.status == "read_back"), None)
+        pending = s.recovery.pending()
         if pending is not None and s.grammar.is_confirmation(text):
             async with sandbox.lock:
                 try:
                     return (await s.recovery.confirm(pending.id)).model_dump()
-                except RecoveryError as exc:
+                except _EXPECTED as exc:
                     raise failed(exc) from exc
-        try:
-            sessions.check_interpret_rate(sandbox)
-        except RateLimited:
-            raise ApiError(429, "rate_limited", "Too many requests. Wait a minute.") from None
+        interpret_slot(sandbox)
         async with sandbox.lock:
             try:
                 plan = await s.recover(text)
@@ -264,6 +305,7 @@ def create_app(
     ) -> dict[str, Any]:
         sandbox = sandbox_for(haegis_session)
         text = text_of(body)
+        interpret_slot(sandbox)
         async with sandbox.lock:
             s = sandbox.session
             try:
@@ -278,7 +320,10 @@ def create_app(
 
     @app.post("/api/recovery/{plan_id}/{verb}")
     async def recovery_verb(
-        plan_id: str, verb: str, haegis_session: SessionCookie = None
+        plan_id: str,
+        verb: str,
+        body: ConfirmBody | None = None,
+        haegis_session: SessionCookie = None,
     ) -> dict[str, Any]:
         if verb not in {"confirm", "abandon"}:
             raise ApiError(404, "not_found", f"No recovery command {verb!r}.")
@@ -287,10 +332,11 @@ def create_app(
             s = sandbox.session
             try:
                 if verb == "confirm":
-                    plan = await s.recovery.confirm(plan_id)
+                    revision = body.revision if body else None
+                    plan = await s.recovery.confirm(plan_id, revision)
                 else:
                     plan = s.recovery.abandon(plan_id)
-            except RecoveryError as exc:
+            except _EXPECTED as exc:
                 raise failed(exc) from exc
             return plan.model_dump()
 

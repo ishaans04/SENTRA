@@ -43,11 +43,17 @@ _POSSESSIVE = ("its", "their", "the agents", "this agents")
 _CLAUSES = re.compile(r"[.,;!?]+|\band\b", re.IGNORECASE)
 
 
-def normalise(text: str, fillers: frozenset[str] = frozenset()) -> str:
-    words = _PUNCTUATION.sub(" ", text.lower()).split()
+def normalise(
+    text: str, fillers: frozenset[str] = frozenset(), anywhere: frozenset[str] = frozenset()
+) -> str:
+    words = [w for w in _PUNCTUATION.sub(" ", text.lower()).split() if w not in anywhere]
     while words and words[0] in fillers:
         words.pop(0)
     return " ".join(words)
+
+
+#: Words that may follow a confirmation without changing what it means.
+_CONFIRM_TAIL = frozenset({"please", "go", "ahead", "run", "it", "do", "now", "thanks", "yes"})
 
 
 def _strip_article(phrase: str) -> str:
@@ -75,7 +81,8 @@ class Grammar:
         return frozenset(self.rules.get("fillers", []))
 
     def normalise(self, text: str) -> str:
-        return normalise(text, self.fillers)
+        anywhere = frozenset(self.rules.get("fillers_anywhere", []))
+        return normalise(text, self.fillers, anywhere)
 
     # -- names ----------------------------------------------------------------
 
@@ -145,7 +152,14 @@ class Grammar:
 
     def is_confirmation(self, text: str) -> bool:
         """True for a short spoken yes ("Confirm", "Yes, run it") to a pending read-back."""
-        return self.normalise(text) in set(self.rules.get("confirmations", []))
+        words = self.normalise(text).split()
+        phrases = sorted(
+            (str(p).split() for p in self.rules.get("confirmations", [])), key=len, reverse=True
+        )
+        for phrase in phrases:
+            if words[: len(phrase)] == phrase:
+                return all(word in _CONFIRM_TAIL for word in words[len(phrase) :])
+        return False
 
     # -- recovery -------------------------------------------------------------
 

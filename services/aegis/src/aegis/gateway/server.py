@@ -75,7 +75,7 @@ class Gateway:
     def queue_send(self, call: ToolCall, run: RunState) -> QueuedAction:
         """Accept a send into the outbox. Held at once if its decision is under review."""
         action = self.outbox.queue(run.id, run.decision_id, run.actor, call.tool.name, call.args)
-        event = self.record_call(call, "queued", action_id=action.id)
+        event = self.record_call(call, "queued", action_id=action.id, notify=False)
         action.cites = [event.event_id]
         self.ledger.append(
             "action.queued",
@@ -87,8 +87,16 @@ class Gateway:
             cites=[event.event_id],
             payload={"action_id": action.id, "tool": call.tool.name, "args": call.args},
         )
+        # Observers (HIVE, then the decision ledger) see the send only once it is
+        # queued, so a hold they trigger is recorded after the queue, in order.
+        self._notify(event)
         decision = self.state.decisions.get(run.decision_id)
-        if decision is not None and decision.status == "needs_review" and decision.hold_rule:
+        if (
+            decision is not None
+            and decision.status == "needs_review"
+            and decision.hold_rule
+            and action.status == "queued"
+        ):
             self.hold(action, cites=[event.event_id])
         return action
 
@@ -172,6 +180,7 @@ class Gateway:
         reason: str | None = None,
         result: Any = None,
         action_id: str | None = None,
+        notify: bool = True,
     ) -> LedgerEvent:
         run = self.state.runs.get(call.run_id or "")
         payload: dict[str, Any] = {
@@ -196,9 +205,13 @@ class Gateway:
             epoch=run.epoch if run else None,
             payload=payload,
         )
+        if notify:
+            self._notify(event)
+        return event
+
+    def _notify(self, event: LedgerEvent) -> None:
         for observer in self.observers:
             observer(event)
-        return event
 
 
 class EnforcementMiddleware(Middleware):

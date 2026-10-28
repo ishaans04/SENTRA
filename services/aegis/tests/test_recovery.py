@@ -112,13 +112,21 @@ async def test_confirm_twice_runs_once(session: Session) -> None:
 
 
 async def test_confirm_after_the_run_finished_fails_plainly(session: Session) -> None:
+    plan = session.recovery.draft(STEPS, text="(typed)", interpreted_by="grammar")
+    session.gateway.state.runs["R-1"].status = "cancelled"  # ended while the operator read
+    with pytest.raises(RecoveryError, match="R-1 has already finished"):
+        await session.recovery.confirm(plan.id)
+    assert session.recovery.get(plan.id).status == "invalid"
+    assert not [e for e in session.ledger.events() if e.kind == "recovery.plan_confirmed"]
+
+
+async def test_a_second_draft_supersedes_the_first(session: Session) -> None:
     first = session.recovery.draft(STEPS, text="(typed)", interpreted_by="grammar")
     second = session.recovery.draft(STEPS, text="(typed again)", interpreted_by="grammar")
-    await session.recovery.confirm(second.id)
-    with pytest.raises(RecoveryError, match="R-1 has already finished"):
+    assert session.recovery.get(first.id).status == "abandoned"
+    assert session.recovery.pending() == second
+    with pytest.raises(RecoveryError, match="abandoned"):
         await session.recovery.confirm(first.id)
-    assert session.recovery.get(first.id).status == "invalid"
-    assert len([e for e in session.ledger.events() if e.kind == "run.cancelled"]) == 1
 
 
 async def test_invalid_plan_is_never_read_back(session: Session) -> None:

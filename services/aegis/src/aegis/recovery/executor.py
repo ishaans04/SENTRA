@@ -62,7 +62,11 @@ class RecoveryExecutor:
             if isinstance(step, Preserve):
                 continue
             started = self._record("recovery.step_started", plan, index, step, [confirmed.event_id])
-            result = await self._perform(plan, step, started)
+            try:
+                result = await self._perform(plan, step, started)
+            except Exception as exc:  # a failed step is recorded, never left half-run
+                message = str(exc.args[0]) if exc.args else type(exc).__name__
+                result = StepResult("failed", f"{step.kind} could not run: {message}")
             kind = f"recovery.step_{result.status}"
             if result.status == "skipped":
                 kind = "recovery.step_succeeded"

@@ -124,6 +124,8 @@ class RecoveryPlan(BaseModel):
     status: PlanStatus = "drafted"
     interpreted_by: Interpreter = "grammar"
     errors: list[str] = Field(default_factory=list)
+    #: Changes whenever the read-back changes. Confirm must name the one seen.
+    revision: str = ""
 
     @property
     def preserve(self) -> list[str]:
@@ -238,8 +240,14 @@ def validate(plan: RecoveryPlan, session: Session) -> list[PlanError]:
                     f"({call.actor})."
                 )
         elif isinstance(step, Rebuild):
-            if step.decision_id not in session.decisions.graph.decisions:
+            decision = session.decisions.graph.decisions.get(step.decision_id)
+            if decision is None:
                 fail(f"There is no approval {step.decision_id}.")
+            elif decision.status not in {"suspended", "active"}:
+                fail(
+                    f"Approval {step.decision_id} is {decision.status.replace('_', ' ')}, "
+                    "so it cannot be renewed for a rebuild."
+                )
             unknown = [s for s in step.sources if s not in nodes]
             if unknown:
                 fail(f"I do not know the source {', '.join(unknown)}.")

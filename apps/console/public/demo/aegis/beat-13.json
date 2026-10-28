@@ -789,6 +789,7 @@
     "id": "P-1",
     "interpreted_by": "grammar",
     "read_back": "I will:\n 1. Cancel reporting run R-1 and its held external send A-1. Later calls from R-1 will be rejected.\n 2. Cut the route: deny the Reporting Agent reads from the scratchpad (HIVE's recommended control) and revoke the access the Support Agent granted.\n 3. Prepare a correction for draft-1. A person edited draft-1 after the agent wrote it, so I will not overwrite it. I will ask you.\n 4. Renew approval D-1 and start a fresh reporting run that reads approved summaries only.\nI will keep: all Support Agent work.\nCannot be undone: nothing in this plan sends anything.\nInterpreted by: grammar (no model call)",
+    "revision": "2bb5c00c3343",
     "status": "read_back",
     "steps": [
      {
@@ -2145,6 +2146,7 @@
     "id": "P-1",
     "interpreted_by": "grammar",
     "read_back": "I will:\n 1. Cancel reporting run R-1 and its held external send A-1. Later calls from R-1 will be rejected.\n 2. Cut the route: deny the Reporting Agent reads from the scratchpad (HIVE's recommended control) and revoke the access the Support Agent granted.\n 3. Prepare a correction for draft-1. A person edited draft-1 after the agent wrote it, so I will not overwrite it. I will ask you.\n 4. Renew approval D-1 and start a fresh reporting run that reads approved summaries only.\nI will keep: all Support Agent work.\nCannot be undone: nothing in this plan sends anything.\nInterpreted by: grammar (no model call)",
+    "revision": "2bb5c00c3343",
     "status": "verified_with_conflicts",
     "steps": [
      {

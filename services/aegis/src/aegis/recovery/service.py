@@ -9,6 +9,7 @@ fails with a plain reason instead of running (Review Focus 5).
 
 from __future__ import annotations
 
+import hashlib
 from typing import TYPE_CHECKING, Any
 
 from aegis.recovery.executor import Conflict, RecoveryExecutor
@@ -43,6 +44,7 @@ class RecoveryService:
         self.plans: dict[str, RecoveryPlan] = {}
         self._baselines: dict[str, Baseline] = {}
         self._rebuilt: dict[str, list[str]] = {}
+        self._drafts = 0
 
     @property
     def conflicts(self) -> dict[str, Conflict]:
@@ -66,6 +68,17 @@ class RecoveryService:
         plan_id: str | None = None,
     ) -> RecoveryPlan:
         s = self.session
+        if plan_id is None:
+            # A new instruction replaces any plan still waiting for a read-back, so
+            # there is only ever one plan a "Confirm" can mean.
+            for earlier in self.plans.values():
+                if earlier.status in {"read_back", "invalid", "drafted"}:
+                    earlier.status = "abandoned"
+                    s.ledger.append(
+                        "recovery.plan_abandoned",
+                        "operator",
+                        payload={"plan_id": earlier.id, "superseded": True},
+                    )
         if finding_id is None:
             open_findings = s.bridge.open_findings()
             finding_id = open_findings[0].id if open_findings else None
@@ -83,6 +96,9 @@ class RecoveryService:
         else:
             plan.read_back = read_back_plan(plan, s)
             plan.status = "read_back"
+        self._drafts += 1
+        seed = f"{s.session_id}:{plan.id}:{self._drafts}:{plan.read_back}:{plan.errors}"
+        plan.revision = hashlib.sha256(seed.encode()).hexdigest()[:12]
         self.plans[plan.id] = plan
         s.ledger.append(
             "recovery.plan_drafted",
@@ -119,8 +135,15 @@ class RecoveryService:
 
     # -- running --------------------------------------------------------------
 
-    async def confirm(self, plan_id: str) -> RecoveryPlan:
+    def pending(self) -> RecoveryPlan | None:
+        """The plan waiting for its read-back to be confirmed, if any (at most one)."""
+        waiting = [p for p in self.plans.values() if p.status == "read_back"]
+        return waiting[-1] if waiting else None
+
+    async def confirm(self, plan_id: str, revision: str | None = None) -> RecoveryPlan:
         plan = self.get(plan_id)
+        if revision is not None and revision != plan.revision:
+            raise RecoveryError("The plan changed since you saw it. Please read it again.")
         if plan.status in _DONE:
             return plan
         if plan.status != "read_back":
