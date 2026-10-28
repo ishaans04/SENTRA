@@ -1,0 +1,46 @@
+# Tool catalogue and compensation registry (PRD §11.6).
+#
+# effect:        read | write | grant | send | destructive
+# resource:      the manifest node the call touches, as HIVE sees it
+# inverse:       the registered undo, null when none, "irreversible" for sends
+# recovery_only: only the recovery executor's identity may call it
+
+tools:
+  - name: crm.read_customer_records
+    effect: read
+    resource: crm
+  - name: report_store.write_summary
+    effect: write
+    resource: report_store/approved_summaries
+  - name: report_store.read_summaries
+    effect: read
+    resource: report_store/approved_summaries
+  - name: report_store.write_draft
+    effect: write
+    resource: report_store/drafts
+    inverse: report_store.restore_draft
+  - name: report_store.read_draft
+    effect: read
+    resource: report_store/drafts
+  - name: report_store.restore_draft
+    effect: write
+    resource: report_store/drafts
+    recovery_only: true
+  - name: scratchpad.write
+    effect: write
+    resource: scratchpad
+  - name: scratchpad.read
+    effect: read
+    resource: scratchpad
+  - name: scratchpad.grant_access
+    effect: grant
+    resource: scratchpad
+    inverse: scratchpad.revoke_access
+  - name: scratchpad.revoke_access
+    effect: grant
+    resource: scratchpad
+    recovery_only: true
+  - name: webhook.send_report
+    effect: send
+    resource: webhook
+    inverse: irreversible
