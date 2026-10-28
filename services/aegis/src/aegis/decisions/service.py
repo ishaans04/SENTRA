@@ -176,6 +176,22 @@ class DecisionService:
         )
         return run
 
+    def complete_run(self, run_id: str) -> RunState:
+        """A run finished its job."""
+        run = self.gateway.state.runs[run_id]
+        if run.status != "running":
+            raise DecisionError(f"{run_id} is {run.status} and cannot complete.")
+        run.status = "completed"
+        self._emit(
+            "run.completed",
+            "gateway",
+            actor=run.actor,
+            run_id=run.id,
+            decision_id=run.decision_id,
+            epoch=run.epoch,
+        )
+        return run
+
     # -- reacting to evidence -------------------------------------------------
 
     def on_finding(self, finding: Finding, raised: LedgerEvent) -> None:

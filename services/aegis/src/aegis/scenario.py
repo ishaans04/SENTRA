@@ -26,6 +26,7 @@ from aegis.gateway.state import RECOVERY_ACTOR, RunState
 from aegis.hive_bridge import HiveBridge
 from aegis.interpret.grammar import Grammar
 from aegis.ledger import LedgerEvent, SessionLedger
+from aegis.recovery.service import RecoveryService
 from aegis.tools.catalogue import Catalogue
 from aegis.world import World
 from hive_core.domain.models import Finding
@@ -46,6 +47,7 @@ class Session:
         self.decisions = DecisionService(self.ledger, self.bridge, self.gateway)
         self.gateway.observers.append(self.decisions.on_call)
         self.finding_listeners: list[FindingListener] = [self.decisions.on_finding]
+        self.recovery = RecoveryService(self)
         self.grammar = Grammar.load(self.fixtures_dir)
         self.known_decisions: dict[str, Any] = yaml.safe_load(
             (self.fixtures_dir / "decisions.yaml").read_text(encoding="utf-8")

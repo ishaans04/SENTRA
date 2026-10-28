@@ -186,6 +186,8 @@ def validate(plan: RecoveryPlan, session: Session) -> list[PlanError]:
             run = runs.get(step.run_id)
             if run is None:
                 fail(f"There is no run {step.run_id}.")
+            elif run.status in {"completed", "cancelled"}:
+                fail(f"{step.run_id} has already finished, so there is nothing to stop.")
             elif run.actor in preserve or step.run_id in preserve:
                 fail(
                     f"Cancelling {step.run_id} would stop work you asked me to keep ({run.actor})."

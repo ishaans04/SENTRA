@@ -72,7 +72,6 @@ EVENT_KINDS = frozenset(
         "recovery.step_conflict",
         "recovery.step_failed",
         "recovery.step_escalated",
-        "recovery.finished",
         "conflict.resolved",
         "verification.check",
         "record.closed",
