@@ -147,7 +147,9 @@ test('the map is described for assistive technology', async ({ page }) => {
 test('the console is operable from the keyboard alone', async ({ page }) => {
   // Reload so focus starts at the top of the document rather than on whatever
   // the shared setup last clicked.
+  // A hash-only navigation does not reload the page, so reload explicitly.
   await page.goto('/#engine');
+  await page.reload();
   await page.locator('body').press('Tab');
   await expect(page.getByRole('link', { name: /Skip to the interaction map/ })).toBeFocused();
 
