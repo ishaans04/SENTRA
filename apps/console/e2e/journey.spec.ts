@@ -14,7 +14,7 @@
 import { expect, test } from '@playwright/test';
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/#engine');
   await expect(page.getByRole('heading', { level: 1 })).toContainText('between agents');
   // Replay state lives in the service, so start every journey from the top.
   await page.getByRole('button', { name: 'Restart' }).click();
@@ -147,7 +147,7 @@ test('the map is described for assistive technology', async ({ page }) => {
 test('the console is operable from the keyboard alone', async ({ page }) => {
   // Reload so focus starts at the top of the document rather than on whatever
   // the shared setup last clicked.
-  await page.goto('/');
+  await page.goto('/#engine');
   await page.locator('body').press('Tab');
   await expect(page.getByRole('link', { name: /Skip to the interaction map/ })).toBeFocused();
 
