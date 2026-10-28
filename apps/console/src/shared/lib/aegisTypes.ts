@@ -122,6 +122,7 @@ export interface CheckView {
 
 export interface AlertView {
   event_id: string;
+  decision_id: string | null;
   finding_id: string;
   text: string;
   held_actions: string[];

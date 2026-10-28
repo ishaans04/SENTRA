@@ -33,6 +33,7 @@ interface AegisState {
   interpretApproval(text: string): Promise<void>;
   confirmProposal(): Promise<void>;
   rejectProposal(): Promise<void>;
+  decisionCommand(id: string, verb: 'renew' | 'withdraw'): Promise<void>;
   interpretRecovery(text: string): Promise<void>;
   correctRecovery(text: string): Promise<void>;
   confirmRecovery(): Promise<void>;
@@ -168,6 +169,8 @@ export const useAegis = create<AegisState>((set, get) => {
         set({ proposal: null });
         return api.decision(proposal.decision.id, 'reject');
       }),
+
+    decisionCommand: (id, verb) => command(() => api.decision(id, verb)),
 
     interpretRecovery: (text) => command(() => api.interpretRecovery(text)),
     correctRecovery: (text) =>

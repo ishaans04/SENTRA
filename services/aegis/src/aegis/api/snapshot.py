@@ -38,7 +38,11 @@ def snapshot(session: Session) -> dict[str, Any]:
         plan = s.bridge.plan(finding.id)
         findings.append({**finding.model_dump(), "plan": plan.model_dump()})
     record = next((e.payload for e in reversed(events) if e.kind == "record.closed"), None)
-    alerts = [e.payload | {"event_id": e.event_id} for e in events if e.kind == "alert.raised"]
+    alerts = [
+        e.payload | {"event_id": e.event_id, "decision_id": e.decision_id}
+        for e in events
+        if e.kind == "alert.raised"
+    ]
     return {
         "session_id": s.session_id,
         "labels": {"data": "Fictional data", "mode": "Live sandbox"},
