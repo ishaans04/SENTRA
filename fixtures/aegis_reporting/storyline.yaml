@@ -55,3 +55,11 @@ beats:
         args: { item: note-1, content: "Customer 1042 contact details for follow-up." }
       - { op: call, run: S-1, tool: scratchpad.grant_access, args: { grantee: reporting-agent } }
       - { op: call, run: R-1, tool: scratchpad.read, args: {} }
+
+  # Beats 6 and 7 happen inside beat 5: the scratchpad read completes the route,
+  # HIVE raises the finding and D-1 is suspended within that same call.
+
+  - n: 8
+    title: Late action
+    steps:
+      - { op: call, run: R-1, tool: webhook.send_report, args: { item: draft-1 } }

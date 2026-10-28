@@ -1,0 +1,59 @@
+# The deterministic grammar: what the interpreter understands with no model.
+#
+# Dictation is normalised first (lowercase, punctuation and filler words
+# removed), then matched against these names. Every name here resolves to an id
+# in the manifest; nothing outside this file can reach a typed result.
+
+fillers: [okay, ok, so, um, uh, alright, right, please, well, hey, aegis, haegis]
+
+# What an approval can be about: the spoken subject, and the agent it authorises.
+subjects:
+  reporting:
+    actor: reporting-agent
+    subject: Reporting
+    statement: Reporting may proceed
+  support:
+    actor: support-agent
+    subject: Support
+    statement: Support work may proceed
+
+# Ways of naming an agent inside a condition. "it", "this agent" and "the agent"
+# mean the agent the approval is about.
+agents:
+  reporting agent: reporting-agent
+  reporting: reporting-agent
+  support agent: support-agent
+  support: support-agent
+
+# Ways of naming a resource. "plain" is how the condition reads back in alerts.
+resources:
+  report_store/approved_summaries:
+    plain: sanitized summaries
+    phrases:
+      - approved sanitized report store
+      - approved sanitised report store
+      - approved report store
+      - sanitized report store
+      - approved sanitized summaries
+      - approved summaries
+      - sanitized summaries
+      - sanitised summaries
+      - summaries
+  report_store/drafts:
+    plain: report drafts
+    phrases: [report drafts, drafts]
+  scratchpad:
+    plain: the shared scratchpad
+    phrases: [shared scratchpad, scratchpad]
+  crm:
+    plain: customer records
+    phrases: [customer records, crm]
+
+# How a condition may be introduced after "approve <subject>".
+condition_openers:
+  - on the condition that
+  - on condition that
+  - provided that
+  - as long as
+  - only if
+  - if
