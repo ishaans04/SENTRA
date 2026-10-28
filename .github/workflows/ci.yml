@@ -96,6 +96,11 @@ jobs:
           AEGIS_INTERPRETER: 'off'
         run: uv run pytest -q
 
+      - name: Contract is current
+        run: |
+          uv run python -m aegis.contract
+          git diff --exit-code ../../contracts/openapi/haegis-v1.json
+
   console:
     name: Console
     runs-on: ubuntu-latest

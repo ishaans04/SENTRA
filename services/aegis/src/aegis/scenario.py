@@ -112,13 +112,14 @@ class Session:
             if run.actor != step["actor"]:
                 raise ValueError(f"{step['decision']} authorises {run.actor}, not {step['actor']}.")
         elif op == "approve":
-            await self.approve(step["text"])
+            await self._storyline_approval(step["text"])
         elif op == "call":
             await self.agent(step["run"]).call(step["tool"], step.get("args") or {})
         elif op == "human_edit":
             self.human_edit(step["item"], step["content"])
         elif op == "recover":
-            await self.recover(step["text"])
+            if self.plan_id is None:
+                await self.recover(step["text"])
         elif op == "confirm_recovery":
             await self.recovery.confirm(self._plan().id)
         elif op == "release":
@@ -143,6 +144,16 @@ class Session:
         """The operator dictates an approval and confirms its read-back."""
         decision = await self.propose_approval(text)
         return self.decisions.confirm(decision.id)
+
+    async def _storyline_approval(self, text: str) -> None:
+        """Beat 1, unless the operator already dictated this approval at the console."""
+        proposal, _ = await self.interpreter.approval(text)
+        seeded = len(self.known_decisions["seeded"])
+        existing = [d for d in self.decisions.all()[seeded:] if d.actor == proposal.actor]
+        if not existing:
+            await self.approve(text)
+        elif existing[-1].status == "proposed":
+            self.decisions.confirm(existing[-1].id)
 
     async def recover(self, text: str) -> RecoveryPlan:
         """Interpret a dictated recovery instruction into a plan, ready to read back."""
