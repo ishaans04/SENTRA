@@ -22,6 +22,7 @@ from aegis.clock import LogicalClock
 from aegis.decisions.models import Decision, DecisionProposal
 from aegis.decisions.service import DecisionService
 from aegis.gateway.server import Gateway
+from aegis.gateway.state import RECOVERY_ACTOR, RunState
 from aegis.hive_bridge import HiveBridge
 from aegis.interpret.grammar import Grammar
 from aegis.ledger import LedgerEvent, SessionLedger
@@ -88,6 +89,14 @@ class Session:
 
     def agent(self, run_id: str) -> ScriptedAgent:
         return ScriptedAgent(self.gateway, run_id)
+
+    def recovery_agent(self) -> ScriptedAgent:
+        """The recovery executor's own connection. Its identity is not an agent's."""
+        if "X-1" not in self.gateway.state.runs:
+            self.gateway.register_run(
+                RunState(id="X-1", actor=RECOVERY_ACTOR, decision_id="", epoch=0)
+            )
+        return ScriptedAgent(self.gateway, "X-1")
 
     async def _perform(self, step: dict[str, Any]) -> None:
         op = step["op"]
