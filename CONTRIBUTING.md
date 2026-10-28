@@ -1,6 +1,6 @@
-# Contributing to HIVE
+# Contributing to HAEGIS
 
-HIVE is a security-sensitive prototype. Every contribution must strengthen the ability to explain, reproduce, and safely contain a finding.
+HAEGIS is a security-sensitive prototype. Every contribution must strengthen the ability to explain, reproduce, and safely contain a finding.
 
 ## Before editing
 

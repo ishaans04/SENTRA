@@ -1,8 +1,8 @@
 {
-  "name": "hive-platform",
+  "name": "haegis",
   "version": "0.0.0",
   "private": true,
-  "description": "HIVE: detects risky capabilities that emerge between individually legitimate AI agents, and contains them with the smallest pre-authorised action that preserves declared work.",
+  "description": "HAEGIS: approvals tied to conditions, an MCP gateway that holds and rejects affected agent calls, and dictated recovery checked by the HIVE engine.",
   "packageManager": "pnpm@11.19.0",
   "engines": {
     "node": ">=22.16.0",

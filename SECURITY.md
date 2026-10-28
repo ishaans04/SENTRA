@@ -1,19 +1,19 @@
 # Security and responsible research
 
-HIVE is a defensive cybersecurity project. The repository must contain only fictional fixtures and simulated control adapters unless the owner explicitly establishes a separate, authorised testing boundary.
+HAEGIS is a defensive cybersecurity project. The repository must contain only fictional fixtures, fictional tool servers and controls enforced inside the sandbox, unless the owner explicitly establishes a separate, authorised testing boundary.
 
 ## In scope for the prototype
 
 - Local deterministic replays of fictional events.
 - Expected-versus-observed architecture analysis.
-- Evidence-linked findings and simulated containment.
+- Evidence-linked findings, and containment enforced at the gateway in front of fictional tool servers.
 - Safe development, dependency, and secret-handling practices.
 
 ## Out of scope
 
 - Scanning, exploitation, credential collection, malware, destructive actions, or any activity against a live target.
 - Production customer data, agent prompts, trace payloads, secrets, or personal information.
-- Claims that HIVE detects intent, all threats, or any unobserved behaviour.
+- Claims that HAEGIS or HIVE detects intent, all threats, or any unobserved behaviour.
 
 ## Reporting a concern
 
