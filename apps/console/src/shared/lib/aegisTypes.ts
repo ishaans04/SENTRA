@@ -92,6 +92,7 @@ export interface RecoveryPlanView {
   status: PlanStatus;
   interpreted_by: 'gemini' | 'groq' | 'grammar' | 'recorded';
   errors: string[];
+  revision: string;
 }
 
 export interface StepResultView {

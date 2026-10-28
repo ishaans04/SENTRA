@@ -107,7 +107,14 @@ export const useAegis = create<AegisState>((set, get) => {
       }
       try {
         set({ mode: 'live', ledger: [], lastSeq: 0 });
-        get().setSnapshot(await api.createSession());
+        // Reopening the page, or a second tab, keeps the visitor's sandbox.
+        // Only a visitor with no sandbox gets a new one.
+        try {
+          get().setSnapshot(await api.state());
+        } catch (error) {
+          if (!(error instanceof AegisError) || error.status !== 404) throw error;
+          get().setSnapshot(await api.createSession());
+        }
       } catch {
         await playRecording();
       }
@@ -213,7 +220,7 @@ export const useAegis = create<AegisState>((set, get) => {
     confirmRecovery: () =>
       command(async () => {
         const plan = currentPlan(get().snapshot);
-        return plan ? api.recovery(plan.id, 'confirm') : null;
+        return plan ? api.recovery(plan.id, 'confirm', plan.revision) : null;
       }),
     abandonRecovery: () =>
       command(async () => {

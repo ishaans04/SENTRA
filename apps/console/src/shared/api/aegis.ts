@@ -78,8 +78,12 @@ export const api = {
     call<RecoveryPlanView>('POST', '/api/recovery/interpret', { text }),
   correctRecovery: (id: string, text: string) =>
     call<RecoveryPlanView>('POST', `/api/recovery/${encodeURIComponent(id)}/correct`, { text }),
-  recovery: (id: string, verb: 'confirm' | 'abandon') =>
-    call<RecoveryPlanView>('POST', `/api/recovery/${encodeURIComponent(id)}/${verb}`),
+  recovery: (id: string, verb: 'confirm' | 'abandon', revision?: string) =>
+    call<RecoveryPlanView>(
+      'POST',
+      `/api/recovery/${encodeURIComponent(id)}/${verb}`,
+      revision ? { revision } : undefined,
+    ),
   humanEdit: (item: string, content: string) =>
     call<Snapshot>('POST', `/api/items/${encodeURIComponent(item)}/human-edit`, { content }),
   resolveConflict: (id: string, choice: 'keep_human' | 'leave_for_review') =>
