@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
+from aegis.decisions.models import Decision
 from aegis.tools.catalogue import ToolSpec
 
 RunStatus = Literal["running", "stale", "completed", "cancelled"]
@@ -33,3 +34,6 @@ class ToolCall:
 @dataclass
 class GatewayState:
     runs: dict[str, RunState] = field(default_factory=dict)
+    #: The decision ledger's live view, shared by reference. The gateway reads it;
+    #: only the decision service changes it.
+    decisions: dict[str, Decision] = field(default_factory=dict)

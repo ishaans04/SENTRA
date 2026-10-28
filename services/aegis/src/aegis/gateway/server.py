@@ -25,7 +25,7 @@ from fastmcp.server.middleware import CallNext, Middleware, MiddlewareContext
 from fastmcp.tools import ToolResult
 
 from aegis.gateway.enforce import Verdict, enforce
-from aegis.gateway.outbox import Outbox
+from aegis.gateway.outbox import Outbox, QueuedAction
 from aegis.gateway.state import GatewayState, RunState, ToolCall
 from aegis.ledger import LedgerEvent, SessionLedger
 from aegis.tools.catalogue import Catalogue, ToolSpec
@@ -69,6 +69,40 @@ class Gateway:
         _, _, token = client_name.partition(":")
         run_id = self._tokens.get(token)
         return self.state.runs.get(run_id) if run_id else None
+
+    # -- the outbox -----------------------------------------------------------
+
+    def queue_send(self, call: ToolCall, run: RunState) -> QueuedAction:
+        """Accept a send into the outbox. Held at once if its decision is under review."""
+        action = self.outbox.queue(run.id, run.decision_id, run.actor, call.tool.name, call.args)
+        event = self.record_call(call, "queued", action_id=action.id)
+        action.cites = [event.event_id]
+        self.ledger.append(
+            "action.queued",
+            "gateway",
+            actor=run.actor,
+            run_id=run.id,
+            decision_id=run.decision_id,
+            epoch=run.epoch,
+            cites=[event.event_id],
+            payload={"action_id": action.id, "tool": call.tool.name, "args": call.args},
+        )
+        decision = self.state.decisions.get(run.decision_id)
+        if decision is not None and decision.status == "needs_review" and decision.hold_rule:
+            self.hold(action, cites=[event.event_id])
+        return action
+
+    def hold(self, action: QueuedAction, cites: list[str]) -> None:
+        action.status = "held"
+        self.ledger.append(
+            "action.held",
+            "gateway",
+            actor=action.actor,
+            run_id=action.run_id,
+            decision_id=action.decision_id,
+            cites=cites,
+            payload={"action_id": action.id},
+        )
 
     # -- recording ------------------------------------------------------------
 
@@ -134,21 +168,7 @@ class EnforcementMiddleware(Middleware):
             raise ToolError(str(verdict.reason))
 
         if verdict.outcome == "queue" and run is not None:
-            action = gw.outbox.queue(
-                run.id, run.decision_id, run.actor, spec.name, call.args, cause="pending"
-            )
-            event = gw.record_call(call, "queued", action_id=action.id)
-            action.cites = [event.event_id]
-            gw.ledger.append(
-                "action.queued",
-                "gateway",
-                actor=run.actor,
-                run_id=run.id,
-                decision_id=run.decision_id,
-                epoch=run.epoch,
-                cites=[event.event_id],
-                payload={"action_id": action.id, "tool": spec.name, "args": call.args},
-            )
+            action = gw.queue_send(call, run)
             return ToolResult(structured_content={"queued": action.id})
 
         token = CALLER.set(call.actor or "unknown")

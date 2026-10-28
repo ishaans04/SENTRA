@@ -19,8 +19,9 @@ import yaml
 
 from aegis.agents.scripted import ScriptedAgent
 from aegis.clock import LogicalClock
+from aegis.decisions.models import Decision, DecisionProposal
+from aegis.decisions.service import DecisionService
 from aegis.gateway.server import Gateway
-from aegis.gateway.state import RunState
 from aegis.hive_bridge import HiveBridge
 from aegis.ledger import LedgerEvent, SessionLedger
 from aegis.tools.catalogue import Catalogue
@@ -40,7 +41,12 @@ class Session:
         self.bridge = HiveBridge(self.fixtures_dir / "manifest.yaml")
         self.gateway = Gateway(self.world, self.ledger, self.catalogue)
         self.gateway.observers.append(self._on_call)
-        self.finding_listeners: list[FindingListener] = []
+        self.decisions = DecisionService(self.ledger, self.bridge, self.gateway)
+        self.gateway.observers.append(self.decisions.on_call)
+        self.finding_listeners: list[FindingListener] = [self.decisions.on_finding]
+        self.known_decisions: dict[str, Any] = yaml.safe_load(
+            (self.fixtures_dir / "decisions.yaml").read_text(encoding="utf-8")
+        )
         story = yaml.safe_load((self.fixtures_dir / "storyline.yaml").read_text(encoding="utf-8"))
         self.beats: list[dict[str, Any]] = story["beats"]
         self.position = 0
@@ -49,6 +55,9 @@ class Session:
             "scenario",
             payload={"manifest_version": self.bridge.manifest.version, "fictional": True},
         )
+        for seeded in self.known_decisions["seeded"]:
+            decision = self.decisions.propose(DecisionProposal(**seeded), "", producer="scenario")
+            self.decisions.confirm(decision.id)
 
     # -- driving the storyline ------------------------------------------------
 
@@ -81,7 +90,11 @@ class Session:
     async def _perform(self, step: dict[str, Any]) -> None:
         op = step["op"]
         if op == "start_run":
-            self.start_run(step["run"], step["actor"], step["decision"])
+            run = self.decisions.start_run(step["run"], step["decision"])
+            if run.actor != step["actor"]:
+                raise ValueError(f"{step['decision']} authorises {run.actor}, not {step['actor']}.")
+        elif op == "approve":
+            self.approve(step["text"])
         elif op == "call":
             await self.agent(step["run"]).call(step["tool"], step.get("args") or {})
         elif op == "human_edit":
@@ -91,20 +104,16 @@ class Session:
 
     # -- world actions --------------------------------------------------------
 
-    def start_run(self, run_id: str, actor: str, decision_id: str) -> RunState:
-        run = self.gateway.register_run(
-            RunState(id=run_id, actor=actor, decision_id=decision_id, epoch=1)
-        )
-        self.ledger.append(
-            "run.started",
-            "gateway",
-            actor=actor,
-            run_id=run_id,
-            decision_id=decision_id,
-            epoch=run.epoch,
-            payload={"fresh_context": run.fresh_context},
-        )
-        return run
+    def approve(self, text: str) -> Decision:
+        """The operator dictates an approval and confirms its read-back."""
+        decision = self.decisions.propose(self.interpret_approval(text), text)
+        return self.decisions.confirm(decision.id)
+
+    def interpret_approval(self, text: str) -> DecisionProposal:
+        known = self.known_decisions["reporting_approval"]
+        if " ".join(text.split()) != " ".join(str(known["dictated_text"]).split()):
+            raise ValueError("That approval is not one this scenario knows.")
+        return DecisionProposal(**known["proposal"])
 
     def human_edit(self, item_id: str, content: str) -> None:
         """A person edits an item by hand at the console. Writer: ``teammate``."""

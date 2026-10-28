@@ -27,6 +27,11 @@ class DecisionGraph:
         self.decisions: dict[str, Decision] = {}
         self.conditions: dict[str, Condition] = {}
         self.evidence: dict[str, Evidence] = {}
+        #: Run and action statuses, as the ledger tells them. The gateway enforces;
+        #: this is the replayable record of what it did.
+        self.runs: dict[str, str] = {}
+        self.run_scope: dict[str, tuple[str, int]] = {}
+        self.actions: dict[str, str] = {}
         self.graph: nx.MultiDiGraph[str] = nx.MultiDiGraph()
 
     @classmethod
@@ -66,6 +71,8 @@ class DecisionGraph:
             "decisions": {k: v.model_dump() for k, v in sorted(self.decisions.items())},
             "conditions": {k: v.model_dump() for k, v in sorted(self.conditions.items())},
             "evidence": {k: v.model_dump() for k, v in sorted(self.evidence.items())},
+            "runs": dict(sorted(self.runs.items())),
+            "actions": dict(sorted(self.actions.items())),
             "edges": sorted((u, v, k) for u, v, k in self.graph.edges(keys=True)),
         }
 
@@ -97,6 +104,13 @@ class DecisionGraph:
         decision = self._decision(event)
         decision.status = "suspended"
         decision.epoch = int(event.payload["new_epoch"])
+        for run_id, (decision_id, epoch) in self.run_scope.items():
+            if (
+                decision_id == decision.id
+                and epoch < decision.epoch
+                and self.runs[run_id] == "running"
+            ):
+                self.runs[run_id] = "stale"
 
     def _on_decision_renewed(self, event: LedgerEvent) -> None:
         decision = self._decision(event)
@@ -127,14 +141,36 @@ class DecisionGraph:
         self.graph.add_node(event.payload["id"], type="Finding")
 
     def _on_run_started(self, event: LedgerEvent) -> None:
-        self.graph.add_node(str(event.run_id), type="Run")
-        self.graph.add_edge(str(event.decision_id), str(event.run_id), key="AUTHORIZES")
+        run_id = str(event.run_id)
+        self.runs[run_id] = "running"
+        self.run_scope[run_id] = (str(event.decision_id), int(event.epoch or 1))
+        self.graph.add_node(run_id, type="Run")
+        self.graph.add_edge(str(event.decision_id), run_id, key="AUTHORIZES")
+
+    def _on_run_completed(self, event: LedgerEvent) -> None:
+        self.runs[str(event.run_id)] = "completed"
+
+    def _on_run_cancelled(self, event: LedgerEvent) -> None:
+        self.runs[str(event.run_id)] = "cancelled"
 
     def _on_action_queued(self, event: LedgerEvent) -> None:
         action_id = event.payload["action_id"]
+        self.actions[action_id] = "queued"
         self.graph.add_node(action_id, type="Action")
         self.graph.add_edge(action_id, str(event.decision_id), key="DEPENDS_ON")
         self.graph.add_edge(action_id, str(event.run_id), key="DEPENDS_ON")
+
+    def _on_action_held(self, event: LedgerEvent) -> None:
+        self.actions[event.payload["action_id"]] = "held"
+
+    def _on_action_released(self, event: LedgerEvent) -> None:
+        self.actions[event.payload["action_id"]] = "released"
+
+    def _on_action_delivered(self, event: LedgerEvent) -> None:
+        self.actions[event.payload["action_id"]] = "delivered"
+
+    def _on_action_cancelled(self, event: LedgerEvent) -> None:
+        self.actions[event.payload["action_id"]] = "cancelled"
 
     def _on_evidence_recorded(self, event: LedgerEvent) -> None:
         payload = dict(event.payload)

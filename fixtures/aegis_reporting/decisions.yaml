@@ -1,0 +1,29 @@
+# Decisions known to the seeded scenario.
+#
+# D-0 is Support's standing approval, confirmed when the session is seeded so the
+# support run has something to stand on. It has one basis with no conditions.
+#
+# D-1 is the reporting approval the operator normally dictates (PRD §7.2). It is
+# here so a judge who skips dictation can still load it, and so the grammar has
+# an exact typed result to match.
+
+seeded:
+  - statement: Support work may proceed
+    subject: Support
+    actor: support-agent
+    conditions: []
+
+reporting_approval:
+  dictated_text: >-
+    Approve reporting, on the condition that the Reporting Agent only reads from
+    the approved, sanitized report store.
+  proposal:
+    statement: Reporting may proceed
+    subject: Reporting
+    actor: reporting-agent
+    conditions:
+      - predicate:
+          kind: ReadsOnlyFrom
+          actor: reporting-agent
+          resources: [report_store/approved_summaries]
+        plain: this agent receives only sanitized summaries

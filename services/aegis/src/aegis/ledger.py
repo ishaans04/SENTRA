@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+from collections.abc import Callable
 from typing import Any, Literal
 
 from pydantic import BaseModel, Field
@@ -100,6 +101,9 @@ class SessionLedger:
         self.clock = clock
         self._events: list[LedgerEvent] = []
         self._subscribers: list[asyncio.Queue[LedgerEvent]] = []
+        #: Called synchronously on every append, in order. Projections that must
+        #: never lag the ledger (the decision graph) register here.
+        self.listeners: list[Callable[[LedgerEvent], None]] = []
 
     def append(
         self,
@@ -131,6 +135,8 @@ class SessionLedger:
             payload=dict(payload or {}),
         )
         self._events.append(event)
+        for listener in self.listeners:
+            listener(event)
         for queue in self._subscribers:
             queue.put_nowait(event)
         return event

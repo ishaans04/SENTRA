@@ -31,7 +31,7 @@ class Outbox:
         self._actions: dict[str, QueuedAction] = {}
 
     def queue(
-        self, run_id: str, decision_id: str, actor: str, tool: str, args: dict[str, Any], cause: str
+        self, run_id: str, decision_id: str, actor: str, tool: str, args: dict[str, Any]
     ) -> QueuedAction:
         action = QueuedAction(
             id=f"A-{len(self._actions) + 1}",
@@ -40,7 +40,6 @@ class Outbox:
             actor=actor,
             tool=tool,
             args=dict(args),
-            cites=[cause],
         )
         self._actions[action.id] = action
         return action

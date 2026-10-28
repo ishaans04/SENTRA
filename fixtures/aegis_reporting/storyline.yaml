@@ -10,6 +10,14 @@ beats:
     title: Seed
     steps: []
 
+  - n: 1
+    title: Approve
+    steps:
+      - op: approve
+        text: >-
+          Approve reporting, on the condition that the Reporting Agent only reads from
+          the approved, sanitized report store.
+
   - n: 2
     title: Support works
     steps:
