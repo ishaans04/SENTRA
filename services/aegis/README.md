@@ -1,6 +1,6 @@
 # haegis (Python package)
 
-The new half of HAEGIS: the MCP gateway, the fictional tool servers, the decision ledger, conditions, recovery, interpretation and the API. It depends on `hive-core` (in `../core`) by path and never edits it.
+The gateway and decision layer of HAEGIS: the MCP gateway, the fictional tool servers, the decision ledger, conditions, recovery, interpretation and the API. It uses the control engine (`hive-core`, in `../core`) as a path dependency.
 
 ```bash
 uv sync --group dev

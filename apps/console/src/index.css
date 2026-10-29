@@ -1,181 +1,296 @@
-@import 'tailwindcss';
+/*
+ * One palette for the whole product. The landing page and the console share
+ * the console's paper ground, ink, soft rules and blue highlight. The same
+ * values live in shared/theme.ts for SVG and canvas drawing.
+ */
 
-/* ---------------------------------------------------------------------------
-   HIVE console design tokens.
+:root {
+  --paper: oklch(0.972 0.006 85);
+  --card: oklch(0.992 0.004 85);
+  --wash: oklch(0.965 0.006 85);
+  --ink: oklch(0.23 0.012 70);
+  --ink-2: oklch(0.38 0.012 70);
+  --mute: oklch(0.5 0.012 70);
+  --dim: oklch(0.62 0.01 75);
+  --faint: oklch(0.7 0.01 75);
+  --line: oklch(0.62 0.01 75);
+  --rule: oklch(0.89 0.008 80);
+  --rule-soft: oklch(0.94 0.006 80);
+  --red: oklch(0.56 0.19 30);
+  --red-bg: oklch(0.955 0.035 30);
+  --amber: oklch(0.55 0.12 70);
+  --amber-line: oklch(0.74 0.14 75);
+  --amber-bg: oklch(0.955 0.045 85);
+  --green: oklch(0.5 0.11 155);
+  --green-bg: oklch(0.955 0.035 155);
+  --blue: oklch(0.48 0.13 262);
+  --blue-bg: oklch(0.95 0.03 262);
 
-   Colour carries meaning here and nothing else. Structure is achromatic — the
-   ground, the hairlines and the type are all neutral — and the three saturated
-   hues each have exactly one job:
+  --font-display: 'Bricolage Grotesque', 'Geist', system-ui, sans-serif;
+  --font-sans: 'Geist', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  --font-serif: 'Newsreader', Georgia, serif;
 
-     mint   a relationship the architecture declares, or a risk now contained
-     amber  a relationship the architecture does not declare
-     red    a composed path that the architecture forbids
-
-   Nothing is encoded by colour alone: every state also carries a stroke style
-   and a written label, so the console reads correctly in greyscale and to a
-   screen reader.
---------------------------------------------------------------------------- */
-
-@theme {
-  --font-display: Archivo, 'Helvetica Neue', Arial, sans-serif;
-  --font-body: 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
-
-  --color-ground: #07080a;
-  --color-surface: #0a0c0e;
-  --color-raised: #0d1012;
-  --color-rule: #23272c;
-  --color-rule-soft: #14181c;
-
-  --color-ink: #edeae3;
-  --color-ink-bright: #f6f3ed;
-  --color-ink-soft: #c9c6bf;
-  --color-muted: #9ba1a7;
-  --color-muted-deep: #7e858c;
-
-  --color-mint: #7ff0c0;
-  --color-amber: #f2c46b;
-  --color-red: #f4543c;
-  --color-violet: #b79cf0;
+  color-scheme: light;
 }
 
-/* --- base ---------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
 html {
-  background: var(--color-ground);
   scroll-behavior: smooth;
 }
 
 body {
   margin: 0;
-  background: var(--color-ground);
-  color: var(--color-ink);
-  font-family: var(--font-body);
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
-  text-wrap: pretty;
 }
 
-h1,
-h2,
-h3,
-h4 {
-  font-family: var(--font-display);
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  margin: 0;
+a {
+  color: var(--blue);
+  text-decoration: none;
 }
 
-::selection {
-  background: var(--color-mint);
-  color: var(--color-ground);
+a:hover {
+  color: var(--ink);
 }
 
-/* Keyboard focus must always be visible; the console is operable without a
-   mouse and a security tool should never hide where the focus is. */
-:focus-visible {
-  outline: 1px solid var(--color-mint);
+button {
+  font-family: inherit;
+  color: inherit;
+}
+
+button:focus-visible,
+a:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--blue);
   outline-offset: 2px;
 }
 
-/* --- utilities ----------------------------------------------------------- */
+textarea:focus {
+  outline: none;
+}
 
-@utility label {
+::selection {
+  background: var(--blue);
+  color: var(--paper);
+}
+
+.mono {
   font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--color-muted-deep);
 }
 
-@utility rule-box {
-  border: 1px solid var(--color-rule);
-  border-radius: 2px;
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
-@utility tabular {
-  font-family: var(--font-mono);
-  font-variant-numeric: tabular-nums;
+/* Shared motion. Both pages draw from the same set. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
-/* --- motion -------------------------------------------------------------- */
+@keyframes up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
 
-/* The pulse that marks an actor as live, carried over from the original
-   interface language. */
-@keyframes hvPing {
+@keyframes word {
+  from {
+    opacity: 0;
+    transform: translateY(0.5em);
+    filter: blur(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: blur(0);
+  }
+}
+
+@keyframes fill {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes fill70 {
+  from {
+    width: 0;
+  }
+  to {
+    width: 68%;
+  }
+}
+
+@keyframes wave {
+  from {
+    transform: scaleY(0.25);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes ring {
   0% {
-    opacity: 0.55;
+    box-shadow: 0 0 0 0 oklch(0.48 0.13 262 / 0.4);
+  }
+  100% {
+    box-shadow: 0 0 0 22px oklch(0.48 0.13 262 / 0);
+  }
+}
+
+@keyframes ringSm {
+  0% {
+    box-shadow: 0 0 0 0 oklch(0.48 0.13 262 / 0.45);
+  }
+  100% {
+    box-shadow: 0 0 0 12px oklch(0.48 0.13 262 / 0);
+  }
+}
+
+@keyframes pop {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.6);
+  }
+  70% {
+    transform: translate(-50%, -50%) scale(1.06);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  100% {
+    opacity: 1;
     transform: scale(1);
   }
-  70%,
-  100% {
+}
+
+@keyframes blink {
+  50% {
     opacity: 0;
-    transform: scale(2.1);
   }
 }
 
-/* Undeclared relationships march, so a deviation is legible in motion as well
-   as in colour. */
-@keyframes hvDash {
+@keyframes softBlink {
+  50% {
+    opacity: 0.3;
+  }
+}
+
+@keyframes march {
   to {
     stroke-dashoffset: -16;
   }
 }
 
-/* The one orchestrated moment: when a path closes, it draws itself. */
-@keyframes hvDraw {
+@keyframes shake {
+  0%,
+  100% {
+    transform: translate(-50%, -50%);
+  }
+  20% {
+    transform: translate(-56%, -50%);
+  }
+  40% {
+    transform: translate(-44%, -50%);
+  }
+  60% {
+    transform: translate(-54%, -50%);
+  }
+  80% {
+    transform: translate(-47%, -50%);
+  }
+}
+
+@keyframes toRed {
+  to {
+    background: var(--red);
+    box-shadow: 0 0 12px oklch(0.56 0.19 30 / 0.45);
+  }
+}
+
+@keyframes toRedDot {
+  to {
+    border-color: var(--red);
+    background: var(--red-bg);
+    box-shadow: 0 0 16px oklch(0.56 0.19 30 / 0.35);
+  }
+}
+
+@keyframes fadeOut {
+  to {
+    opacity: 0.3;
+    filter: grayscale(1);
+  }
+}
+
+@keyframes toGreen {
+  to {
+    border-color: var(--green);
+    box-shadow:
+      0 0 0 1px var(--green),
+      0 0 30px oklch(0.5 0.11 155 / 0.14);
+  }
+}
+
+@keyframes shimmer {
   from {
-    stroke-dashoffset: var(--draw-length);
+    background-position: -200% 0;
   }
   to {
-    stroke-dashoffset: 0;
+    background-position: 200% 0;
   }
 }
 
-@keyframes hvFade {
-  from {
-    opacity: 0;
-  }
+@keyframes spin {
   to {
-    opacity: 1;
+    transform: rotate(360deg);
   }
 }
 
-@keyframes hvSweep {
-  from {
-    transform: translateX(-100%);
+@keyframes breath {
+  50% {
+    opacity: 0.35;
   }
-  to {
-    transform: translateX(400%);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
-  }
-}
-
-/* --- scrollbars ---------------------------------------------------------- */
-
-* {
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-rule) transparent;
-}
-
-*::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-*::-webkit-scrollbar-thumb {
-  background: var(--color-rule);
-  border-radius: 4px;
-}
-
-*::-webkit-scrollbar-track {
-  background: transparent;
 }

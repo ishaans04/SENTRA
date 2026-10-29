@@ -1,0 +1,278 @@
+/*
+ * The glass case file: slides in from the right edge over the case-file
+ * column, so it never covers the map or the ledger.
+ */
+
+.cx-glass {
+  position: fixed;
+  z-index: 30;
+  top: calc(var(--hdr) + 12px);
+  right: 12px;
+  bottom: 12px;
+  width: calc(var(--glass-w) - 24px);
+  display: flex;
+  flex-direction: column;
+  border-radius: 22px;
+  background: linear-gradient(
+    155deg,
+    oklch(1 0 0 / 0.74),
+    oklch(0.985 0.006 85 / 0.52) 55%,
+    oklch(0.97 0.02 262 / 0.5)
+  );
+  backdrop-filter: blur(28px) saturate(1.7);
+  -webkit-backdrop-filter: blur(28px) saturate(1.7);
+  border: 1px solid oklch(1 0 0 / 0.75);
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 0.9),
+    0 0 0 1px oklch(0.23 0.012 70 / 0.06),
+    0 40px 80px -30px oklch(0.23 0.012 70 / 0.4),
+    0 14px 36px -20px oklch(0.48 0.13 262 / 0.3);
+  transform: translateX(calc(100% + 32px));
+  visibility: hidden;
+  transition:
+    transform 0.65s cubic-bezier(0.2, 0.9, 0.25, 1),
+    visibility 0s 0.65s;
+}
+
+.cx-glass.is-open {
+  transform: none;
+  visibility: visible;
+  transition:
+    transform 0.65s cubic-bezier(0.2, 0.9, 0.25, 1),
+    visibility 0s;
+}
+
+@media (max-width: 1119px) {
+  .cx-glass {
+    width: min(440px, calc(100vw - 24px));
+  }
+}
+
+/* Once the case file has moved into the glass, the column below the map on
+   narrow screens has nothing left to show. */
+@media (max-width: 1119px) {
+  .cx-rail:empty {
+    display: none;
+  }
+}
+
+.cx-glass-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 14px 12px 18px;
+  border-bottom: 1px solid oklch(0.23 0.012 70 / 0.08);
+}
+
+.cx-glass-head .cx-sub {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.cx-glass-live {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--blue);
+  animation: ringSm 1.8s ease-out infinite;
+}
+
+.cx-glass-close {
+  margin-left: auto;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid oklch(0.23 0.012 70 / 0.1);
+  background: oklch(1 0 0 / 0.6);
+  color: var(--ink);
+  font: 500 12px var(--font-sans);
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    transform 0.2s;
+}
+
+.cx-glass-close:hover {
+  background: var(--card);
+  transform: rotate(90deg);
+}
+
+.cx-glass-body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  scrollbar-width: thin;
+  scrollbar-color: oklch(0.23 0.012 70 / 0.18) transparent;
+}
+
+/* Cards sit on the glass as frosted panes; the record keeps its ink. */
+.cx-glass .cx-card:not(.cx-record) {
+  background: oklch(1 0 0 / 0.62);
+  border-color: oklch(0.23 0.012 70 / 0.09);
+  box-shadow: 0 1px 2px oklch(0.23 0.012 70 / 0.04);
+}
+
+.cx-glass .cx-card.cx-tell {
+  border-color: oklch(0.48 0.13 262 / 0.45);
+}
+
+.cx-glass textarea {
+  background-color: oklch(1 0 0 / 0.75);
+}
+
+/* The card for what is happening now. */
+.cx-glass-body > [data-card] > .cx-card {
+  transition:
+    box-shadow 0.5s,
+    border-color 0.5s;
+}
+
+.cx-glass-body > .is-focus > .cx-card:not(.cx-record) {
+  border-color: oklch(0.48 0.13 262 / 0.5);
+  box-shadow:
+    0 0 0 3px oklch(0.48 0.13 262 / 0.12),
+    0 18px 36px -24px oklch(0.48 0.13 262 / 0.45);
+}
+
+.cx-glass-body > .is-focus > .cx-record {
+  box-shadow:
+    0 0 0 3px oklch(0.48 0.13 262 / 0.25),
+    0 22px 44px -24px oklch(0.23 0.012 70 / 0.6);
+}
+
+/* Tab on the right edge to bring the case file back. */
+.cx-glass-tab {
+  position: fixed;
+  z-index: 30;
+  right: 0;
+  top: 50%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 10px;
+  writing-mode: vertical-rl;
+  border-radius: 12px 0 0 12px;
+  border: 1px solid oklch(1 0 0 / 0.75);
+  border-right: 0;
+  background: oklch(0.99 0.004 85 / 0.7);
+  backdrop-filter: blur(18px) saturate(1.6);
+  -webkit-backdrop-filter: blur(18px) saturate(1.6);
+  box-shadow: 0 16px 36px -18px oklch(0.23 0.012 70 / 0.4);
+  font: 500 11px var(--font-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink);
+  cursor: pointer;
+  transform: translateY(-50%);
+  animation: tabIn 0.45s cubic-bezier(0.2, 0.9, 0.25, 1) both;
+  transition: padding 0.2s;
+}
+
+.cx-glass-tab:hover {
+  padding-right: 14px;
+}
+
+@keyframes tabIn {
+  from {
+    transform: translate(100%, -50%);
+  }
+  to {
+    transform: translateY(-50%);
+  }
+}
+
+/* The outcome record: pops up mid-screen, then flies into the case file. */
+.cx-record-pop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: oklch(0.23 0.012 70 / 0.16);
+  animation: popFade 0.3s ease both;
+  transition: background 0.55s;
+}
+
+.cx-record-pop.is-leaving {
+  background: oklch(0.23 0.012 70 / 0);
+  pointer-events: none;
+}
+
+.cx-record-pop-card {
+  width: min(560px, 100%);
+  animation: popCard 0.55s cubic-bezier(0.2, 0.9, 0.25, 1.15) both;
+  transition:
+    transform 0.55s cubic-bezier(0.5, 0, 0.2, 1),
+    opacity 0.55s;
+}
+
+.cx-record-pop-card .cx-record {
+  box-shadow: 0 40px 100px -30px oklch(0.23 0.012 70 / 0.6);
+}
+
+.cx-record-pop.is-leaving .cx-record-pop-card {
+  transform: translate(min(34vw, 460px), 6vh) scale(0.55);
+  opacity: 0;
+}
+
+.cx-record-pop-foot {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: oklch(0.99 0.004 85 / 0.75);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  font: 500 11px var(--font-mono);
+  letter-spacing: 0.04em;
+  color: var(--mute);
+}
+
+.cx-record-pop-bar {
+  flex: 1;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--rule);
+  overflow: hidden;
+}
+
+.cx-record-pop-bar > i {
+  display: block;
+  height: 100%;
+  background: var(--blue);
+  animation: fill 3s linear both;
+}
+
+.cx-record-pop-foot button {
+  border: 0;
+  background: transparent;
+  color: var(--blue);
+  font: 500 12px var(--font-sans);
+  cursor: pointer;
+}
+
+@keyframes popFade {
+  from {
+    background: oklch(0.23 0.012 70 / 0);
+  }
+}
+
+@keyframes popCard {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.92);
+  }
+}

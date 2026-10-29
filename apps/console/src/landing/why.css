@@ -1,0 +1,570 @@
+/* 05 Why not just an LLM: a dark band in the console's ink. */
+
+.ld-why {
+  padding: clamp(40px, 6vh, 80px) clamp(10px, 1.6vw, 24px);
+  --lb: oklch(0.76 0.1 262);
+  --lg: oklch(0.8 0.12 155);
+  --lr: oklch(0.74 0.14 30);
+  --d-text: oklch(0.96 0.006 85);
+  --d-mute: oklch(0.72 0.01 80);
+  --d-card: oklch(0.27 0.012 70);
+  --d-rule: oklch(0.35 0.01 70);
+}
+
+/* Over the dark band the nav and the section rail switch to ink. */
+.ld-nav::before {
+  content: '';
+  position: absolute;
+  inset: 0 clamp(10px, 1.6vw, 24px);
+  z-index: -1;
+  border-radius: 0 0 24px 24px;
+  background: linear-gradient(var(--ink) 35%, oklch(0.23 0.012 70 / 0));
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+
+.ld-nav {
+  transition: background 0.3s;
+}
+
+.ld-nav.is-dark {
+  background: transparent;
+}
+
+.ld-nav.is-dark::before {
+  opacity: 1;
+}
+
+.ld-nav.is-dark .brand-name {
+  color: oklch(0.96 0.006 85);
+}
+
+.ld-nav.is-dark .brand-mark {
+  border-color: oklch(0.76 0.1 262);
+}
+
+.ld-nav.is-dark .ld-nav-link {
+  color: oklch(0.75 0.01 80);
+}
+
+.ld-nav.is-dark .ld-nav-cta {
+  background: transparent;
+  border-color: oklch(1 0 0 / 0.22);
+  color: oklch(0.96 0.006 85);
+}
+
+.ld-nav.is-dark .ld-nav-cta:hover {
+  background: oklch(0.96 0.006 85);
+  color: var(--ink);
+}
+
+.ld-rail.is-dark {
+  background: oklch(0.27 0.012 70 / 0.94);
+  border-color: oklch(0.35 0.01 70);
+}
+
+.ld-rail.is-dark a {
+  color: oklch(0.72 0.01 80);
+}
+
+.ld-rail.is-dark a:hover,
+.ld-rail.is-dark a.is-active {
+  color: oklch(0.96 0.006 85);
+  background: transparent;
+}
+
+.ld-rail.is-dark .ld-rail-dot {
+  background: oklch(0.4 0.01 70);
+}
+
+.ld-rail.is-dark a.is-past .ld-rail-dot {
+  background: oklch(0.6 0.01 75);
+}
+
+.ld-rail.is-dark a.is-active .ld-rail-dot {
+  background: oklch(0.76 0.1 262);
+}
+
+.ld-why-panel {
+  --pad: clamp(22px, 4vw, 72px);
+  position: relative;
+  max-width: 1400px;
+  margin: 0 auto;
+  background: var(--ink);
+  color: var(--d-text);
+  border-radius: clamp(24px, 3vw, 40px);
+  padding: clamp(64px, 10vh, 120px) var(--pad) clamp(56px, 8vh, 100px);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(56px, 9vh, 96px);
+}
+
+.ld-why-panel > * {
+  position: relative;
+}
+
+.ld-why-panel > .ld-why-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    radial-gradient(800px 520px at 88% 0%, oklch(0.48 0.13 262 / 0.38), transparent 70%),
+    radial-gradient(640px 420px at 0% 100%, oklch(0.5 0.11 155 / 0.14), transparent 70%),
+    radial-gradient(oklch(1 0 0 / 0.05) 1px, transparent 1.3px) 0 0 / 26px 26px;
+}
+
+.ld-why ::selection {
+  background: var(--lb);
+  color: var(--ink);
+}
+
+.ld-why-label {
+  font: 500 12px/1 var(--font-mono);
+  letter-spacing: 0.14em;
+  color: var(--d-mute);
+}
+
+.ld-why-dim {
+  color: var(--lb);
+}
+
+.ld-why-lede {
+  margin: 0;
+  max-width: 680px;
+  font: 400 18px/1.55 var(--font-sans);
+  color: oklch(0.82 0.008 80);
+  text-wrap: pretty;
+}
+
+.ld-why-h3 {
+  margin: 0;
+  font: 600 clamp(26px, 2.6vw, 38px) / 1.1 var(--font-display);
+  letter-spacing: -0.03em;
+}
+
+.ld-why-link {
+  align-self: flex-start;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--lb);
+  font: 500 14px var(--font-sans);
+  cursor: pointer;
+}
+
+.ld-why-link:hover {
+  color: var(--d-text);
+}
+
+.ld-why .ld-pane::after,
+.ld-why .ld-reason::after {
+  background: radial-gradient(
+    300px circle at var(--sx, -300px) var(--sy, -300px),
+    oklch(0.76 0.1 262 / 0.12),
+    transparent 70%
+  );
+}
+
+/* Ask both */
+.ld-ask {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 2fr);
+  gap: 24px;
+}
+
+.ld-ask-situation {
+  padding: 26px;
+  border-radius: 22px;
+  border: 1px dashed oklch(1 0 0 / 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ld-ask-situation p {
+  margin: 0;
+  flex: 1;
+  font: 500 clamp(20px, 1.8vw, 24px) / 1.35 var(--font-display);
+  letter-spacing: -0.01em;
+}
+
+.ld-ask-panes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.ld-pane {
+  padding: 22px;
+  border-radius: 22px;
+  background: var(--d-card);
+  border: 1px solid var(--d-rule);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 320px;
+}
+
+.ld-pane.is-us {
+  border-color: oklch(0.76 0.1 262 / 0.45);
+  box-shadow:
+    0 0 0 4px oklch(0.48 0.13 262 / 0.14),
+    0 30px 60px -30px oklch(0.48 0.13 262 / 0.6);
+}
+
+.ld-pane-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  font: 600 15px var(--font-sans);
+}
+
+.ld-pane-tag {
+  font: 500 9.5px/1 var(--font-mono);
+  letter-spacing: 0.08em;
+  padding: 5px 7px;
+  border-radius: 5px;
+  background: oklch(1 0 0 / 0.07);
+  color: var(--d-mute);
+  white-space: nowrap;
+}
+
+.ld-bubble {
+  padding: 14px 16px;
+  border-radius: 16px 16px 16px 4px;
+  background: oklch(0.33 0.01 70);
+  font: 400 15px/1.5 var(--font-sans);
+  color: oklch(0.9 0.006 85);
+  min-height: 132px;
+}
+
+.ld-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ld-step {
+  display: grid;
+  grid-template-columns: 10px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: baseline;
+  padding: 10px 12px;
+  border-radius: 11px;
+  background: oklch(1 0 0 / 0.045);
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity 0.45s,
+    transform 0.45s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.ld-step.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+.ld-step-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--d-mute);
+}
+
+.ld-step.tone-red .ld-step-dot {
+  background: var(--lr);
+}
+
+.ld-step.tone-blue .ld-step-dot {
+  background: var(--lb);
+  box-shadow: 0 0 0 4px oklch(0.76 0.1 262 / 0.18);
+}
+
+.ld-step.tone-mute .ld-step-dot {
+  animation: breath 1.4s infinite;
+}
+
+.ld-step-text {
+  font: 500 14px/1.4 var(--font-sans);
+}
+
+.ld-step.tone-mute .ld-step-text {
+  color: var(--d-mute);
+}
+
+.ld-step-ev {
+  font: 500 11px var(--font-mono);
+  color: var(--d-mute);
+}
+
+.ld-pane-foot {
+  margin-top: auto;
+  font: 500 14px/1.4 var(--font-sans);
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity 0.5s,
+    transform 0.5s;
+}
+
+.ld-pane-foot.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+.ld-pane-foot.is-bad {
+  color: var(--lr);
+}
+
+.ld-pane-foot.is-good {
+  color: var(--lg);
+}
+
+@media (max-width: 1000px) {
+  .ld-ask {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 720px) {
+  .ld-ask-panes {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ld-pane {
+    min-height: 0;
+  }
+}
+
+/* Three differences, boxed like the reasons below them */
+.ld-diffs {
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+}
+
+.ld-diff {
+  gap: 14px;
+}
+
+.ld-diff-num {
+  font: 600 44px/0.9 var(--font-display);
+  letter-spacing: -0.05em;
+  color: var(--lb);
+}
+
+.ld-diff .ld-reason-title {
+  font-size: 22px;
+  margin-bottom: 4px;
+}
+
+.ld-diff-row {
+  display: grid;
+  grid-template-columns: 14px minmax(0, 1fr);
+  gap: 4px 10px;
+  align-items: baseline;
+  padding-top: 14px;
+  border-top: 1px solid var(--d-rule);
+  font: 400 14.5px/1.5 var(--font-sans);
+}
+
+.ld-diff-row.is-us {
+  margin-top: auto;
+}
+
+.ld-diff-who {
+  grid-column: 1 / -1;
+  font: 500 10px/1.3 var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--d-mute);
+}
+
+.ld-diff-row.is-llm {
+  color: var(--d-mute);
+}
+
+.ld-diff-row.is-llm .ld-diff-mark {
+  color: var(--lr);
+}
+
+.ld-diff-row.is-us .ld-diff-mark {
+  color: var(--lg);
+}
+
+.ld-diff-row.is-us .ld-diff-who {
+  color: var(--lb);
+}
+
+/* Why teams choose it */
+.ld-reasons-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+
+.ld-reasons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 14px;
+}
+
+.ld-reason {
+  padding: 24px;
+  border-radius: 20px;
+  background: var(--d-card);
+  border: 1px solid var(--d-rule);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.7s,
+    transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1),
+    border-color 0.3s;
+}
+
+.ld-reason.is-seen {
+  opacity: 1;
+  transform: none;
+}
+
+.ld-reason:hover {
+  border-color: oklch(0.76 0.1 262 / 0.45);
+}
+
+.ld-reason-title {
+  font: 600 19px/1.2 var(--font-display);
+  letter-spacing: -0.01em;
+}
+
+.ld-reason-body {
+  font: 400 14.5px/1.5 var(--font-sans);
+  color: var(--d-mute);
+}
+
+/* Small drawn icons, one per reason. */
+.ld-glyph {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: oklch(0.48 0.13 262 / 0.25);
+}
+
+.ld-glyph i {
+  position: absolute;
+  display: block;
+  background: var(--lb);
+  border-radius: 2px;
+}
+
+.glyph-ledger i:nth-child(1) {
+  left: 11px;
+  top: 13px;
+  width: 18px;
+  height: 2px;
+}
+
+.glyph-ledger i:nth-child(2) {
+  left: 11px;
+  top: 19px;
+  width: 12px;
+  height: 2px;
+}
+
+.glyph-ledger i:nth-child(3) {
+  left: 11px;
+  top: 25px;
+  width: 18px;
+  height: 2px;
+}
+
+.glyph-switch i:nth-child(1) {
+  left: 9px;
+  top: 14px;
+  width: 22px;
+  height: 12px;
+  border-radius: 7px;
+  background: transparent;
+  border: 1.5px solid var(--lb);
+}
+
+.glyph-switch i:nth-child(2) {
+  left: 12.5px;
+  top: 17.5px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+}
+
+.glyph-switch i:nth-child(3) {
+  display: none;
+}
+
+.glyph-thread i:nth-child(1) {
+  left: 8px;
+  top: 19px;
+  width: 10px;
+  height: 2px;
+}
+
+.glyph-thread i:nth-child(2) {
+  left: 22px;
+  top: 19px;
+  width: 10px;
+  height: 2px;
+}
+
+.glyph-thread i:nth-child(3) {
+  left: 18.5px;
+  top: 14px;
+  width: 2px;
+  height: 12px;
+  background: var(--lr);
+  transform: rotate(25deg);
+}
+
+.glyph-gate i:nth-child(1) {
+  left: 11px;
+  top: 11px;
+  width: 3px;
+  height: 18px;
+}
+
+.glyph-gate i:nth-child(2) {
+  left: 26px;
+  top: 11px;
+  width: 3px;
+  height: 18px;
+}
+
+.glyph-gate i:nth-child(3) {
+  left: 11px;
+  top: 11px;
+  width: 18px;
+  height: 3px;
+}
+
+.ld-why-cta {
+  align-self: flex-start;
+  margin-top: 10px;
+  height: 50px;
+  padding: 0 22px;
+  border-radius: 999px;
+  border: 1px solid oklch(1 0 0 / 0.22);
+  background: transparent;
+  color: var(--d-text);
+  font: 500 15px var(--font-sans);
+  cursor: pointer;
+  transition:
+    background 0.25s,
+    color 0.25s;
+}
+
+.ld-why-cta:hover {
+  background: var(--d-text);
+  color: var(--ink);
+}

@@ -1,8 +1,8 @@
-name: Deploy recorded replay
+name: Deploy site
 
-# Publishes the console to GitHub Pages as the fallback link. With no service
-# behind it, the console plays the storyline recorded by `python -m aegis.record`,
-# labels it "Recorded replay" and disables every command.
+# Publishes the site (landing page, guided walkthrough and console) to GitHub
+# Pages. It is fully static: the console replays a recorded session of
+# fictional data, so no service needs to run behind it.
 #
 # To turn this on: Settings → Pages → Source → GitHub Actions.
 

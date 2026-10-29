@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "haegis"
 version = "0.1.0"
-description = "HAEGIS: approvals tied to conditions, an MCP gateway that holds and rejects affected agent calls, and dictated recovery checked against the HIVE engine."
+description = "HAEGIS: approvals tied to conditions, an MCP gateway that holds and rejects affected agent calls, and dictated recovery checked against the control engine."
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 license = "MIT"

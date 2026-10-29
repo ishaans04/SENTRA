@@ -9,9 +9,9 @@ WORKDIR /app
 RUN npm install -g pnpm@11.19.0
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY apps/console/package.json apps/console/
-RUN pnpm install --frozen-lockfile --filter @hive/console
+RUN pnpm install --frozen-lockfile --filter @haegis/console
 COPY apps/console apps/console
-RUN pnpm --filter @hive/console build
+RUN pnpm --filter @haegis/console build
 
 FROM python:3.12-slim
 COPY --from=ghcr.io/astral-sh/uv:0.7.8 /uv /bin/uv

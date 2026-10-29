@@ -1,9 +1,6 @@
 /**
- * Last-resort boundary.
- *
- * A security console that fails silently is worse than one that fails loudly:
- * a blank panel reads as "nothing is wrong". If rendering breaks, say so
- * plainly and say what state the analysis is actually in.
+ * Last-resort boundary. If rendering breaks, say so plainly rather than show
+ * a blank page that reads as "nothing is wrong".
  */
 
 import { Component, type ErrorInfo, type ReactNode } from 'react';
@@ -24,7 +21,7 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, info: ErrorInfo): void {
-    console.error('The console failed to render.', error, info.componentStack);
+    console.error('HAEGIS failed to render.', error, info.componentStack);
   }
 
   render(): ReactNode {
@@ -32,25 +29,55 @@ export class ErrorBoundary extends Component<Props, State> {
     if (!error) return this.props.children;
 
     return (
-      <div className="min-h-screen bg-ground p-6">
+      <div style={{ minHeight: '100vh', padding: 24 }}>
         <div
           role="alert"
-          className="mx-auto max-w-[70ch] rounded-[2px] border border-red/50 bg-red/5 p-6"
+          style={{
+            maxWidth: '70ch',
+            margin: '10vh auto 0',
+            padding: 24,
+            borderRadius: 14,
+            border: '1px solid var(--red)',
+            background: 'var(--red-bg)',
+          }}
         >
-          <h1 className="font-display text-[18px] text-ink-bright">The console stopped.</h1>
-          <p className="mt-3 text-[13px] leading-relaxed text-ink-soft">
-            Rendering failed, so nothing on this page can be trusted to reflect the current state of
-            the estate. No analysis result is implied by this screen.
+          <h1 style={{ margin: 0, font: '600 18px var(--font-sans)' }}>The page stopped.</h1>
+          <p
+            style={{
+              margin: '12px 0 0',
+              font: '400 14px/1.5 var(--font-sans)',
+              color: 'var(--ink-2)',
+            }}
+          >
+            Something failed while drawing this screen, so what you see here can’t be trusted.
           </p>
-          <p className="mt-3 font-mono text-[11.5px] leading-relaxed break-words text-muted">
+          <p
+            className="mono"
+            style={{
+              margin: '12px 0 0',
+              fontSize: 12,
+              color: 'var(--mute)',
+              overflowWrap: 'anywhere',
+            }}
+          >
             {error.message}
           </p>
           <button
             type="button"
             onClick={() => window.location.reload()}
-            className="mt-5 rounded-[2px] border border-mint/60 bg-mint/10 px-3 py-2 font-mono text-[10px] tracking-[0.14em] text-mint uppercase"
+            style={{
+              marginTop: 18,
+              height: 36,
+              padding: '0 14px',
+              border: 0,
+              borderRadius: 8,
+              background: 'var(--ink)',
+              color: 'var(--paper)',
+              cursor: 'pointer',
+              font: '500 13px var(--font-sans)',
+            }}
           >
-            Reload the console
+            Reload
           </button>
         </div>
       </div>

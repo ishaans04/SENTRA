@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "hive-core"
 version = "0.0.0"
-description = "HIVE security-analysis core: expected-vs-observed graph projection, capability-composition detection, and constrained containment planning."
+description = "HAEGIS control engine: expected-vs-observed graph projection, capability-composition detection, and constrained containment planning."
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 license = "MIT"
@@ -39,8 +39,6 @@ dependencies = [
 
 [project.urls]
 Homepage = "https://github.com/ishaans04/SENTRA"
-"Live console" = "https://ishaans04.github.io/SENTRA/console/"
-Overview = "https://ishaans04.github.io/SENTRA/"
 Source = "https://github.com/ishaans04/SENTRA"
 Issues = "https://github.com/ishaans04/SENTRA/issues"
 

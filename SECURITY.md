@@ -13,7 +13,7 @@ HAEGIS is a defensive cybersecurity project. The repository must contain only fi
 
 - Scanning, exploitation, credential collection, malware, destructive actions, or any activity against a live target.
 - Production customer data, agent prompts, trace payloads, secrets, or personal information.
-- Claims that HAEGIS or HIVE detects intent, all threats, or any unobserved behaviour.
+- Claims that HAEGIS detects intent, all threats, or any unobserved behaviour.
 
 ## Reporting a concern
 

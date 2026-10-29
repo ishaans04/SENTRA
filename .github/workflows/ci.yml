@@ -138,18 +138,7 @@ jobs:
       - name: Install the browser
         run: pnpm exec playwright install --with-deps chromium
 
-      # The storyline suite starts the HAEGIS service, which serves this build.
-      - name: Install uv
-        uses: astral-sh/setup-uv@v7
-        with:
-          version: '0.7.8'
-          enable-cache: true
-
-      - name: Install the HAEGIS service
-        working-directory: services/aegis
-        run: uv sync --locked
-
-      # journey: the HIVE engine view on its recorded snapshot.
-      # storyline: the judge path against the live service, model off.
-      - name: Operator journey and judge path
+      # The landing page, the guided walkthrough and the console, end to end
+      # against the production build.
+      - name: Site end to end
         run: pnpm run test:e2e
