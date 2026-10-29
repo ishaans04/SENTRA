@@ -43,30 +43,6 @@ and repairs it from instructions you say out loud with Wispr Flow.
 > [!NOTE]
 > **Built for *No Hands: The Wispr Challenge*** by WeMakeDevs × Wispr Flow (16 to 31 October 2026), **Track 1: Builders**. A solo entry by **Ishaan Sharma**, built by voice. Everything in the demo runs on fictional data. The tool servers are fictional, the webhook only counts deliveries, and nothing outside the sandbox is contacted.
 
-<details>
-<summary><b>Contents</b></summary>
-
-- [At a glance](#at-a-glance)
-- [See it work](#see-it-work)
-- [The problem](#the-problem)
-- [The challenge, and why SENTRA](#the-challenge-and-why-sentra)
-- [How SENTRA works](#how-sentra-works)
-- [Inside the gateway](#inside-the-gateway)
-- [Approvals that remember why](#approvals-that-remember-why)
-- [Recovery, in your own words](#recovery-in-your-own-words)
-- [The story the demo tells](#the-story-the-demo-tells)
-- [Screenshots](#screenshots)
-- [Voice first, with Wispr Flow](#voice-first-with-wispr-flow)
-- [Run it locally](#run-it-locally)
-- [Tests and quality](#tests-and-quality)
-- [Tech stack](#tech-stack)
-- [Repository layout](#repository-layout)
-- [Deploy](#deploy)
-- [Limits, stated up front](#limits-stated-up-front)
-- [Author](#author)
-
-</details>
-
 ## At a glance
 
 AI agents now do real work side by side: one answers support tickets, another writes the weekly partner report. Each step they take can be allowed on its own and still add up to something nobody approved, such as private customer details finding a way out of the company. The usual answer is to shut everything down. **SENTRA stops only the work that became unsafe, repairs it, and leaves the rest running.**
