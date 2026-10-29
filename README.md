@@ -542,16 +542,65 @@ CI runs the same commands on every push and pull request, and it checks more tha
 
 ## Repository layout
 
+SENTRA has three parts: two Python services and a site. Agents call their tools through the **gateway** (`services/sentra`). The gateway hands every call to the **control engine** (`services/core`), which looks for unsafe routes, and then enforces what comes back. The **site** (`apps/console`) talks to the gateway's API, or replays recordings when no service is running. The fictional data all three use lives in `fixtures/`.
+
 ```text
-services/core/        control engine: ingest, graph, route rules, containment planner
-services/sentra/      gateway, tool servers, decisions, conditions, recovery, interpretation, API
-apps/console/         the site: landing page, guided walkthrough and console (React, Vite)
-fixtures/             the reporting estate: manifest, tools, decisions, grammar, storyline
-contracts/            generated OpenAPI contracts
-deploy/huggingface/   the Space card and the publish script
-docs/                 the real-servers write-up, and the README media
-demo.md               a plain-language guide to every screen
+SENTRA/
+├── services/
+│   ├── core/                       the control engine, Python package sentra_core
+│   │   ├── src/sentra_core/
+│   │   │   ├── ingest/             checks, redacts and stamps every incoming observation
+│   │   │   ├── ledger/             the append-only log of observations
+│   │   │   ├── graph/              turns that log into a graph of who touched what, and when
+│   │   │   ├── policy/             loads the estate manifest and its rules
+│   │   │   ├── detection/          route rules: PS-001 (private data leaving), PS-002 (one agent running another's content)
+│   │   │   ├── containment/        plans the smallest change that closes a route
+│   │   │   ├── immunity/           a reviewed memory of behaviour already contained
+│   │   │   ├── connectors/         the simulated control point the engine acts through
+│   │   │   ├── lab/                fictional scenarios and the Swarm Lab
+│   │   │   ├── domain/             the typed models every layer shares
+│   │   │   ├── application/        replay sessions and their lifecycle
+│   │   │   ├── api/                HTTP routes
+│   │   │   ├── snapshot.py         records the engine's output for the static demo
+│   │   │   └── contract.py         writes the engine's OpenAPI contract
+│   │   └── tests/                  unit, property, integration and contract tests
+│   └── sentra/                     the gateway and decision layer, Python package sentra
+│       ├── src/sentra/
+│       │   ├── tools/              four fictional MCP servers (crm, report_store, scratchpad, webhook) and their catalogue
+│       │   ├── gateway/            the FastMCP gateway in front of them, its enforcement, and the outbox that holds sends
+│       │   ├── agents/             scripted agents that make exactly the storyline's calls
+│       │   ├── decisions/          approvals, the reasons behind them, and what happens when a reason stops holding
+│       │   ├── conditions/         typed checks that re-test those reasons
+│       │   ├── interpret/          Gemini, then Groq, then a fixed grammar; and the plain-words read-back
+│       │   ├── recovery/           plan steps, the undo registry, the executor, verification and the final record
+│       │   ├── api/                per-visitor sandboxes, commands and the live event stream
+│       │   ├── engine_bridge.py    passes every gateway call to the control engine
+│       │   ├── scenario.py         one session: its fictional world (world.py), log (ledger.py) and clock (clock.py)
+│       │   ├── real.py             the gateway in front of your own MCP servers
+│       │   ├── record.py           records the storyline for the static replay
+│       │   └── contract.py         writes the gateway's OpenAPI contract
+│       └── tests/                  one file per area, plus the whole storyline end to end
+├── apps/console/                   the site: React 19, TypeScript, Vite
+│   ├── src/landing/                the landing page and the guided walkthrough
+│   ├── src/console/                the console: approvals, alerts, recovery and the live sandbox
+│   ├── src/shared/                 theme, routing, scrolling and voice input
+│   ├── src/app/                    the app shell and its error boundary
+│   ├── public/demo/                the recordings the site replays with no service behind it
+│   └── e2e/                        the Playwright end-to-end test
+├── fixtures/
+│   ├── reporting/                  the demo estate: manifest, tools, decisions, grammar, storyline
+│   ├── manifests/                  two more estates for the engine's own tests
+│   └── scenarios/                  fictional event streams for PS-001 and PS-002
+├── contracts/                      the generated OpenAPI documents, plus example events
+├── deploy/huggingface/             the Space card and the publish script
+├── docs/                           the real-servers write-up (REAL_RESULT.md) and the README images
+├── .github/                        the CI and Pages workflows, Dependabot and the pull request template
+├── Dockerfile                      builds the site and serves it with the service, for the Space
+├── demo.md                         a plain-language guide to every screen
+└── CONTRIBUTING.md, SECURITY.md, LICENSE
 ```
+
+Each Python service has its own `pyproject.toml` and `uv.lock`. The site is a pnpm workspace (`package.json`, `pnpm-workspace.yaml`), and `.python-version` and `.nvmrc` pin the toolchains. Build output, virtual environments, caches, local `.env` files and private working notes are not committed (see [`.gitignore`](.gitignore)).
 
 ## Deploy
 
