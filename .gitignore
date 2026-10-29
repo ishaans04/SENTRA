@@ -45,6 +45,13 @@ build/
 *.key
 secrets/
 
+# Logs and tool caches
+*.log
+npm-debug.log*
+pnpm-debug.log*
+*.tsbuildinfo
+.eslintcache
+
 # Local tooling scratch
 test-results/
 apps/console/test-results/
