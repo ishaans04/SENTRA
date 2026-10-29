@@ -89,13 +89,13 @@ This is how SENTRA is meant to be used: you watch the agents work, SENTRA flags 
 
 | Step | What happens | What SENTRA does |
 | :-- | :-- | :-- |
-| **01 Meet the team** | Support helps customers. Reporting sends a weekly report to partners. You approved Reporting on one condition: it only reads approved summaries. | Records the approval *and its reason* as a typed condition it can re-check. |
-| **02 Something new shows up** | Support starts saving notes to a shared notepad. That's allowed, but nobody planned for it. | Marks the notepad as observed but not in the manifest. |
-| **03 The pieces line up** | Reporting reads the notepad too. | Finds a possible route from private customer data to the outside, through four steps that were each allowed. |
-| **04 The reason is gone** | Reporting no longer reads only approved summaries, and a report is about to go out. | Pauses that one approval and holds the report at the gateway. |
-| **05 Tell SENTRA what to do** | You speak normally with Wispr Flow: *"Stop this report, cut its access to the notepad, and rebuild it from approved summaries. Keep the support work."* | Reads it back as four clear steps. Nothing happens until you say yes. |
-| **06 Fixing only what's broken** | One small change at a time. | Stops the old report, cuts one link, turns away a late send, rebuilds the report and keeps Priya's edit. |
-| **07 All clear** | Support never stopped working. | Measures the result: route closed, old report never sent, new report sent safely, Support's and Priya's work untouched. |
+| **01)  Meet the team** | Support helps customers. Reporting sends a weekly report to partners. You approved Reporting on one condition: it only reads approved summaries. | Records the approval *and its reason* as a typed condition it can re-check. |
+| **02)  Something new shows up** | Support starts saving notes to a shared notepad. That's allowed, but nobody planned for it. | Marks the notepad as observed but not in the manifest. |
+| **03)  The pieces line up** | Reporting reads the notepad too. | Finds a possible route from private customer data to the outside, through four steps that were each allowed. |
+| **04)  The reason is gone** | Reporting no longer reads only approved summaries, and a report is about to go out. | Pauses that one approval and holds the report at the gateway. |
+| **05)  Tell SENTRA what to do** | You speak normally with Wispr Flow: *"Stop this report, cut its access to the notepad, and rebuild it from approved summaries. Keep the support work."* | Reads it back as four clear steps. Nothing happens until you say yes. |
+| **06)  Fixing only what's broken** | One small change at a time. | Stops the old report, cuts one link, turns away a late send, rebuilds the report and keeps Priya's edit. |
+| **07)  All clear** | Support never stopped working. | Measures the result: route closed, old report never sent, new report sent safely, Support's and Priya's work untouched. |
 
 ## The problem
 
