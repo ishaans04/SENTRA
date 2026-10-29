@@ -21,8 +21,14 @@ test('landing page tells the story and links to both demos', async ({ page }) =>
   await page.getByRole('link', { name: 'How it works' }).first().click();
   await expect(page.getByText('Every step was allowed.')).toBeVisible();
   await expect(page.getByText('of 04 steps')).toBeVisible();
-  for (let i = 0; i < 12 && !(await page.getByText('steps, linked').isVisible()); i++)
-    await page.mouse.wheel(0, 400);
+  // Jump to 90% of the pinned scene rather than wheeling: wheel steps are
+  // smoothed, so how far a fixed number of them travels depends on the machine.
+  await page.evaluate(() => {
+    const scene = document.getElementById('how')!;
+    const top = scene.getBoundingClientRect().top + window.scrollY;
+    const travel = scene.offsetHeight - window.innerHeight;
+    window.scrollTo({ top: top + travel * 0.9, behavior: 'instant' });
+  });
   await expect(page.getByText('steps, linked')).toBeVisible();
   await expect(page.getByText('✓ Allowed · but linked')).toHaveCount(4);
 
