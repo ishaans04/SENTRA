@@ -39,9 +39,9 @@ describe('the recorded session', () => {
     expect(chapterFill(6, LAST_BEAT)).toBe(1);
   });
 
-  it('never names the engines it was built from', () => {
+  it('never shows internal code names', () => {
     const shown = JSON.stringify([EVENTS, CHAPTERS, NODES]);
-    expect(shown).not.toMatch(/\bAEGIS\b|\bHIVE\b/i);
+    expect(shown).not.toMatch(/\bsentra_core\b|\bSENTRA_[A-Z]/);
   });
 });
 

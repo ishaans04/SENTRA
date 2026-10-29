@@ -11,8 +11,8 @@ from pathlib import Path
 
 import pytest
 
-from hive_core.application.replay_service import ReplayService
-from hive_core.domain.models import Action, ObservationEvent
+from sentra_core.application.replay_service import ReplayService
+from sentra_core.domain.models import Action, ObservationEvent
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 FIXTURES = REPO_ROOT / "fixtures"

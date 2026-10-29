@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from hive_core.ingest.validator import REDACTED, EventValidationError, EventValidator
+from sentra_core.ingest.validator import REDACTED, EventValidationError, EventValidator
 
 
 def _raw(**overrides: object) -> dict[str, object]:
@@ -59,7 +59,7 @@ class TestRejection:
 
 
 class TestRedaction:
-    """HIVE reasons about interaction shape and has no need to hold content."""
+    """The engine reasons about interaction shape and has no need to hold content."""
 
     @pytest.mark.parametrize(
         "key",
@@ -106,7 +106,7 @@ class TestFixtureHygiene:
     """Every shipped fixture must survive the same boundary as live input."""
 
     def test_all_scenario_fixtures_load_cleanly(self) -> None:
-        from hive_core.lab.scenarios import ScenarioLoader
+        from sentra_core.lab.scenarios import ScenarioLoader
         from tests.conftest import SCENARIOS
 
         loader = ScenarioLoader(SCENARIOS)
@@ -117,7 +117,7 @@ class TestFixtureHygiene:
             assert len(events) == descriptor.event_count
 
     def test_a_fixture_with_repeated_ids_is_refused(self, tmp_path: Path) -> None:
-        from hive_core.lab.scenarios import ScenarioError, ScenarioLoader
+        from sentra_core.lab.scenarios import ScenarioError, ScenarioLoader
 
         line = (
             '{"event_id": "dup", "sequence": %d, "occurred_at": "2026-09-19T10:00:00Z", '

@@ -6,7 +6,7 @@ import { GuidedDemo } from '../landing/GuidedDemo';
 import { Landing } from '../landing/Landing';
 import { App } from './App';
 
-const ENGINE_NAMES = /\bAEGIS\b|\bHIVE\b/i;
+const INTERNAL_NAMES = /\bsentra_core\b|\bSENTRA_[A-Z]/;
 
 beforeEach(() => {
   window.location.hash = '';
@@ -31,7 +31,7 @@ describe('landing page', () => {
   it('names only SENTRA', () => {
     render(<Landing />);
     expect(document.body.textContent).toContain('SENTRA');
-    expect(document.body.textContent).not.toMatch(ENGINE_NAMES);
+    expect(document.body.textContent).not.toMatch(INTERNAL_NAMES);
   });
 
   it('sets SENTRA against a plain LLM, point by point', () => {
@@ -68,7 +68,7 @@ describe('guided walkthrough', () => {
     expect(screen.getByText('Meet the team')).toBeInTheDocument();
     fireEvent.keyDown(window, { key: 'ArrowRight' });
     expect(screen.getByText('Something new shows up')).toBeInTheDocument();
-    expect(document.body.textContent).not.toMatch(ENGINE_NAMES);
+    expect(document.body.textContent).not.toMatch(INTERNAL_NAMES);
   });
 });
 
@@ -81,7 +81,7 @@ describe('console', () => {
     expect(screen.getByText('The operator decides, in plain words')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /Confirm read-back and run/ }));
     expect(screen.getByText(/CONFIRMED #16/)).toBeInTheDocument();
-    expect(document.body.textContent).not.toMatch(ENGINE_NAMES);
+    expect(document.body.textContent).not.toMatch(INTERNAL_NAMES);
   });
 
   it('jumps to the instruction box with Ctrl+K', () => {

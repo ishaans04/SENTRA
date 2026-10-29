@@ -86,62 +86,6 @@ wheels = [
 ]
 
 [[package]]
-name = "hive-core"
-version = "0.0.0"
-source = { editable = "." }
-dependencies = [
-    { name = "fastapi" },
-    { name = "networkx" },
-    { name = "pydantic" },
-    { name = "pydantic-settings" },
-    { name = "pyyaml" },
-    { name = "uvicorn", extra = ["standard"] },
-]
-
-[package.optional-dependencies]
-telemetry = [
-    { name = "opentelemetry-api" },
-    { name = "opentelemetry-sdk" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "httpx" },
-    { name = "hypothesis" },
-    { name = "mypy" },
-    { name = "pytest" },
-    { name = "pytest-asyncio" },
-    { name = "ruff" },
-    { name = "types-networkx" },
-    { name = "types-pyyaml" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "fastapi", specifier = ">=0.115.0,<1.0.0" },
-    { name = "networkx", specifier = ">=3.3,<4.0" },
-    { name = "opentelemetry-api", marker = "extra == 'telemetry'", specifier = ">=1.28.0,<2.0.0" },
-    { name = "opentelemetry-sdk", marker = "extra == 'telemetry'", specifier = ">=1.28.0,<2.0.0" },
-    { name = "pydantic", specifier = ">=2.9.0,<3.0.0" },
-    { name = "pydantic-settings", specifier = ">=2.6.0,<3.0.0" },
-    { name = "pyyaml", specifier = ">=6.0.0,<7.0.0" },
-    { name = "uvicorn", extras = ["standard"], specifier = ">=0.30.0,<1.0.0" },
-]
-provides-extras = ["telemetry"]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "httpx", specifier = ">=0.27.0,<1.0.0" },
-    { name = "hypothesis", specifier = ">=6.112.0,<7.0.0" },
-    { name = "mypy", specifier = ">=1.13.0,<2.0.0" },
-    { name = "pytest", specifier = ">=8.3.0,<9.0.0" },
-    { name = "pytest-asyncio", specifier = ">=0.24.0,<1.0.0" },
-    { name = "ruff", specifier = ">=0.8.0,<1.0.0" },
-    { name = "types-networkx", specifier = ">=3.3,<4.0" },
-    { name = "types-pyyaml", specifier = ">=6.0.0,<7.0.0" },
-]
-
-[[package]]
 name = "httpcore"
 version = "1.0.9"
 source = { registry = "https://pypi.org/simple" }
@@ -527,6 +471,62 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/3d/02/7f10ef4700bc223c30a3fdd10631a29830c45524b810a3c7ed947af64591/ruff-0.16.8-py3-none-win32.whl", hash = "sha256:55793ba85c69921e89be061426d91a78652d6e50317c962240922747a4eb713f", size = 10093472, upload-time = "2026-09-16T15:54:37.47Z" },
     { url = "https://files.pythonhosted.org/packages/1e/5d/a509c07d714b6da88f2c518b4637cf6f1d46b074be8f0f1e5fb9ff5126fe/ruff-0.16.8-py3-none-win_amd64.whl", hash = "sha256:a6b85621fd3c81e31fc5f5add09c9c078b430db3595ca632efafdec9e64ebfaa", size = 10586899, upload-time = "2026-09-16T15:54:40.488Z" },
     { url = "https://files.pythonhosted.org/packages/fe/a0/50787329e4f20bf9dc9f6230015d46ec69c51a97ace5bc202dae4755365d/ruff-0.16.8-py3-none-win_arm64.whl", hash = "sha256:d075e820af612102ce217f07cc93e69f9490b10ec13ea85fa87bd03d996cef8a", size = 10386316, upload-time = "2026-09-16T15:54:43.332Z" },
+]
+
+[[package]]
+name = "sentra-core"
+version = "0.0.0"
+source = { editable = "." }
+dependencies = [
+    { name = "fastapi" },
+    { name = "networkx" },
+    { name = "pydantic" },
+    { name = "pydantic-settings" },
+    { name = "pyyaml" },
+    { name = "uvicorn", extra = ["standard"] },
+]
+
+[package.optional-dependencies]
+telemetry = [
+    { name = "opentelemetry-api" },
+    { name = "opentelemetry-sdk" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "httpx" },
+    { name = "hypothesis" },
+    { name = "mypy" },
+    { name = "pytest" },
+    { name = "pytest-asyncio" },
+    { name = "ruff" },
+    { name = "types-networkx" },
+    { name = "types-pyyaml" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "fastapi", specifier = ">=0.115.0,<1.0.0" },
+    { name = "networkx", specifier = ">=3.3,<4.0" },
+    { name = "opentelemetry-api", marker = "extra == 'telemetry'", specifier = ">=1.28.0,<2.0.0" },
+    { name = "opentelemetry-sdk", marker = "extra == 'telemetry'", specifier = ">=1.28.0,<2.0.0" },
+    { name = "pydantic", specifier = ">=2.9.0,<3.0.0" },
+    { name = "pydantic-settings", specifier = ">=2.6.0,<3.0.0" },
+    { name = "pyyaml", specifier = ">=6.0.0,<7.0.0" },
+    { name = "uvicorn", extras = ["standard"], specifier = ">=0.30.0,<1.0.0" },
+]
+provides-extras = ["telemetry"]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "httpx", specifier = ">=0.27.0,<1.0.0" },
+    { name = "hypothesis", specifier = ">=6.112.0,<7.0.0" },
+    { name = "mypy", specifier = ">=1.13.0,<2.0.0" },
+    { name = "pytest", specifier = ">=8.3.0,<9.0.0" },
+    { name = "pytest-asyncio", specifier = ">=0.24.0,<1.0.0" },
+    { name = "ruff", specifier = ">=0.8.0,<1.0.0" },
+    { name = "types-networkx", specifier = ">=3.3,<4.0" },
+    { name = "types-pyyaml", specifier = ">=6.0.0,<7.0.0" },
 ]
 
 [[package]]

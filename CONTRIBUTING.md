@@ -37,7 +37,7 @@ cd apps/console  && pnpm run check && pnpm run build && pnpm run test:e2e
 Regenerate the derived artifacts if you changed the service or the fixtures:
 
 ```bash
-cd services/core && uv run python -m hive_core.contract && uv run python -m hive_core.snapshot
+cd services/core && uv run python -m sentra_core.contract && uv run python -m sentra_core.snapshot
 ```
 
 CI runs all of the above and fails on any drift in the generated files.

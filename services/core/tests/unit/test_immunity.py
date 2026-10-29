@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from hive_core.domain.models import Finding
-from hive_core.immunity.registry import ImmunityRegistry, LifecycleError
+from sentra_core.domain.models import Finding
+from sentra_core.immunity.registry import ImmunityRegistry, LifecycleError
 
 #: Timestamps come from the replay position, so tests supply one explicitly.
 STAMP = "2026-09-19T10:31:00Z"

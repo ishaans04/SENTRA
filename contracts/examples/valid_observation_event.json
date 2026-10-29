@@ -11,7 +11,7 @@
     "content_fingerprint": "ticket-derived-summary"
   },
   "provenance": {
-    "adapter": "hive-sdk-python",
+    "adapter": "sentra-sdk-python",
     "collector": "local-simulator"
   },
   "result": "success"

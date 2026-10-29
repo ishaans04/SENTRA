@@ -1,11 +1,11 @@
 # Expected architecture — automated software delivery estate
 #
-# A second declared architecture, used to show that HIVE's rules are properties
+# A second declared architecture, used to show that SENTRA's rules are properties
 # of a topology rather than special cases tuned to one story. Nothing in the
 # detection or containment code refers to these node names.
 #
 # All actors, stores and sources are fictional. The public source is a simulated
-# endpoint; HIVE never contacts it.
+# endpoint; SENTRA never contacts it.
 
 version: "delivery-estate/v1"
 

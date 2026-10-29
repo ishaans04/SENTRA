@@ -1,13 +1,13 @@
 # Expected architecture — customer support reporting estate
 #
 # This manifest is the declaration of what the agent population is *meant* to do.
-# HIVE compares observed behaviour against it; nothing in here is inferred from
+# SENTRA compares observed behaviour against it; nothing in here is inferred from
 # traffic. Every node, relationship, invariant and control below was written by
 # an operator, which is what makes a deviation meaningful rather than merely
 # statistically unusual.
 #
 # All actors, stores and destinations are fictional. The external webhook is a
-# simulated endpoint; HIVE never contacts it.
+# simulated endpoint; SENTRA never contacts it.
 
 version: "support-estate/v1"
 
@@ -126,7 +126,7 @@ invariants:
     required_bridge_registration: unregistered
     status: prohibited
 
-# Pre-authorised, reversible interventions. HIVE may propose only what appears
+# Pre-authorised, reversible interventions. SENTRA may propose only what appears
 # here; it cannot invent an action and has no general kill switch. Costs are
 # operator estimates of business disruption and are what the planner minimises.
 control_capabilities:

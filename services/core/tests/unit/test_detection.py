@@ -9,11 +9,11 @@ from __future__ import annotations
 
 import json
 
-from hive_core.application.replay_service import ReplayService
-from hive_core.detection.ps001 import PS001Detector
-from hive_core.detection.ps002 import PS002Detector
-from hive_core.domain.models import Action
-from hive_core.graph.projection import GraphProjection
+from sentra_core.application.replay_service import ReplayService
+from sentra_core.detection.ps001 import PS001Detector
+from sentra_core.detection.ps002 import PS002Detector
+from sentra_core.domain.models import Action
+from sentra_core.graph.projection import GraphProjection
 from tests.conftest import PS001_BASELINE_END, PS001_TRIGGER_SEQUENCE, observation
 
 

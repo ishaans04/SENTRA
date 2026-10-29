@@ -11,7 +11,7 @@ from typing import Any
 
 import pytest
 
-from hive_core.lab.swarm import SwarmConfig, SwarmSimulator
+from sentra_core.lab.swarm import SwarmConfig, SwarmSimulator
 
 
 @pytest.fixture

@@ -20,15 +20,15 @@ COPY --from=ghcr.io/astral-sh/uv:0.7.8 /uv /bin/uv
 RUN useradd --create-home --uid 1000 sentra
 WORKDIR /app
 COPY services/core services/core
-COPY services/aegis services/aegis
+COPY services/sentra services/sentra
 COPY fixtures fixtures
-RUN cd services/aegis && uv sync --frozen --no-dev && chown -R sentra /app
+RUN cd services/sentra && uv sync --frozen --no-dev && chown -R sentra /app
 COPY --from=console /app/apps/console/dist apps/console/dist
 
-ENV AEGIS_STATIC_DIR=/app/apps/console/dist \
-    AEGIS_FIXTURES=/app/fixtures/aegis_reporting \
-    AEGIS_INTERPRETER=chain \
+ENV SENTRA_STATIC_DIR=/app/apps/console/dist \
+    SENTRA_FIXTURES=/app/fixtures/reporting \
+    SENTRA_INTERPRETER=chain \
     PYTHONUNBUFFERED=1
 USER sentra
 EXPOSE 7860
-CMD ["/app/services/aegis/.venv/bin/uvicorn", "aegis.api.app:app", "--host", "0.0.0.0", "--port", "7860", "--workers", "1"]
+CMD ["/app/services/sentra/.venv/bin/uvicorn", "sentra.api.app:app", "--host", "0.0.0.0", "--port", "7860", "--workers", "1"]

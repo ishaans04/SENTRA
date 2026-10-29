@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from hive_core.ledger.repository import LedgerRepository
+from sentra_core.ledger.repository import LedgerRepository
 from tests.conftest import observation
 
 

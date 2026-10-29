@@ -9,8 +9,8 @@ from __future__ import annotations
 
 import pytest
 
-from hive_core.domain.models import ArchitectureManifest, Node, Relationship
-from hive_core.graph.projection import GraphProjection
+from sentra_core.domain.models import ArchitectureManifest, Node, Relationship
+from sentra_core.graph.projection import GraphProjection
 from tests.conftest import observation
 
 
@@ -182,7 +182,7 @@ class TestControlEvents:
                 observation(
                     "c1",
                     99,
-                    "HIVE Control Plane",
+                    "SENTRA Control Plane",
                     "block",
                     "Scratch",
                     source="Agent A",
@@ -206,7 +206,7 @@ class TestControlEvents:
                 observation(
                     "c1",
                     99,
-                    "HIVE Control Plane",
+                    "SENTRA Control Plane",
                     "block",
                     "Scratch",
                     capability_id="cap-q",
@@ -222,7 +222,7 @@ class TestControlEvents:
     ) -> None:
         with pytest.raises(ValueError, match="must carry"):
             projection.apply_events(
-                [observation("c1", 99, "HIVE Control Plane", "block", "Scratch")]
+                [observation("c1", 99, "SENTRA Control Plane", "block", "Scratch")]
             )
 
 

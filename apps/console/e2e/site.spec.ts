@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 
-const ENGINE_NAMES = /\bAEGIS\b|\bHIVE\b/i;
+const INTERNAL_NAMES = /\bsentra_core\b|\bSENTRA_[A-Z]/;
 
 function failOnConsoleErrors(page: Page) {
   const errors: string[] = [];
@@ -15,7 +15,7 @@ test('landing page tells the story and links to both demos', async ({ page }) =>
   await expect(page.getByRole('heading', { level: 1 })).toContainText(
     'Stop what went wrong. Keep everything else.',
   );
-  await expect(page.locator('body')).not.toContainText(ENGINE_NAMES);
+  await expect(page.locator('body')).not.toContainText(INTERNAL_NAMES);
 
   // The problem scene pins; scrolling through it links the four steps.
   await page.getByRole('link', { name: 'How it works' }).first().click();
@@ -79,7 +79,7 @@ test('console replays the session through the operator’s decision', async ({ p
   const errors = failOnConsoleErrors(page);
   await page.goto('./#/console');
   await expect(page.getByRole('heading', { name: 'The approved workflow' })).toBeVisible();
-  await expect(page.locator('body')).not.toContainText(ENGINE_NAMES);
+  await expect(page.locator('body')).not.toContainText(INTERNAL_NAMES);
 
   await page.keyboard.press('Control+k');
   const box = page.getByRole('textbox', { name: /Tell SENTRA/ });

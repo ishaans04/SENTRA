@@ -29,7 +29,7 @@ htmlcov/
 build/
 *.egg-info/
 
-# Local HIVE runtime state and evidence databases
+# Local runtime state and evidence databases
 .local/
 *.sqlite
 *.sqlite3

@@ -10,7 +10,7 @@ fictional fixtures.
 
 ```bash
 uv sync --group dev
-uv run uvicorn hive_core.main:app --port 8000
+uv run uvicorn sentra_core.main:app --port 8000
 ```
 
 `http://127.0.0.1:8000/docs` is the generated API reference.
@@ -21,14 +21,14 @@ uv run uvicorn hive_core.main:app --port 8000
 uv run ruff format --check src tests
 uv run ruff check src tests
 uv run mypy                       # strict over the product code
-uv run pytest -q                  # 193 tests
+uv run pytest -q                  # 195 tests
 ```
 
 ## Regenerate what is derived
 
 ```bash
-uv run python -m hive_core.contract   # contracts/openapi/hive-core-v1.json
-uv run python -m hive_core.snapshot   # the console's recorded demo
+uv run python -m sentra_core.contract   # contracts/openapi/sentra-core-v1.json
+uv run python -m sentra_core.snapshot   # the console's recorded demo
 ```
 
 Both are checked in, and CI fails if either has drifted from the code.

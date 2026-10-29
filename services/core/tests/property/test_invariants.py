@@ -10,13 +10,13 @@ from __future__ import annotations
 from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 
-from hive_core.containment.planner import ContainmentPlanner, apply_control
-from hive_core.detection.base import Detector
-from hive_core.detection.ps001 import PS001Detector
-from hive_core.detection.ps002 import PS002Detector
-from hive_core.domain.models import ObservationEvent
-from hive_core.graph.projection import GraphProjection
-from hive_core.policy.engine import PolicyEngine
+from sentra_core.containment.planner import ContainmentPlanner, apply_control
+from sentra_core.detection.base import Detector
+from sentra_core.detection.ps001 import PS001Detector
+from sentra_core.detection.ps002 import PS002Detector
+from sentra_core.domain.models import ObservationEvent
+from sentra_core.graph.projection import GraphProjection
+from sentra_core.policy.engine import PolicyEngine
 from tests.conftest import MANIFESTS
 
 _MANIFEST = PolicyEngine().load_manifest(MANIFESTS / "default.yaml")

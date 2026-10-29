@@ -7,8 +7,8 @@ from typing import Any, cast
 import pytest
 import yaml
 
-from hive_core.application.replay_service import ReplayService
-from hive_core.policy.engine import ManifestError, PolicyEngine
+from sentra_core.application.replay_service import ReplayService
+from sentra_core.policy.engine import ManifestError, PolicyEngine
 from tests.conftest import MANIFESTS, PS001_TRIGGER_SEQUENCE
 
 

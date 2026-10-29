@@ -52,22 +52,22 @@ jobs:
       # always the contract the service implements.
       - name: Contract is current
         run: |
-          uv run python -m hive_core.contract
-          git diff --exit-code ../../contracts/openapi/hive-core-v1.json
+          uv run python -m sentra_core.contract
+          git diff --exit-code ../../contracts/openapi/sentra-core-v1.json
 
       # The hosted console replays a recording of this engine. If the engine
       # changes, the recording has to change with it.
       - name: Recorded demo is current
         run: |
-          uv run python -m hive_core.snapshot
+          uv run python -m sentra_core.snapshot
           git diff --exit-code ../../apps/console/public/demo
 
-  aegis:
+  sentra:
     name: Gateway, decisions and recovery
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: services/aegis
+        working-directory: services/sentra
     steps:
       - uses: actions/checkout@v5
 
@@ -93,20 +93,20 @@ jobs:
       # interpretation switched off.
       - name: Tests
         env:
-          AEGIS_INTERPRETER: 'off'
+          SENTRA_INTERPRETER: 'off'
         run: uv run pytest -q
 
       - name: Contract is current
         run: |
-          uv run python -m aegis.contract
+          uv run python -m sentra.contract
           git diff --exit-code ../../contracts/openapi/sentra-v1.json
 
       # The fallback link replays a recording of this service. If the service
       # changes, the recording has to change with it.
       - name: Recorded storyline is current
         run: |
-          uv run python -m aegis.record
-          git diff --exit-code ../../apps/console/public/demo/aegis
+          uv run python -m sentra.record
+          git diff --exit-code ../../apps/console/public/demo/storyline
 
   console:
     name: Console

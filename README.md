@@ -167,7 +167,7 @@ SENTRA is entered in **Track 1: Builders**, the track for developers:
 SENTRA has two parts that work together.
 
 - **The control engine** (`services/core`) keeps a picture of what each agent is allowed to reach and what it actually touched. It turns every observed call into a graph, runs the route rules over it (**PS-001**: restricted data can reach the outside through a path nobody declared; **PS-002**: one agent runs content another agent wrote) and plans containment. It tests each candidate control first and recommends the cheapest one that does not break agreed work.
-- **The gateway and decision layer** (`services/aegis`) sits between the agents and their tools. It records every approval with its condition, re-checks conditions as the engine reports findings, holds and rejects calls from runs whose approval has fallen, and carries out dictated recovery once you confirm the read-back.
+- **The gateway and decision layer** (`services/sentra`) sits between the agents and their tools. It records every approval with its condition, re-checks conditions as the engine reports findings, holds and rejects calls from runs whose approval has fallen, and carries out dictated recovery once you confirm the read-back.
 
 ```mermaid
 flowchart TB
@@ -217,7 +217,7 @@ Interpretation (amber) only ever proposes a typed plan. Everything that enforces
 | **Approval epochs are fencing tokens** | Suspending an approval moves its epoch forward, and the gateway rejects every call from a run that started under the old one. |
 | **Sends wait in an outbox** | Sends are re-checked at release, so a withdrawn approval can stop a report that is already on its way. |
 | **Recovery is operation-specific** | Only registered inverses run, after a version check, under the recovery executor's own identity. Sends are irreversible and escalate. |
-| **No model on the enforcement path** | With interpretation off (`AEGIS_INTERPRETER=off`) the whole storyline runs on the deterministic grammar and gives the same holds, rejections and recovery. |
+| **No model on the enforcement path** | With interpretation off (`SENTRA_INTERPRETER=off`) the whole storyline runs on the deterministic grammar and gives the same holds, rejections and recovery. |
 | **One ledger** | Every call, rejected ones included, is a ledger event, and replaying an exported ledger rebuilds identical state. |
 
 ## Inside the gateway
@@ -488,11 +488,11 @@ pnpm install && pnpm console:dev      # http://127.0.0.1:5173
 
 ```bash
 pnpm install && pnpm console:build
-cd services/aegis && uv sync
-AEGIS_INTERPRETER=off AEGIS_STATIC_DIR=../../apps/console/dist uv run uvicorn aegis.api.app:app --port 8765
+cd services/sentra && uv sync
+SENTRA_INTERPRETER=off SENTRA_STATIC_DIR=../../apps/console/dist uv run uvicorn sentra.api.app:app --port 8765
 ```
 
-Open <http://127.0.0.1:8765>. To let a model interpret free-form instructions, set `GEMINI_API_KEY` (and optionally `GROQ_API_KEY`) and leave `AEGIS_INTERPRETER` unset. The grammar is always the fallback.
+Open <http://127.0.0.1:8765>. To let a model interpret free-form instructions, set `GEMINI_API_KEY` (and optionally `GROQ_API_KEY`) and leave `SENTRA_INTERPRETER` unset. The grammar is always the fallback.
 
 **With Docker**, exactly as the Hugging Face Space runs it:
 
@@ -506,13 +506,13 @@ docker run --rm -p 7860:7860 sentra            # add -e GEMINI_API_KEY=... to en
 
 | Variable | Meaning |
 | :-- | :-- |
-| `AEGIS_INTERPRETER` | `chain` (models, then grammar), `grammar`, or `off` (recordings and grammar only) |
+| `SENTRA_INTERPRETER` | `chain` (models, then grammar), `grammar`, or `off` (recordings and grammar only) |
 | `GEMINI_API_KEY`, `GROQ_API_KEY` | Free-tier keys; Space secrets in production |
-| `AEGIS_GEMINI_MODEL` | Gemini model id, default `gemini-2.5-flash-lite` |
-| `AEGIS_GROQ_MODEL` | Groq model id, default `openai/gpt-oss-120b` |
-| `AEGIS_SESSION_CAP`, `AEGIS_SESSION_IDLE_MINUTES` | Sandbox limits (default 40 sessions, 30 minutes) |
-| `AEGIS_STATIC_DIR` | The built site for the service to serve |
-| `AEGIS_CORS_ORIGINS` | Development only: lets the Vite site on 5173 call the service |
+| `SENTRA_GEMINI_MODEL` | Gemini model id, default `gemini-2.5-flash-lite` |
+| `SENTRA_GROQ_MODEL` | Groq model id, default `openai/gpt-oss-120b` |
+| `SENTRA_SESSION_CAP`, `SENTRA_SESSION_IDLE_MINUTES` | Sandbox limits (default 40 sessions, 30 minutes) |
+| `SENTRA_STATIC_DIR` | The built site for the service to serve |
+| `SENTRA_CORS_ORIGINS` | Development only: lets the Vite site on 5173 call the service |
 
 See [.env.example](.env.example).
 
@@ -521,11 +521,11 @@ See [.env.example](.env.example).
 <details>
 <summary><b>Put the gateway in front of your own MCP servers</b></summary>
 
-`python -m aegis.real` puts a FastMCP proxy in front of the real MCP servers in a standard `mcp.json`. Every call through it is recorded in a ledger, with the caller taken from the MCP connection. Map your tools to effects and resources and each call also goes to the control engine. It observes and records; it refuses a call only for a `--deny actor:tool` rule you pass, and it never undoes anything on a real system.
+`python -m sentra.real` puts a FastMCP proxy in front of the real MCP servers in a standard `mcp.json`. Every call through it is recorded in a ledger, with the caller taken from the MCP connection. Map your tools to effects and resources and each call also goes to the control engine. It observes and records; it refuses a call only for a `--deny actor:tool` rule you pass, and it never undoes anything on a real system.
 
 ```bash
-cd services/aegis
-uv run python -m aegis.real --config ~/path/to/mcp.json \
+cd services/sentra
+uv run python -m sentra.real --config ~/path/to/mcp.json \
   --manifest ~/path/to/my-estate.yaml --tools ~/path/to/my-tools.yaml
 ```
 
@@ -538,7 +538,7 @@ The tool is built and tested. Its run on real servers, and the write-up, are tra
 | Suite | Command | Tests |
 | :-- | :-- | --: |
 | Control engine | `cd services/core && uv run pytest -q` | 195 |
-| Gateway, decisions, recovery, API and the whole storyline | `cd services/aegis && uv run pytest -q` | 148 |
+| Gateway, decisions, recovery, API and the whole storyline | `cd services/sentra && uv run pytest -q` | 148 |
 | Site: format, lint, types, unit tests (Vitest) | `pnpm console:check` | 23 |
 | Site end to end: landing, walkthrough, console (Playwright) | `cd apps/console && pnpm test:e2e` | 3 |
 | | **Total** | **369** |
@@ -546,7 +546,7 @@ The tool is built and tested. Its run on real servers, and the write-up, are tra
 CI runs the same commands on every push and pull request, and it checks more than tests:
 
 - **Ruff** formatting and linting, and **mypy** types, on both Python packages.
-- The gateway suite runs with `AEGIS_INTERPRETER=off`, because enforcement must not depend on a model.
+- The gateway suite runs with `SENTRA_INTERPRETER=off`, because enforcement must not depend on a model.
 - **Contract drift.** The OpenAPI documents in `contracts/` are regenerated from the service and must match what is committed.
 - **Recording drift.** The demo recordings the site replays are regenerated from the engine and the service and must match too, so the hosted demo always shows what the code does.
 - The Playwright suite runs against the **production build** in a real browser, and fails on any console error.
@@ -568,7 +568,7 @@ CI runs the same commands on every push and pull request, and it checks more tha
 
 ```text
 services/core/        control engine: ingest, graph, route rules, containment planner
-services/aegis/       gateway, tool servers, decisions, conditions, recovery, interpretation, API
+services/sentra/      gateway, tool servers, decisions, conditions, recovery, interpretation, API
 apps/console/         the site: landing page, guided walkthrough and console (React, Vite)
 fixtures/             the reporting estate: manifest, tools, decisions, grammar, storyline
 contracts/            generated OpenAPI contracts

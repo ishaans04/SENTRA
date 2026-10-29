@@ -3,7 +3,7 @@ requires = ["hatchling>=1.26.0,<2.0.0"]
 build-backend = "hatchling.build"
 
 [project]
-name = "hive-core"
+name = "sentra-core"
 version = "0.0.0"
 description = "SENTRA control engine: expected-vs-observed graph projection, capability-composition detection, and constrained containment planning."
 readme = "README.md"
@@ -61,7 +61,7 @@ dev = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/hive_core"]
+packages = ["src/sentra_core"]
 
 [tool.pytest.ini_options]
 addopts = "-ra --strict-markers --strict-config"
@@ -82,7 +82,7 @@ ignore = ["B008"]  # FastAPI dependencies are declared as call defaults by desig
 "tests/**" = ["ARG002"]  # pytest fixtures are injected, not always referenced.
 
 [tool.ruff.lint.isort]
-known-first-party = ["hive_core", "tests"]
+known-first-party = ["sentra_core", "tests"]
 
 [tool.ruff.format]
 quote-style = "double"
@@ -111,4 +111,4 @@ warn_return_any = false
 
 [tool.coverage.run]
 branch = true
-source = ["hive_core"]
+source = ["sentra_core"]

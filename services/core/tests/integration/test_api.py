@@ -12,7 +12,7 @@ from collections.abc import Iterator
 import pytest
 from fastapi.testclient import TestClient
 
-from hive_core.main import app
+from sentra_core.main import app
 
 SCENARIO = "p0_scenario"
 BASE = f"/api/v1/replays/{SCENARIO}"

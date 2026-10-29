@@ -10,8 +10,8 @@ from __future__ import annotations
 
 import pytest
 
-from hive_core.application.replay_service import ReplayService
-from hive_core.containment.planner import apply_control
+from sentra_core.application.replay_service import ReplayService
+from sentra_core.containment.planner import apply_control
 from tests.conftest import PS001_TRIGGER_SEQUENCE
 
 #: Controls are stamped from the replay position rather than the wall clock.
@@ -102,7 +102,7 @@ class TestSimulationMatchesReality:
         applied = contained.graph.copy()
         apply_control(applied, capability)
 
-        from hive_core.detection.ps001 import PS001Detector
+        from sentra_core.detection.ps001 import PS001Detector
 
         actually_removed = not PS001Detector().detect(applied)
         assert actually_removed == predicted.removes_unsafe_path
