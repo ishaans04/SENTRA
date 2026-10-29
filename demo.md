@@ -104,34 +104,42 @@ Every browser tab gets **its own private sandbox**, so you can't break anything 
 Press **Step** once for each beat below, or press **Play** and it will stop at the points where it's your turn.
 
 ### Beat 0: Seed
+
 The office is set up. There is already one approval, **D-0** ("Support work may proceed"), with no conditions.
 
 ### Beat 1: Approve (your turn)
+
 In the **Approvals** panel:
 
 1. Click **Use the suggested words**, or dictate or type:
    > Approve reporting, on the condition that the Reporting Agent only reads from the approved, sanitized report store.
 2. Click **Interpret**. HAEGIS reads it back:
+
    ```text
    I will record this approval: Reporting may proceed.
    Condition: Reporting Agent only reads from Approved summaries.
    Checked as: ReadsOnlyFrom(reporting-agent, [report_store/approved_summaries]).
    If the condition fails, I will hold this approval's queued sends.
    ```
+
 3. Read it and click **Confirm**. A new card, **D-1**, appears: *active*, *epoch 1*.
 
 > If you skip this and just press Step, the story makes the same approval for you.
 
 ### Beat 2: Support works
+
 The Support Agent reads a customer record and writes a clean summary. Everything is normal.
 
 ### Beat 3: Reporting works
+
 The Reporting Agent reads the clean summaries, writes a draft report and **queues** it to be sent outside. On the D-1 card you'll see run **R-1** with a send marked **queued**. Queued sends wait in an "outbox" and are re-checked before they leave.
 
 ### Beat 4: Human edit
+
 A teammate edits the draft report by hand. Remember this, because it matters later.
 
 ### Beat 5: Unexpected connection (the problem appears)
+
 1. The Support Agent writes customer contact details into the **scratchpad** (nobody declared it).
 2. It gives the Reporting Agent access.
 3. The Reporting Agent reads it.
@@ -145,15 +153,18 @@ In that same moment:
 - Run **R-1** is marked **stale**, and its queued send is now **held**.
 
 ### Beat 8: Late action (the gateway says no)
+
 The Reporting Agent's old run tries to send the report again. The gateway **rejects** it with the reason **`stale_epoch`**. The run started under epoch 1, but the approval is now at epoch 2, so the run's permission is out of date. The rejected attempt shows in red in the ledger and on the D-1 card.
 
 ### Beat 9: Dictated recovery (your turn)
+
 In the **Recovery** panel:
 
 1. Press **Ctrl+K** to jump to the "Tell AEGIS" box (or just click it).
 2. Click **Use the suggested words**, or dictate:
    > Stop this reporting run, remove its scratchpad access, and rebuild the report from approved summaries. Keep the support work.
 3. Click **Interpret** (or press **Ctrl+Enter**). HAEGIS reads back its plan:
+
    ```text
    I will:
     1. Cancel reporting run R-1 and its held external send A-1. Later calls from R-1 will be rejected.
@@ -165,6 +176,7 @@ In the **Recovery** panel:
    I will keep: all Support Agent work.
    Cannot be undone: nothing in this plan sends anything.
    ```
+
 4. You now have three choices:
    - **Confirm** (or type or say "Confirm" in the box) runs the plan.
    - **Correct** lets you dictate a change, for example "Cancel the reporting run and keep the support work."
@@ -173,6 +185,7 @@ In the **Recovery** panel:
 > Unsure what it understands? Open **"Phrasings I understand"** under the box.
 
 ### Beats 10 and 11: Confirm, then the work happens
+
 The work happens the moment you confirm. Pressing **Step** afterwards just moves the storyline past these beats. Each step shows its real result:
 
 | Step | Result |
@@ -186,9 +199,11 @@ The work happens the moment you confirm. Pressing **Step** afterwards just moves
 A **conflict card** appears for draft-1. It offers only two buttons: **Keep the human version** or **Leave for review**. Overwriting the person's work is not offered.
 
 ### Beat 12: Replacement
+
 The fresh run R-2 reads only the clean summaries, writes a new draft and sends it. This time the send is **delivered**.
 
 ### Beat 13: Verify (HAEGIS checks its own work)
+
 Four checks appear under **Verification**, and each one is measured, not assumed:
 
 | Check | What it proves |
@@ -199,6 +214,7 @@ Four checks appear under **Verification**, and each one is measured, not assumed
 | preserved work unchanged | The support work, the scratchpad note and the human-edited draft are exactly as they were. |
 
 ### Beat 14: Record
+
 The **Final record** sums it up in plain words:
 
 - Affected send cancelled.
