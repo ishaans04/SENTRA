@@ -44,7 +44,7 @@ class Gateway:
         self.outbox = Outbox()
         self.observers: list[CallObserver] = []
         self.servers = build_tool_servers(world)
-        self.mcp: FastMCP = FastMCP("haegis-gateway")
+        self.mcp: FastMCP = FastMCP("sentra-gateway")
         for name, server in self.servers.items():
             self.mcp.mount(server, namespace=name)
         self.mcp.add_middleware(EnforcementMiddleware(self))

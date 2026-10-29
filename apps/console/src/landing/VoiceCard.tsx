@@ -135,7 +135,7 @@ export function VoiceCardHome({ voice }: { voice: Voice }) {
       {showItems && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           <span className="mono" style={{ fontSize: 11, letterSpacing: '.08em', color: C.mute }}>
-            HAEGIS WILL:
+            SENTRA WILL:
           </span>
           <Items voice={voice} big />
           {voice.phase === 'typed' && (

@@ -1,4 +1,4 @@
-"""The HAEGIS service: commands are POSTs, updates arrive over server-sent events (PRD §12).
+"""The SENTRA service: commands are POSTs, updates arrive over server-sent events (PRD §12).
 
 One Uvicorn worker serves the API and the built console from the same origin.
 A cookie names the visitor's sandbox; there is no sign-in. HIVE's own routes
@@ -35,7 +35,7 @@ from aegis.interpret.readback import read_back_decision
 from aegis.recovery.service import RecoveryError
 from hive_core.api.routes import router as hive_router
 
-COOKIE = "haegis_session"
+COOKIE = "sentra_session"
 MAX_TEXT = 2000
 SessionCookie = Annotated[str | None, Cookie(alias=COOKIE)]
 
@@ -73,7 +73,7 @@ def create_app(
 ) -> FastAPI:
     sessions = manager if manager is not None else SessionManager()
     app = FastAPI(
-        title="HAEGIS API",
+        title="SENTRA API",
         version="1.0.0",
         summary="Approvals tied to conditions, enforced at an MCP gateway, with dictated recovery.",
     )
@@ -103,9 +103,9 @@ def create_app(
             raise ApiError(413, "text_too_long", f"Keep it under {MAX_TEXT} characters.")
         return body.text
 
-    async def require_sandbox(haegis_session: SessionCookie = None) -> Sandbox:
+    async def require_sandbox(sentra_session: SessionCookie = None) -> Sandbox:
         """Resolved before any response starts, so a stream can still answer 404."""
-        return sandbox_for(haegis_session)
+        return sandbox_for(sentra_session)
 
     def interpret_slot(sandbox: Sandbox) -> None:
         try:
@@ -127,10 +127,10 @@ def create_app(
 
     @app.post("/api/session")
     async def create_session(
-        response: Response, haegis_session: SessionCookie = None
+        response: Response, sentra_session: SessionCookie = None
     ) -> dict[str, Any]:
         try:
-            sandbox = sessions.create(replacing=haegis_session)
+            sandbox = sessions.create(replacing=sentra_session)
         except SessionsFull:
             raise ApiError(
                 503,
@@ -146,8 +146,8 @@ def create_app(
         return snapshot(sandbox.session)
 
     @app.get("/api/state")
-    async def state(haegis_session: SessionCookie = None) -> dict[str, Any]:
-        return snapshot(sandbox_for(haegis_session).session)
+    async def state(sentra_session: SessionCookie = None) -> dict[str, Any]:
+        return snapshot(sandbox_for(sentra_session).session)
 
     async def stream_slot(sandbox: Sandbox = Depends(require_sandbox)) -> Sandbox:
         if sandbox.session.ledger.subscriber_count >= MAX_STREAMS_PER_SESSION:
@@ -185,12 +185,12 @@ def create_app(
             session.ledger.unsubscribe(queue)
 
     @app.get("/api/ledger.jsonl", response_class=PlainTextResponse)
-    async def ledger(haegis_session: SessionCookie = None) -> str:
-        return sandbox_for(haegis_session).session.ledger.to_jsonl()
+    async def ledger(sentra_session: SessionCookie = None) -> str:
+        return sandbox_for(sentra_session).session.ledger.to_jsonl()
 
     @app.get("/api/record")
-    async def record(haegis_session: SessionCookie = None) -> dict[str, Any]:
-        current = snapshot(sandbox_for(haegis_session).session)["record"]
+    async def record(sentra_session: SessionCookie = None) -> dict[str, Any]:
+        current = snapshot(sandbox_for(sentra_session).session)["record"]
         if current is None:
             raise ApiError(404, "not_found", "The record closes after verification.")
         return dict(current)
@@ -198,8 +198,8 @@ def create_app(
     # -- storyline ------------------------------------------------------------
 
     @app.post("/api/story/step")
-    async def story_step(haegis_session: SessionCookie = None) -> dict[str, Any]:
-        sandbox = sandbox_for(haegis_session)
+    async def story_step(sentra_session: SessionCookie = None) -> dict[str, Any]:
+        sandbox = sandbox_for(sentra_session)
         async with sandbox.lock:
             if sandbox.session.at_end:
                 raise ApiError(
@@ -212,8 +212,8 @@ def create_app(
             return snapshot(sandbox.session)
 
     @app.post("/api/story/play")
-    async def story_play(haegis_session: SessionCookie = None) -> dict[str, Any]:
-        sandbox = sandbox_for(haegis_session)
+    async def story_play(sentra_session: SessionCookie = None) -> dict[str, Any]:
+        sandbox = sandbox_for(sentra_session)
         async with sandbox.lock:
             try:
                 while not sandbox.session.at_end:
@@ -224,17 +224,17 @@ def create_app(
 
     @app.post("/api/story/reset")
     async def story_reset(
-        response: Response, haegis_session: SessionCookie = None
+        response: Response, sentra_session: SessionCookie = None
     ) -> dict[str, Any]:
-        return await create_session(response, haegis_session)
+        return await create_session(response, sentra_session)
 
     # -- approvals ------------------------------------------------------------
 
     @app.post("/api/decisions/interpret")
     async def interpret_decision(
-        body: TextBody, haegis_session: SessionCookie = None
+        body: TextBody, sentra_session: SessionCookie = None
     ) -> dict[str, Any]:
-        sandbox = sandbox_for(haegis_session)
+        sandbox = sandbox_for(sentra_session)
         text = text_of(body)
         interpret_slot(sandbox)
         async with sandbox.lock:
@@ -265,19 +265,19 @@ def create_app(
 
     @app.post("/api/decisions/{decision_id}/{verb}")
     async def decision_verb(
-        decision_id: str, verb: str, haegis_session: SessionCookie = None
+        decision_id: str, verb: str, sentra_session: SessionCookie = None
     ) -> dict[str, Any]:
         if verb not in {"confirm", "reject", "renew", "withdraw"}:
             raise ApiError(404, "not_found", f"No decision command {verb!r}.")
-        return await decision_command(haegis_session, decision_id, verb)
+        return await decision_command(sentra_session, decision_id, verb)
 
     # -- recovery -------------------------------------------------------------
 
     @app.post("/api/recovery/interpret")
     async def interpret_recovery(
-        body: TextBody, haegis_session: SessionCookie = None
+        body: TextBody, sentra_session: SessionCookie = None
     ) -> dict[str, Any]:
-        sandbox = sandbox_for(haegis_session)
+        sandbox = sandbox_for(sentra_session)
         text = text_of(body)
         s = sandbox.session
         pending = s.recovery.pending()
@@ -301,9 +301,9 @@ def create_app(
 
     @app.post("/api/recovery/{plan_id}/correct")
     async def correct_recovery(
-        plan_id: str, body: TextBody, haegis_session: SessionCookie = None
+        plan_id: str, body: TextBody, sentra_session: SessionCookie = None
     ) -> dict[str, Any]:
-        sandbox = sandbox_for(haegis_session)
+        sandbox = sandbox_for(sentra_session)
         text = text_of(body)
         interpret_slot(sandbox)
         async with sandbox.lock:
@@ -323,11 +323,11 @@ def create_app(
         plan_id: str,
         verb: str,
         body: ConfirmBody | None = None,
-        haegis_session: SessionCookie = None,
+        sentra_session: SessionCookie = None,
     ) -> dict[str, Any]:
         if verb not in {"confirm", "abandon"}:
             raise ApiError(404, "not_found", f"No recovery command {verb!r}.")
-        sandbox = sandbox_for(haegis_session)
+        sandbox = sandbox_for(sentra_session)
         async with sandbox.lock:
             s = sandbox.session
             try:
@@ -342,9 +342,9 @@ def create_app(
 
     @app.post("/api/items/{item_id}/human-edit")
     async def human_edit(
-        item_id: str, body: EditBody, haegis_session: SessionCookie = None
+        item_id: str, body: EditBody, sentra_session: SessionCookie = None
     ) -> dict[str, Any]:
-        sandbox = sandbox_for(haegis_session)
+        sandbox = sandbox_for(sentra_session)
         async with sandbox.lock:
             try:
                 sandbox.session.human_edit(item_id, body.content)
@@ -354,9 +354,9 @@ def create_app(
 
     @app.post("/api/conflicts/{conflict_id}/resolve")
     async def resolve_conflict(
-        conflict_id: str, body: ChoiceBody, haegis_session: SessionCookie = None
+        conflict_id: str, body: ChoiceBody, sentra_session: SessionCookie = None
     ) -> dict[str, Any]:
-        sandbox = sandbox_for(haegis_session)
+        sandbox = sandbox_for(sentra_session)
         async with sandbox.lock:
             try:
                 sandbox.session.recovery.resolve_conflict(conflict_id, body.choice)
@@ -365,8 +365,8 @@ def create_app(
             return snapshot(sandbox.session)
 
     @app.post("/api/findings/{finding_id}/explain")
-    async def explain(finding_id: str, haegis_session: SessionCookie = None) -> dict[str, str]:
-        finding = sandbox_for(haegis_session).session.bridge.finding(finding_id)
+    async def explain(finding_id: str, sentra_session: SessionCookie = None) -> dict[str, str]:
+        finding = sandbox_for(sentra_session).session.bridge.finding(finding_id)
         if finding is None:
             raise ApiError(404, "not_found", f"No open finding {finding_id!r}.")
         return {"text": finding.explanation, "uncertainty": finding.uncertainty}

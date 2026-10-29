@@ -104,7 +104,7 @@ def build_real_gateway(
     manifest: str | Path | None = None,
     deny: set[tuple[str, str]] | None = None,
 ) -> tuple[FastMCP, ObservingMiddleware]:
-    proxy = create_proxy(target, name="haegis-gateway")
+    proxy = create_proxy(target, name="sentra-gateway")
     bridge = HiveBridge(manifest) if manifest else None
     middleware = ObservingMiddleware(ledger, tools or {}, bridge, deny)
     proxy.add_middleware(middleware)

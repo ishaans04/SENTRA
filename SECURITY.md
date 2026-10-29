@@ -1,6 +1,6 @@
 # Security and responsible research
 
-HAEGIS is a defensive cybersecurity project. The repository must contain only fictional fixtures, fictional tool servers and controls enforced inside the sandbox, unless the owner explicitly establishes a separate, authorised testing boundary.
+SENTRA is a defensive cybersecurity project. The repository must contain only fictional fixtures, fictional tool servers and controls enforced inside the sandbox, unless the owner explicitly establishes a separate, authorised testing boundary.
 
 ## In scope for the prototype
 
@@ -13,7 +13,7 @@ HAEGIS is a defensive cybersecurity project. The repository must contain only fi
 
 - Scanning, exploitation, credential collection, malware, destructive actions, or any activity against a live target.
 - Production customer data, agent prompts, trace payloads, secrets, or personal information.
-- Claims that HAEGIS detects intent, all threats, or any unobserved behaviour.
+- Claims that SENTRA detects intent, all threats, or any unobserved behaviour.
 
 ## Reporting a concern
 

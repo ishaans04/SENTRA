@@ -1,4 +1,4 @@
-# HAEGIS control engine
+# SENTRA control engine
 
 The security analysis engine. Python 3.12, FastAPI, NetworkX, Pydantic v2.
 

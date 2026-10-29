@@ -25,7 +25,7 @@ import {
 import { startHero, type Pointer } from './heroCanvas';
 import { Ambient, ScrollProgress, SectionRail } from './ScrollChrome';
 import { VoiceCardHome } from './VoiceCard';
-import { WhyHaegis } from './WhyHaegis';
+import { WhySentra } from './WhySentra';
 import './landing.css';
 import './motion.css';
 
@@ -994,7 +994,7 @@ export function Landing() {
       <Verbs />
       <VoiceSection />
       <Compare />
-      <WhyHaegis />
+      <WhySentra />
       <Honest />
       <section id="start" className="ld-cta" onMouseMove={ctaMove}>
         <CtaMarkers />

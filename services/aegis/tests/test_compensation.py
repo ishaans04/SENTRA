@@ -57,7 +57,7 @@ async def test_unchanged_draft_is_restored(fixtures_dir: Path) -> None:
     )
     assert result.status == "succeeded"
     draft = session.world.items["draft-1"]
-    assert (draft.content, draft.writer) == (None, "haegis-recovery")
+    assert (draft.content, draft.writer) == (None, "sentra-recovery")
 
 
 async def test_grant_is_revoked_through_its_inverse(fixtures_dir: Path) -> None:

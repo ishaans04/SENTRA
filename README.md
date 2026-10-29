@@ -1,5 +1,5 @@
 ---
-title: HAEGIS
+title: SENTRA
 emoji: 🛡️
 colorFrom: gray
 colorTo: green
@@ -10,11 +10,11 @@ license: mit
 short_description: Voice-guided containment and recovery for human–AI teams
 ---
 
-# HAEGIS
+# SENTRA
 
 **Stop what went wrong. Keep everything else.**
 
-AI agents now do real work side by side: one answers support tickets, another writes the weekly report. Each step they take can be allowed on its own and still add up to something nobody approved, such as private customer details finding a way out of the company. The usual answer is to shut everything down. HAEGIS stops only the work that became unsafe, repairs it, and leaves the rest running.
+AI agents now do real work side by side: one answers support tickets, another writes the weekly report. Each step they take can be allowed on its own and still add up to something nobody approved, such as private customer details finding a way out of the company. The usual answer is to shut everything down. SENTRA stops only the work that became unsafe, repairs it, and leaves the rest running.
 
 - **Site:** <https://ishaans04.github.io/SENTRA/>, the landing page, a guided walkthrough and the full console
 - **Live service:** link added when the Hugging Face Space is deployed
@@ -27,7 +27,7 @@ Everything runs on fictional data. The tool servers are fictional and the webhoo
 | --- | --- |
 | **Notices** | It sees when safe steps add up to an unsafe route, and shows exactly which steps did it. |
 | **Pauses** | It remembers why each job was approved. When that reason stops being true, it pauses that job alone and holds anything it was about to send. |
-| **Repairs** | You say how to recover in your own words. HAEGIS reads them back as clear steps, runs nothing until you confirm, rebuilds the work the right way and never overwrites a change a person made. |
+| **Repairs** | You say how to recover in your own words. SENTRA reads them back as clear steps, runs nothing until you confirm, rebuilds the work the right way and never overwrites a change a person made. |
 
 ## The story the demo tells
 
@@ -40,7 +40,7 @@ Everything runs on fictional data. The tool servers are fictional and the webhoo
 
 ## How it works
 
-HAEGIS has two parts that work together.
+SENTRA has two parts that work together.
 
 **The control engine** (`services/core`) keeps a picture of what each agent is allowed to reach and what it actually touched. It turns every observed call into a graph, runs the route rules (PS-001 and PS-002) over it, and plans containment: it tests each candidate control first and recommends the cheapest one that does not break agreed work.
 
@@ -120,7 +120,7 @@ cd apps/console && pnpm test:e2e               # Playwright: landing, walkthroug
 
 ## Wispr Flow
 
-Every text box is a plain field, so Wispr Flow types straight into it: the approval, the recovery instruction, corrections and the spoken "Confirm". HAEGIS never talks to Wispr and cannot tell dictated text from typed text, which is why every step also works by typing.
+Every text box is a plain field, so Wispr Flow types straight into it: the approval, the recovery instruction, corrections and the spoken "Confirm". SENTRA never talks to Wispr and cannot tell dictated text from typed text, which is why every step also works by typing.
 
 ## Limits, stated up front
 

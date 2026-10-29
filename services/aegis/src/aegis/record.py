@@ -53,7 +53,7 @@ async def record(target: Path = TARGET) -> list[dict[str, Any]]:
     _write(
         target / "index.json",
         {
-            "note": "Recorded from the HAEGIS service with interpretation off. Not a live session.",
+            "note": "Recorded from the SENTRA service with interpretation off. Not a live session.",
             "frames": frames,
         },
     )

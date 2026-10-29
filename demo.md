@@ -1,8 +1,8 @@
-# HAEGIS demo guide
+# SENTRA demo guide
 
-This guide walks you through HAEGIS from the first page to the last. You do not need to know anything about AI security to follow it. Every name, file and person in the demo is made up, and nothing is sent anywhere.
+This guide walks you through SENTRA from the first page to the last. You do not need to know anything about AI security to follow it. Every name, file and person in the demo is made up, and nothing is sent anywhere.
 
-HAEGIS has three screens:
+SENTRA has three screens:
 
 | Screen | What it is | How long |
 | --- | --- | --- |
@@ -31,7 +31,7 @@ Each agent did something it was allowed to do. **Together**, though, they opened
 
 The tricky part is that **your approval still says "yes."** Nobody broke a rule, so nothing alarms. The reason you said yes is no longer true, and no ordinary system notices.
 
-## 2. What HAEGIS does about it
+## 2. What SENTRA does about it
 
 | # | What it does | In plain words |
 | --- | --- | --- |
@@ -60,7 +60,7 @@ To run the production build instead:
 
 ```bash
 pnpm console:build
-pnpm --filter @haegis/console preview
+pnpm --filter @sentra/console preview
 ```
 
 Then open **<http://127.0.0.1:4173>**.
@@ -89,10 +89,10 @@ Three things stay with you the whole way down:
 | --- | --- | --- |
 | **Top: "Stop what went wrong. Keep everything else."** | A field of dots. Each dot is an agent or something an agent uses. Every ten seconds a red chain of five links forms, one link is cut, and the rest turn green. | Move your cursor over the field: nearby dots link to it in blue. |
 | **01 — The problem** | The section holds still while you scroll. Each scroll lights the next of four cards (**✓ Allowed**) and draws a line beneath them, with a large step counter on the right. At the end all four turn red, **Allowed · but linked**, and "private customer details now have **a way out**." | Scroll slowly, then back up to rewind. **↺ Play it again** takes you back to the start. |
-| **02 — What HAEGIS does** | **Notice**, **Pause** and **Repair**, each with its own small animation in a panel on the right. They take turns every few seconds. | Click a word to jump to it. Move your cursor over the panel: it tilts towards you. |
-| **03 — You stay in charge** | A voice card, with small labels floating around it. | Tap the **mic**. Your words appear as if dictated, then HAEGIS lists the four steps it will take. Click **Yes, do it** and watch each step tick off. |
-| **04 — The difference** | Eight jobs that are all running, and a counter of how many are still working. | Click **Shut everything down**: every job stops and the counter drops to 0. Click **Use HAEGIS**: only the weekly report pauses and gets redone, and the counter climbs back to 8. |
-| **05 — Why not just an LLM?** | A dark panel that explains what HAEGIS does that a general AI chatbot can't. See below. | Scroll through it. |
+| **02 — What SENTRA does** | **Notice**, **Pause** and **Repair**, each with its own small animation in a panel on the right. They take turns every few seconds. | Click a word to jump to it. Move your cursor over the panel: it tilts towards you. |
+| **03 — You stay in charge** | A voice card, with small labels floating around it. | Tap the **mic**. Your words appear as if dictated, then SENTRA lists the four steps it will take. Click **Yes, do it** and watch each step tick off. |
+| **04 — The difference** | Eight jobs that are all running, and a counter of how many are still working. | Click **Shut everything down**: every job stops and the counter drops to 0. Click **Use SENTRA**: only the weekly report pauses and gets redone, and the counter climbs back to 8. |
+| **05 — Why not just an LLM?** | A dark panel that explains what SENTRA does that a general AI chatbot can't. See below. | Scroll through it. |
 | **06 — Honest by design** | Three plain promises: a warning isn't proof, you approve the big moves, and some things can't be undone. | Read them. |
 
 Cards light up softly wherever your cursor moves over them.
@@ -101,10 +101,10 @@ Cards light up softly wherever your cursor moves over them.
 
 This section answers the question people ask first: *"Couldn't I just use ChatGPT or Gemini for this?"* It has three parts.
 
-1. **Ask both.** One situation, two answers, side by side: *"Reporting just read a notepad full of customer details. Its weekly report goes out in a minute."* A general AI assistant types out polite advice, and the report still goes out. HAEGIS, using events from the recorded session, finds the route, withdraws the approval, **holds** the report and waits for you. The assistant's answer is marked **ILLUSTRATIVE**. Click **↺ Ask both again** to replay it.
-2. **Three differences.** Three boxes, laid out like the reasons below them. Each sets what a plain LLM does against what HAEGIS does:
+1. **Ask both.** One situation, two answers, side by side: *"Reporting just read a notepad full of customer details. Its weekly report goes out in a minute."* A general AI assistant types out polite advice, and the report still goes out. SENTRA, using events from the recorded session, finds the route, withdraws the approval, **holds** the report and waits for you. The assistant's answer is marked **ILLUSTRATIVE**. Click **↺ Ask both again** to replay it.
+2. **Three differences.** Three boxes, laid out like the reasons below them. Each sets what a plain LLM does against what SENTRA does:
 
-   | Difference | A plain LLM | HAEGIS |
+   | Difference | A plain LLM | SENTRA |
    | --- | --- | --- |
    | Sees the whole system | Sees one conversation at a time. | Watches how every agent connects. |
    | Remembers why you said yes | Forgets the reason when the chat ends. | Keeps each approval's condition and re-checks it on every event. |
@@ -127,10 +127,10 @@ Shapes on the map: **circles** are agents, **rounded squares** are places data i
 | Step | What happens |
 | --- | --- |
 | **1. Meet the team** | Two agents and your approval: "Reporting can send reports — because it only reads approved summaries." |
-| **2. Something new shows up** | A yellow dashed line: Support starts using the shared notepad. HAEGIS notes it, but nothing is wrong yet. |
+| **2. Something new shows up** | A yellow dashed line: Support starts using the shared notepad. SENTRA notes it, but nothing is wrong yet. |
 | **3. The pieces line up** | Reporting reads the notepad too. A red path runs from customer info to the outside world, shown hop by hop. It's a *possible* path, not proof of a leak. |
 | **4. The reason is gone** | Your approval is marked **NO LONGER TRUE**, and the weekly report is **paused** before it is sent. |
-| **5. Tell HAEGIS what to do** | Tap the mic (or press **Speak →**). Your instruction appears, read back as four steps. Press **Yes, do it**. |
+| **5. Tell SENTRA what to do** | Tap the mic (or press **Speak →**). Your instruction appears, read back as four steps. Press **Yes, do it**. |
 | **6. Fixing only what's broken** | Five changes, one at a time: stop the old report, cut its access to the notepad, block a late send, rebuild the report from approved summaries, and keep Priya's edit. |
 | **7. All clear** | Four green results. From here you can **Watch again**, **Open the full console**, or go back home. |
 
@@ -142,14 +142,14 @@ The console replays one recorded session, event by event. It is the same story w
 
 ```text
 ┌──────────────────────────────────────────────────────────────────────────┐
-│ HAEGIS  ‹ ▶Play ›  1×   01 Approved · 02 Connection · … · 07 Verified     │
-│                                                        [Tell HAEGIS Ctrl K]│
+│ SENTRA  ‹ ▶Play ›  1×   01 Approved · 02 Connection · … · 07 Verified     │
+│                                                        [Tell SENTRA Ctrl K]│
 ├───────────────────────────────────────────────┬──────────────────────────┤
 │ Chapter title and what it means               │ Case file                │
 │                                 Current event │  Decision D-07           │
 ├───────────────────────────────────────────────┤  Finding PS-001          │
 │ What the agents did (the map)                 │  Containment options     │
-│                                               │  Tell HAEGIS             │
+│                                               │  Tell SENTRA             │
 ├───────────────────────────────────────────────┤  Recovery steps          │
 │ One ledger, three lanes + the latest events   │  Outcome record          │
 └───────────────────────────────────────────────┴──────────────────────────┘
@@ -163,8 +163,8 @@ The console replays one recorded session, event by event. It is the same story w
 | **▶ Play** | Plays on its own. It always stops where it's your turn to decide, and at the end. |
 | **1×** | Replay speed. Click to switch between 0.5×, 1× and 2×. |
 | **01 … 07** | The seven chapters. The bar under each one fills as you go; click a chapter to jump to it. |
-| **Tell HAEGIS** | If you haven't reached your turn yet, jumps straight to it and puts the cursor in the instruction box. |
-| **HAEGIS** (left) | Back to the landing page. |
+| **Tell SENTRA** | If you haven't reached your turn yet, jumps straight to it and puts the cursor in the instruction box. |
+| **SENTRA** (left) | Back to the landing page. |
 
 ### The map: "What the agents did"
 
@@ -181,7 +181,7 @@ Every event has one mark, in one of three lanes: **decisions** people made, what
 | **Decision D-07** | Your approval, its condition in plain words and in exact form, its status, and every run made under it. |
 | **Finding PS-001** | Appears when the route forms: the four hops, which ones were declared, and the evidence for each. It says plainly that a route is not proof of a leak. |
 | **Containment** | Five pre-approved ways to cut the route. Each one is tested first. Two would also break work that was agreed, so they are rejected. The cheapest safe one is recommended. |
-| **Tell HAEGIS** | Your instruction box and the read-back. |
+| **Tell SENTRA** | Your instruction box and the read-back. |
 | **Recovery** | Each step of the fix and its real result. |
 | **Outcome record** | The final summary and the four checks. |
 
@@ -189,9 +189,9 @@ For the first two chapters the case file (**What people approved, and why**, wit
 
 ### The glass case file
 
-From chapter 3 (**Route**) onwards, the case file becomes a frosted-glass panel that **slides in from the right edge** of the window. It uses the right-hand column only, so the map and the ledger stay fully visible. It holds every card: what people approved and why (Decision D-07), the finding, the containment options, Tell HAEGIS, the recovery steps and, at the end, the outcome record. None of it appears on the page itself any more, even while the panel is closed.
+From chapter 3 (**Route**) onwards, the case file becomes a frosted-glass panel that **slides in from the right edge** of the window. It uses the right-hand column only, so the map and the ledger stay fully visible. It holds every card: what people approved and why (Decision D-07), the finding, the containment options, Tell SENTRA, the recovery steps and, at the end, the outcome record. None of it appears on the page itself any more, even while the panel is closed.
 
-- As the story moves on, the panel **scrolls itself to what is happening now** and outlines that card in blue: the finding when the route forms, the decision while it is withdrawn, Tell HAEGIS at your turn, and the recovery steps one by one while the fix runs.
+- As the story moves on, the panel **scrolls itself to what is happening now** and outlines that card in blue: the finding when the route forms, the decision while it is withdrawn, Tell SENTRA at your turn, and the recovery steps one by one while the fix runs.
 - Close it with the **✕** at its top right, or press **Esc**. A small **Case file** tab then waits on the right edge; click it to bring the panel back.
 - It slides back in on its own as each new stage starts (route found, **Withdrawn**, **Decide**, **Recover**), and the case file returns to the page if you step back before chapter 3.
 
@@ -215,11 +215,11 @@ The **glass case file slides in from the right**, carrying Decision D-07 with it
 
 ### Chapter 4: Withdrawn
 
-HAEGIS links the finding to D-07. Its condition fails and no other reason to allow it exists, so D-07 shows **NEEDS REVIEW** (#13). The gateway then **holds** the queued report before it leaves, and D-07 reads **BASIS WITHDRAWN · RUN HELD** (#14).
+SENTRA links the finding to D-07. Its condition fails and no other reason to allow it exists, so D-07 shows **NEEDS REVIEW** (#13). The gateway then **holds** the queued report before it leaves, and D-07 reads **BASIS WITHDRAWN · RUN HELD** (#14).
 
 ### Chapter 5: Decide (your turn)
 
-Playback stops here. The **Tell HAEGIS** card is open, filled with the suggested instruction:
+Playback stops here. The **Tell SENTRA** card is open, filled with the suggested instruction:
 
 > Stop this reporting run, remove its scratchpad access, and rebuild the report from approved summaries. Keep the support work.
 
@@ -265,7 +265,7 @@ Press **Replay from the start** to watch it again.
 | **Esc** | Walkthrough | Back to the landing page |
 | **Esc** | Console | Close the glass case file (or send the outcome record into it) |
 | **Space** | Console | Play / pause |
-| **Ctrl+K** (⌘+K) | Console | Jump to Tell HAEGIS |
+| **Ctrl+K** (⌘+K) | Console | Jump to Tell SENTRA |
 | **Ctrl+Enter** (⌘+Enter) | Console | Confirm the read-back |
 | **Enter** | Console, at your turn | Confirm the read-back |
 
@@ -273,19 +273,19 @@ Press **Replay from the start** to watch it again.
 
 ## 9. "Gemini" and "Model off"
 
-The **Tell HAEGIS** card has a small **Gemini / Model off** switch. In the recorded session, the instruction was read by a language model (Gemini Flash-Lite), with HAEGIS's built-in phrase rules as the fallback. Switch to **Model off** and the badge changes to say so, but every hold, rejection and recovery step is identical, because **no model ever decides what gets blocked.**
+The **Tell SENTRA** card has a small **Gemini / Model off** switch. In the recorded session, the instruction was read by a language model (Gemini Flash-Lite), with SENTRA's built-in phrase rules as the fallback. Switch to **Model off** and the badge changes to say so, but every hold, rejection and recovery step is identical, because **no model ever decides what gets blocked.**
 
 When you type your own words in the console, they are read by the built-in phrase rules in your browser, and the card says so.
 
 ---
 
-## 10. What HAEGIS does *not* claim
+## 10. What SENTRA does *not* claim
 
 These limits are stated on purpose:
 
 - A red route is a **risk**, not proof that data actually left.
 - Only actions that go **through the gateway** can be stopped.
-- Recovery only uses **pre-approved, reversible** fixes. A message that has already been sent can't be "unsent", so HAEGIS says so plainly instead of pretending.
+- Recovery only uses **pre-approved, reversible** fixes. A message that has already been sent can't be "unsent", so SENTRA says so plainly instead of pretending.
 - A person's later edit is **never** overwritten.
 - The console is a **recorded replay of made-up data**, not a live system.
 
@@ -302,10 +302,10 @@ These limits are stated on purpose:
 | **Run (r-0411, r-0412, r-0413)** | One working session of an agent under an approval. |
 | **Gateway** | The single door every agent's actions go through. This is where holding and blocking happen. |
 | **Held / rejected / delivered** | Stopped and waiting, refused at the door, or actually sent. |
-| **Finding (PS-001)** | HAEGIS's rule for "private data can reach the outside through a shared space nobody declared". |
+| **Finding (PS-001)** | SENTRA's rule for "private data can reach the outside through a shared space nobody declared". |
 | **Route** | The chain of connections that together form the dangerous path. |
 | **Control** | A pre-approved block, such as "stop Reporting reading the scratchpad". |
-| **Read-back** | HAEGIS repeating your instruction as exact steps before acting. |
+| **Read-back** | SENTRA repeating your instruction as exact steps before acting. |
 | **Conflict** | A recovery step that stopped because a person had changed something. |
 | **Ledger** | The complete logbook of what happened. |
 
@@ -316,7 +316,7 @@ These limits are stated on purpose:
 | Symptom | Fix |
 | --- | --- |
 | The confirm button is greyed out | Your words didn't ask for any of the four steps. Try the suggested words, or include words like "stop", "remove access", "rebuild" or "keep". |
-| The instruction box won't let you type | It only accepts input at your turn (chapter 5). Press **Tell HAEGIS** to jump there. |
+| The instruction box won't let you type | It only accepts input at your turn (chapter 5). Press **Tell SENTRA** to jump there. |
 | Playback stopped by itself | It stops at your turn and at the end. Confirm the read-back, or press **↺ Replay**. |
 | Fonts look plain | The page loads its fonts from the internet. Without a connection it falls back to system fonts, and everything still works. |
 | The page is blank | Make sure you opened the address the server printed, and reload. |

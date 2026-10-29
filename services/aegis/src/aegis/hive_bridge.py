@@ -69,7 +69,7 @@ class HiveBridge:
                 if key not in {"effect", "resource"}
             }
             | {"run_id": call.run_id},
-            "provenance": {"adapter": "haegis-gateway", "ledger_event": call.event_id},
+            "provenance": {"adapter": "sentra-gateway", "ledger_event": call.event_id},
             "result": "success",
         }
         self._fold(EventValidator.validate(raw))
@@ -101,11 +101,11 @@ class HiveBridge:
                 event_id=f"ctl::{cause.event_id}::{capability.id}",
                 sequence=cause.seq,
                 occurred_at=cause.at,
-                actor="HAEGIS Gateway",
+                actor="SENTRA Gateway",
                 action="block",
                 target=capability.target,
                 context=context,
-                provenance={"issued_by": "haegis-gateway", "ledger_event": cause.event_id},
+                provenance={"issued_by": "sentra-gateway", "ledger_event": cause.event_id},
                 result="success",
             )
         )

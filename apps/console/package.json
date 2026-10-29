@@ -1,9 +1,9 @@
 {
-  "name": "@haegis/console",
+  "name": "@sentra/console",
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "HAEGIS: the landing page, a guided walkthrough, and the recorded-session console.",
+  "description": "SENTRA: the landing page, a guided walkthrough, and the recorded-session console.",
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 5173 --strictPort",
     "build": "tsc -b && vite build",

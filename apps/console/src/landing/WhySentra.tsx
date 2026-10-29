@@ -12,7 +12,7 @@ const SITUATION =
 const LLM_REPLY =
   'That does sound concerning. You may want to review the Reporting agent’s permissions and check whether the report contains anything sensitive before it’s sent. Would you like some tips on data governance?';
 
-const HAEGIS_STEPS = [
+const SENTRA_STEPS = [
   { tone: 'red', text: 'Route found: customer data can now reach the outside', ev: '#12' },
   { tone: 'red', text: 'Approval D-07 no longer holds — the reason you gave is gone', ev: '#13' },
   { tone: 'blue', text: 'Weekly report held at the gateway, before it left', ev: '#14' },
@@ -79,12 +79,12 @@ function AskBoth() {
       setChars(Math.min(n, LLM_REPLY.length));
       if (n >= LLM_REPLY.length) window.clearInterval(id);
     }, 24);
-    HAEGIS_STEPS.forEach((_, i) => after(500 + i * 700, () => setSteps(i + 1)));
+    SENTRA_STEPS.forEach((_, i) => after(500 + i * 700, () => setSteps(i + 1)));
     return () => window.clearInterval(id);
   }, [seen, round, after, clear]);
 
   const llmDone = chars >= LLM_REPLY.length;
-  const usDone = steps >= HAEGIS_STEPS.length;
+  const usDone = steps >= SENTRA_STEPS.length;
 
   return (
     <div ref={ref} className={`ld-ask ld-reveal${seen ? ' is-seen' : ''}`}>
@@ -115,7 +115,7 @@ function AskBoth() {
             <span className="ld-pane-tag">FROM THE RECORDED SESSION</span>
           </div>
           <div className="ld-steps">
-            {HAEGIS_STEPS.map((s, i) => (
+            {SENTRA_STEPS.map((s, i) => (
               <div key={s.text} className={`ld-step tone-${s.tone}${steps > i ? ' is-in' : ''}`}>
                 <span className="ld-step-dot" />
                 <span className="ld-step-text">{s.text}</span>
@@ -194,7 +194,7 @@ function Reasons() {
   );
 }
 
-export function WhyHaegis() {
+export function WhySentra() {
   const [ref, seen] = useSeen<HTMLDivElement>();
   return (
     <section id="why" className="ld-why">

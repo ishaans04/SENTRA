@@ -26,7 +26,7 @@ test('landing page tells the story and links to both demos', async ({ page }) =>
   await expect(page.getByText('steps, linked')).toBeVisible();
   await expect(page.getByText('✓ Allowed · but linked')).toHaveCount(4);
 
-  // Asking both: the assistant advises, HAEGIS holds the report.
+  // Asking both: the assistant advises, SENTRA holds the report.
   await page.locator('#why').scrollIntoViewIfNeeded();
   await page.getByText('THE SITUATION').scrollIntoViewIfNeeded();
   await expect(page.getByText('✓ Stopped in time. Support kept working.')).toHaveCSS(
@@ -76,7 +76,7 @@ test('console replays the session through the operator’s decision', async ({ p
   await expect(page.locator('body')).not.toContainText(ENGINE_NAMES);
 
   await page.keyboard.press('Control+k');
-  const box = page.getByRole('textbox', { name: /Tell HAEGIS/ });
+  const box = page.getByRole('textbox', { name: /Tell SENTRA/ });
   await expect(box).toBeFocused();
   await expect(
     page.getByRole('heading', { name: 'The operator decides, in plain words' }),

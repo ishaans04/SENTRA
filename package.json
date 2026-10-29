@@ -1,22 +1,22 @@
 {
-  "name": "haegis",
+  "name": "sentra",
   "version": "0.0.0",
   "private": true,
-  "description": "HAEGIS: approvals tied to conditions, a gateway that holds and rejects affected agent calls, and dictated recovery you confirm before it runs.",
+  "description": "SENTRA: approvals tied to conditions, a gateway that holds and rejects affected agent calls, and dictated recovery you confirm before it runs.",
   "packageManager": "pnpm@11.19.0",
   "engines": {
     "node": ">=22.16.0",
     "pnpm": ">=11.19.0 <12"
   },
   "scripts": {
-    "console:dev": "pnpm --filter @haegis/console dev",
-    "console:build": "pnpm --filter @haegis/console build",
+    "console:dev": "pnpm --filter @sentra/console dev",
+    "console:build": "pnpm --filter @sentra/console build",
     "build": "pnpm run console:build",
-    "console:check": "pnpm --filter @haegis/console check",
-    "console:test": "pnpm --filter @haegis/console test",
-    "console:e2e": "pnpm --filter @haegis/console test:e2e",
+    "console:check": "pnpm --filter @sentra/console check",
+    "console:test": "pnpm --filter @sentra/console test",
+    "console:e2e": "pnpm --filter @sentra/console test:e2e",
     "check": "pnpm run console:check",
-    "format:write": "pnpm --filter @haegis/console format:write"
+    "format:write": "pnpm --filter @sentra/console format:write"
   },
   "keywords": [
     "ai-security",

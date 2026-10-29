@@ -1,4 +1,4 @@
-# Declared architecture: the reporting estate behind the HAEGIS gateway.
+# Declared architecture: the reporting estate behind the SENTRA gateway.
 #
 # Two agents, four fictional tool servers. Support reads customer records and
 # writes sanitized summaries; Reporting reads those summaries, writes drafts and

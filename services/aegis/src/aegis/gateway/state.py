@@ -12,7 +12,7 @@ RunStatus = Literal["running", "stale", "completed", "cancelled"]
 
 #: The recovery executor's identity. Only it may call recovery-only tools, and it
 #: is not bound by a decision: it acts on the operator's confirmed plan.
-RECOVERY_ACTOR = "haegis-recovery"
+RECOVERY_ACTOR = "sentra-recovery"
 
 #: How a tool's effect class reads as a HIVE relationship, for control rules.
 _EFFECT_AS_ACTION = {"read": "read", "write": "write", "send": "send"}

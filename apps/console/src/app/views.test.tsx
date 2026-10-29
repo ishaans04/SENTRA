@@ -28,13 +28,13 @@ describe('routing', () => {
 });
 
 describe('landing page', () => {
-  it('names only HAEGIS', () => {
+  it('names only SENTRA', () => {
     render(<Landing />);
-    expect(document.body.textContent).toContain('HAEGIS');
+    expect(document.body.textContent).toContain('SENTRA');
     expect(document.body.textContent).not.toMatch(ENGINE_NAMES);
   });
 
-  it('sets HAEGIS against a plain LLM, point by point', () => {
+  it('sets SENTRA against a plain LLM, point by point', () => {
     render(<Landing />);
     expect(screen.getByText(/A chatbot gives advice/)).toBeInTheDocument();
     expect(screen.getAllByText('A plain LLM')).toHaveLength(3);
@@ -47,7 +47,7 @@ describe('landing page', () => {
     render(<Landing />);
     fireEvent.click(screen.getByRole('button', { name: 'Speak' }));
     act(() => vi.advanceTimersByTime(6000));
-    expect(screen.getByText('HAEGIS WILL:')).toBeInTheDocument();
+    expect(screen.getByText('SENTRA WILL:')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Yes, do it' }));
     act(() => vi.advanceTimersByTime(2000));
     expect(screen.getByText(/Only the report was redone/)).toBeInTheDocument();
@@ -57,7 +57,7 @@ describe('landing page', () => {
     render(<Landing />);
     fireEvent.click(screen.getByRole('button', { name: 'Shut everything down' }));
     expect(screen.getAllByText('Stopped')).toHaveLength(8);
-    fireEvent.click(screen.getByRole('button', { name: 'Use HAEGIS' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Use SENTRA' }));
     expect(screen.getByText('Paused')).toBeInTheDocument();
   });
 });
@@ -87,7 +87,7 @@ describe('console', () => {
   it('jumps to the instruction box with Ctrl+K', () => {
     render(<Console />);
     fireEvent.keyDown(window, { key: 'k', ctrlKey: true });
-    expect(screen.getByRole('textbox', { name: /Tell HAEGIS/ })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: /Tell SENTRA/ })).toBeInTheDocument();
   });
 
   it('cannot confirm words that ask for nothing', () => {

@@ -30,7 +30,7 @@ def manager(fixtures_dir: Path, monkeypatch: pytest.MonkeyPatch) -> SessionManag
 
 def _client(manager: SessionManager) -> httpx.AsyncClient:
     app = create_app(manager)
-    return httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://haegis.local")
+    return httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://sentra.local")
 
 
 async def _to_beat_8(client: httpx.AsyncClient) -> None:
@@ -90,7 +90,7 @@ async def test_replacing_a_session_ends_its_open_streams(fixtures_dir: Path) -> 
 async def test_too_many_streams_on_one_session_are_refused(manager: SessionManager) -> None:
     client = _client(manager)
     await client.post("/api/session")
-    sandbox = manager.get(client.cookies["haegis_session"])
+    sandbox = manager.get(client.cookies["sentra_session"])
     assert sandbox is not None
     for _ in range(4):
         sandbox.session.ledger.subscribe()
@@ -214,10 +214,10 @@ async def test_full_sandbox_refuses_new_visitors_instead_of_evicting(
 
 async def test_client_supplied_session_ids_are_not_trusted(manager: SessionManager) -> None:
     client = _client(manager)
-    client.cookies.set("haegis_session", "x" * 3000)
+    client.cookies.set("sentra_session", "x" * 3000)
     response = await client.post("/api/session")
     assert response.json()["session_id"] != "x" * 3000
-    assert len(response.cookies["haegis_session"]) < 40
+    assert len(response.cookies["sentra_session"]) < 40
 
 
 async def test_correct_is_rate_limited(manager: SessionManager) -> None:

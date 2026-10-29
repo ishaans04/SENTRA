@@ -21,7 +21,7 @@ STORY_APPROVAL = (
 def client(fixtures_dir: Path, monkeypatch: pytest.MonkeyPatch) -> httpx.AsyncClient:
     monkeypatch.setenv("AEGIS_INTERPRETER", "off")
     app = create_app(SessionManager(fixtures_dir, cap=3, idle_minutes=30, interpret_per_minute=3))
-    return httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://haegis.local")
+    return httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://sentra.local")
 
 
 def _events(body: str) -> list[dict]:
@@ -48,7 +48,7 @@ async def test_health(client: httpx.AsyncClient) -> None:
 async def test_session_snapshot_is_labelled(client: httpx.AsyncClient) -> None:
     response = await client.post("/api/session")
     state = response.json()
-    assert "haegis_session" in response.cookies
+    assert "sentra_session" in response.cookies
     assert state["labels"] == {"data": "Fictional data", "mode": "Live sandbox"}
     assert state["decisions"][0]["id"] == "D-0"
     assert state["beat"] == -1
@@ -56,7 +56,7 @@ async def test_session_snapshot_is_labelled(client: httpx.AsyncClient) -> None:
 
 
 async def test_sessions_are_isolated(client: httpx.AsyncClient) -> None:
-    other = httpx.AsyncClient(transport=client._transport, base_url="http://haegis.local")  # noqa: SLF001
+    other = httpx.AsyncClient(transport=client._transport, base_url="http://sentra.local")  # noqa: SLF001
     await client.post("/api/session")
     await other.post("/api/session")
     for _ in range(4):

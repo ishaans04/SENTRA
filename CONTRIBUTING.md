@@ -1,6 +1,6 @@
-# Contributing to HAEGIS
+# Contributing to SENTRA
 
-HAEGIS is a security-sensitive prototype. Every contribution must strengthen the ability to explain, reproduce, and safely contain a finding.
+SENTRA is a security-sensitive prototype. Every contribution must strengthen the ability to explain, reproduce, and safely contain a finding.
 
 ## Before editing
 

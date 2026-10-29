@@ -6,7 +6,7 @@ import { ErrorBoundary } from './app/ErrorBoundary';
 import './index.css';
 
 const container = document.getElementById('root');
-if (!container) throw new Error('No #root element to mount HAEGIS into.');
+if (!container) throw new Error('No #root element to mount SENTRA into.');
 
 createRoot(container).render(
   <React.StrictMode>

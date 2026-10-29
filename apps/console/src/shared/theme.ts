@@ -33,7 +33,7 @@ export const RGB = {
   blue: '51,90,166',
 } as const;
 
-export const BRAND = 'HAEGIS';
+export const BRAND = 'SENTRA';
 
 /** Where the source lives. Left empty until the public repository exists. */
 export const REPO_URL = '';

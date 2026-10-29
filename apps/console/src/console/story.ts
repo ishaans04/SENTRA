@@ -78,7 +78,7 @@ export const EVENTS: StoryEvent[] = [
   ),
   ev(
     'decision',
-    'HAEGIS',
+    'SENTRA',
     'withdraw',
     'Condition C-07a',
     'justification gone · D-07 needs review',
@@ -89,7 +89,7 @@ export const EVENTS: StoryEvent[] = [
     'decision',
     'Operator',
     'dictate',
-    'Tell HAEGIS',
+    'Tell SENTRA',
     'via Wispr Flow · read-back prepared',
     'blue',
   ),
@@ -121,7 +121,7 @@ export const EVENTS: StoryEvent[] = [
   ),
   ev(
     'decision',
-    'HAEGIS',
+    'SENTRA',
     'preserve',
     'Draft “Q3 support digest”',
     'edited by Priya since agent wrote it · kept',
@@ -137,7 +137,7 @@ export const EVENTS: StoryEvent[] = [
   ),
   ev(
     'decision',
-    'HAEGIS',
+    'SENTRA',
     'verify',
     'Contained graph',
     '0 open findings · declared work 6 of 6 intact',
@@ -168,7 +168,7 @@ export const CHAPTERS = [
     s: 0,
     short: 'Approved',
     title: 'The approved workflow',
-    body: 'Reporting may proceed because it receives only sanitized summaries. HAEGIS records that condition and every run authorised under it.',
+    body: 'Reporting may proceed because it receives only sanitized summaries. SENTRA records that condition and every run authorised under it.',
   },
   {
     s: 1,
@@ -180,19 +180,19 @@ export const CHAPTERS = [
     s: 3,
     short: 'Route',
     title: 'Four permitted hops compose a route',
-    body: 'Reporting reads the scratchpad. Restricted records now have a path to the outside. HAEGIS flags a possible route — not proof of a leak.',
+    body: 'Reporting reads the scratchpad. Restricted records now have a path to the outside. SENTRA flags a possible route — not proof of a leak.',
   },
   {
     s: 6,
     short: 'Withdrawn',
     title: 'The justification no longer holds',
-    body: 'HAEGIS links the finding to D-07. Its condition fails, no other basis remains, and an external report is queued. A pre-authorised hold pauses it.',
+    body: 'SENTRA links the finding to D-07. Its condition fails, no other basis remains, and an external report is queued. A pre-authorised hold pauses it.',
   },
   {
     s: 8,
     short: 'Decide',
     title: 'The operator decides, in plain words',
-    body: 'Dictated into Tell HAEGIS with Wispr Flow. The instruction is read back as concrete gateway steps — nothing runs until it is confirmed.',
+    body: 'Dictated into Tell SENTRA with Wispr Flow. The instruction is read back as concrete gateway steps — nothing runs until it is confirmed.',
   },
   {
     s: 10,
@@ -655,7 +655,7 @@ export function controls(b: number) {
 }
 
 // ---------------------------------------------------------------------------
-// Tell HAEGIS: words to read-back steps
+// Tell SENTRA: words to read-back steps
 
 export type StepKey = 'cancel' | 'revoke' | 'rebuild' | 'keep';
 

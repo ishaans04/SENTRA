@@ -1,6 +1,6 @@
 """The tool catalogue: effect class, resource and registered inverse for every tool.
 
-Names are dotted (``report_store.write_draft``) everywhere in HAEGIS: the
+Names are dotted (``report_store.write_draft``) everywhere in SENTRA: the
 ledger, the plans and the console. On the MCP wire FastMCP namespaces mounted
 tools with an underscore (``report_store_write_draft``); this module is the one
 place that translates.

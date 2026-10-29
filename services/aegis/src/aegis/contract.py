@@ -1,4 +1,4 @@
-"""Write the HAEGIS OpenAPI contract to ``contracts/openapi/haegis-v1.json``.
+"""Write the SENTRA OpenAPI contract to ``contracts/openapi/sentra-v1.json``.
 
 Same convention as the HIVE core: the committed contract is generated from the
 service, and CI fails if the two drift apart.
@@ -11,7 +11,7 @@ from pathlib import Path
 
 from aegis.api.app import create_app
 
-TARGET = Path(__file__).resolve().parents[4] / "contracts" / "openapi" / "haegis-v1.json"
+TARGET = Path(__file__).resolve().parents[4] / "contracts" / "openapi" / "sentra-v1.json"
 
 
 def main() -> None:

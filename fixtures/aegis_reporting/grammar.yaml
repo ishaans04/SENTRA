@@ -4,7 +4,7 @@
 # removed), then matched against these names. Every name here resolves to an id
 # in the manifest; nothing outside this file can reach a typed result.
 
-fillers: [okay, ok, so, um, uh, alright, right, please, well, hey, aegis, haegis]
+fillers: [okay, ok, so, um, uh, alright, right, please, well, hey, aegis, sentra]
 
 # What an approval can be about: the spoken subject, and the agent it authorises.
 subjects:

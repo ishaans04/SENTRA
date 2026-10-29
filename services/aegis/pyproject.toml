@@ -3,9 +3,9 @@ requires = ["hatchling>=1.26.0,<2.0.0"]
 build-backend = "hatchling.build"
 
 [project]
-name = "haegis"
+name = "sentra"
 version = "0.1.0"
-description = "HAEGIS: approvals tied to conditions, an MCP gateway that holds and rejects affected agent calls, and dictated recovery checked against the control engine."
+description = "SENTRA: approvals tied to conditions, an MCP gateway that holds and rejects affected agent calls, and dictated recovery checked against the control engine."
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 license = "MIT"
