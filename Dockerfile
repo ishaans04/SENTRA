@@ -2,7 +2,9 @@
 #
 # Stage 1 builds the console. Stage 2 installs the service from the frozen
 # lockfile and serves the API and the built console from one Uvicorn worker,
-# on the port the Space's README front matter declares (app_port: 7860).
+# on the port the Space card declares (app_port: 7860 in
+# deploy/huggingface/README.md, which deploy/huggingface/publish.sh installs as
+# the Space's README).
 
 FROM node:22-slim AS console
 WORKDIR /app
