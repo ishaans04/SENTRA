@@ -193,7 +193,7 @@ For the first two chapters the case file (**What people approved, and why**, wit
 
 ### The glass case file
 
-From chapter 3 (**Route**) onwards, the case file becomes a frosted-glass panel that **slides in from the right edge** of the window. It uses the right-hand column only, so the map and the ledger stay fully visible. It holds every card: what people approved and why (Decision D-07), the finding, the containment options, Tell SENTRA, the recovery steps and, at the end, the outcome record. None of it appears on the page itself any more, even while the panel is closed.
+From chapter 3 (**Route**) onwards, the case file becomes a frosted-glass panel that **slides in from the right edge** of the window. It uses the right-hand column only, so the map and the ledger stay fully visible. It holds every card: what people approved and why (Decision D-07), the finding, the containment options, Ask SENTRA, Tell SENTRA, the recovery steps, the outcome record and, at the end, Remember for next time. None of it appears on the page itself any more, even while the panel is closed.
 
 - As the story moves on, the panel **scrolls itself to what is happening now** and outlines that card in blue: the finding when the route forms, the decision while it is withdrawn, Tell SENTRA at your turn, and the recovery steps one by one while the fix runs.
 - Close it with the **✕** at its top right, or press **Esc**. A small **Case file** tab then waits on the right edge; click it to bring the panel back.
