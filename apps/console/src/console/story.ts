@@ -1,17 +1,23 @@
 /**
- * The recorded session the console replays: 23 events over a fictional
- * support/reporting estate, grouped into seven chapters. Everything here is
+ * The recorded session the console replays: 28 events over a fictional
+ * support/reporting estate, grouped into nine chapters. Everything here is
  * pure data or a pure function of the current beat, so the view can be
  * rebuilt from the beat alone and the same beat always looks the same.
  *
  * Beat b shows events 1..(7 + b). Beat 0 is the approved baseline (events
  * 1–7), beat 8 waits for the operator, and beat 16 is the verified record.
+ * Beat 17 waits for the operator again, to keep a standing order, and beats
+ * 19–21 are the week after, when that order refuses the scratchpad read.
  */
 
 import { C } from '../shared/theme';
 
-export const LAST_BEAT = 16;
+export const LAST_BEAT = 21;
 export const OPERATOR_BEAT = 8;
+/** The outcome record of the recovery. */
+export const VERIFIED_BEAT = 16;
+/** The operator keeps what the incident taught as a standing order. */
+export const REMEMBER_BEAT = 17;
 /** From the route chapter on, the case file lives in the glass panel. */
 export const CASE_FILE_BEAT = 3;
 export const ROUTE_BEAT = 5;
@@ -20,6 +26,9 @@ export const RECOVER_BEAT = 10;
 
 export const DICTATION =
   'Stop this reporting run, remove its scratchpad access, and rebuild the report from approved summaries. Keep the support work.';
+
+export const REMEMBER_DICTATION =
+  'From now on, an agent that can send outside never reads from a store nobody declared.';
 
 export type Lane = 'decision' | 'gateway' | 'agent';
 export type Tone = 'ok' | 'ink' | 'amber' | 'red' | 'blue' | 'green';
@@ -143,6 +152,46 @@ export const EVENTS: StoryEvent[] = [
     '0 open findings · declared work 6 of 6 intact',
     'green',
   ),
+  ev(
+    'decision',
+    'Operator',
+    'dictate',
+    'Tell SENTRA',
+    'standing order · via Wispr Flow · read-back prepared',
+    'blue',
+  ),
+  ev(
+    'decision',
+    'Operator',
+    'confirm',
+    'Standing order SO-1',
+    'kept for every later session · cites PS-001',
+    'blue',
+  ),
+  ev(
+    'agent',
+    'Support Agent',
+    'write',
+    'Unregistered Scratchpad',
+    'a week later · still allowed',
+    'amber',
+  ),
+  ev(
+    'gateway',
+    'Reporting Agent',
+    'read',
+    'Unregistered Scratchpad',
+    'REFUSED · standing order SO-1 · no route forms',
+    'red',
+  ),
+  ev(
+    'agent',
+    'Reporting Agent',
+    'send',
+    'External Webhook',
+    'r-0420 delivered · nothing paused',
+    'green',
+  ),
 ];
 
 /** Colour of a ledger mark, and of a note, for each tone. */
@@ -205,6 +254,18 @@ export const CHAPTERS = [
     short: 'Verified',
     title: 'Measured, not assumed',
     body: 'The rules re-run over the contained graph. The route is gone, the old run cannot send, and the replacement did its approved job.',
+  },
+  {
+    s: 17,
+    short: 'Remember',
+    title: 'Remembered for next time',
+    body: 'Say what should always hold. SENTRA reads it back with the incident behind it — PS-001, run r-0412 — and keeps it only when you confirm.',
+  },
+  {
+    s: 19,
+    short: 'Next week',
+    title: 'A week later, nothing to stop',
+    body: 'Reporting tries the scratchpad again. The gateway refuses that one read, citing SO-1. No route forms, no approval falls, and the report goes out on time.',
   },
 ];
 
@@ -341,7 +402,12 @@ export function nodeView(id: NodeId, b: number): NodeView {
       if (on) tone = 'red';
       break;
     case 'support':
-      sub = b >= 14 ? 'runs untouched' : 'reads CRM · writes tickets';
+      sub =
+        b >= 19
+          ? 'a week later · same work'
+          : b >= 14
+            ? 'runs untouched'
+            : 'reads CRM · writes tickets';
       if (on) tone = 'red';
       if (b >= 14) {
         tone = 'green';
@@ -371,16 +437,27 @@ export function nodeView(id: NodeId, b: number): NodeView {
                 ? 'run r-0412 · cancelled'
                 : b < 15
                   ? 'run r-0413 · fresh context'
-                  : 'run r-0413 · delivered';
+                  : b < 19
+                    ? 'run r-0413 · delivered'
+                    : b < 21
+                      ? 'run r-0420 · scratchpad read refused'
+                      : 'run r-0420 · delivered';
       if (on && b < 10) tone = 'red';
       if (b >= 15) tone = 'green';
       if (b >= 7 && b <= 9) tag = ['HELD', 'blue'];
       else if (b >= 10 && b <= 12) tag = ['CANCELLED', 'ink'];
       else if (b >= 13 && b <= 14) tag = ['REBUILDING', 'blue'];
+      else if (b >= 21) tag = ['r-0420 ✓', 'green'];
+      else if (b >= 20) tag = ['SO-1 · READ REFUSED', 'blue'];
       else if (b >= 15) tag = ['r-0413 ✓', 'green'];
       break;
     case 'scratch':
-      sub = b >= 11 ? 'isolated · read revoked' : 'not in manifest';
+      sub =
+        b >= 19
+          ? 'a week later · Support’s notes allowed'
+          : b >= 11
+            ? 'isolated · read revoked'
+            : 'not in manifest';
       visible = b >= 1;
       tone = on ? 'red' : 'amber';
       if (b >= 1) tag = ['UNDECLARED', 'amber'];
@@ -502,7 +579,8 @@ export function markers(b: number): Marker[] {
     m.push({ x, y, text, color, bg, pulse });
   if (b >= 2 && b <= 4) mk(375, 300, 'undeclared write · #09', C.amber, C.amberBg);
   if (b >= 5 && b <= 10) mk(640, 440, 'route closes · #12', C.red, C.redBg);
-  if (b >= 11) mk(660, 455, 'read revoked · #18', C.ink, C.card);
+  if (b >= 11 && b < 20) mk(660, 455, 'read revoked · #18', C.ink, C.card);
+  if (b >= 20) mk(660, 455, '✕ read refused · SO-1 · #27', C.red, C.redBg, b === 20);
   if (b >= 7 && b <= 11) mk(900, 470, 'HELD · H-2', C.blue, C.blueBg, b <= 9);
   if (b >= 12 && b <= 14) mk(872, 470, '✕ send rejected · epoch 3 < 4', C.red, C.redBg);
   return m;
@@ -600,6 +678,17 @@ export function runs(b: number) {
       color: b >= 15 ? C.green : C.blue,
       state:
         b >= 15 ? 'delivered from approved sources · #22' : 'running · approved sources only · #20',
+    });
+  if (b >= 19)
+    out.push({
+      id: 'r-0420',
+      color: b >= 21 ? C.green : C.blue,
+      state:
+        b >= 21
+          ? 'a week later · delivered, nothing paused · #28'
+          : b >= 20
+            ? 'a week later · scratchpad read refused under SO-1 · #27'
+            : 'a week later · running under D-07',
     });
   return out;
 }
@@ -758,3 +847,21 @@ export const CHECKS = [
   ['Replacement completed', 'r-0413 delivered under D-07 epoch 4 · #22'],
   ['Unrelated work survived', 'Support runs untouched · Priya’s edit preserved · #21'],
 ] as const;
+
+// ---------------------------------------------------------------------------
+// Remember: words to a standing order
+
+const ORDER_LINES = [
+  'Standing order SO-1 · agents that send outside never read undeclared storage',
+  'Checked as NoUndeclaredReads(senders)',
+  'Because of PS-001 · run r-0412 · 4 calls cited',
+  'Holds in every later session until you revoke it',
+];
+
+/** A standing order starts "from now on" (or similar) and is about undeclared storage. */
+export function parseOrder(text: string): { ok: boolean; lines: string[] } {
+  const ok =
+    /\b(from now on|going forward|from today|always)\b/i.test(text) &&
+    /(declar|undeclared|nobody)/i.test(text);
+  return { ok, lines: ORDER_LINES };
+}

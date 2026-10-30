@@ -9,6 +9,8 @@ from __future__ import annotations
 
 from sentra.conditions.predicates import ManifestUnchanged, NoUndeclaredPath, ReadsOnlyFrom
 from sentra.decisions.models import ConditionProposal, DecisionProposal
+from sentra.gateway.state import StandingRule
+from sentra.standing.models import StandingOrder
 
 INTERPRETED_BY = {
     "grammar": "grammar (no model call)",
@@ -56,4 +58,25 @@ def read_back_decision(
     if proposal.hold_rule:
         lines.append("If the condition fails, I will hold this approval's queued sends.")
     lines.append(f"Interpreted by: {INTERPRETED_BY.get(interpreted_by, interpreted_by)}")
+    return "\n".join(lines)
+
+
+def read_back_standing_order(
+    order: StandingOrder, rule: StandingRule, labels: dict[str, str]
+) -> str:
+    """The order, what it covers in this estate today, and the incident it came from."""
+    actors = ", ".join(sorted(_label(labels, a) for a in rule.actors)) or "no agent"
+    resources = ", ".join(sorted(_label(labels, r) for r in rule.resources)) or "no storage"
+    lines = [
+        f"I will keep this standing order: {order.plain}.",
+        f"Checked as: {order.rule.typed()}.",
+        f"Today it covers: {actors} reading {resources}.",
+    ]
+    p = order.provenance
+    if p.finding_id is not None:
+        lines.append(f"Why: {p.rule_id} in session {p.session_id}, citing {len(p.evidence)} calls.")
+    lines.append("It holds in every later session until you revoke it.")
+    lines.append(
+        f"Interpreted by: {INTERPRETED_BY.get(order.interpreted_by, order.interpreted_by)}"
+    )
     return "\n".join(lines)

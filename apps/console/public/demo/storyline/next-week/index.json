@@ -1,0 +1,35 @@
+{
+ "frames": [
+  {
+   "file": "beat-00.json",
+   "n": 0,
+   "title": "Seed"
+  },
+  {
+   "file": "beat-01.json",
+   "n": 1,
+   "title": "Approve"
+  },
+  {
+   "file": "beat-02.json",
+   "n": 2,
+   "title": "Support works"
+  },
+  {
+   "file": "beat-03.json",
+   "n": 3,
+   "title": "Reporting works"
+  },
+  {
+   "file": "beat-04.json",
+   "n": 4,
+   "title": "Read refused"
+  },
+  {
+   "file": "beat-05.json",
+   "n": 5,
+   "title": "Report goes out"
+  }
+ ],
+ "note": "Recorded from the SENTRA service with interpretation off. Not a live session."
+}

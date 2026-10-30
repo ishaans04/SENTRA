@@ -6,19 +6,23 @@ import {
   EVENTS,
   LAST_BEAT,
   NODES,
+  REMEMBER_BEAT,
+  REMEMBER_DICTATION,
+  VERIFIED_BEAT,
   beatOfEvent,
   chapterFill,
   chapterOf,
   edgeViews,
   nodeView,
   parse,
+  parseOrder,
   recoverySteps,
   visibleCount,
 } from './story';
 
 describe('the recorded session', () => {
   it('shows every event by the last beat, and the baseline at beat 0', () => {
-    expect(EVENTS).toHaveLength(23);
+    expect(EVENTS).toHaveLength(28);
     expect(visibleCount(0)).toBe(7);
     expect(visibleCount(LAST_BEAT)).toBe(EVENTS.length);
   });
@@ -26,17 +30,22 @@ describe('the recorded session', () => {
   it('jumps from a ledger mark to the beat that revealed it', () => {
     expect(beatOfEvent(0)).toBe(0);
     expect(beatOfEvent(6)).toBe(0);
-    expect(beatOfEvent(22)).toBe(LAST_BEAT);
+    expect(beatOfEvent(22)).toBe(VERIFIED_BEAT);
+    expect(beatOfEvent(27)).toBe(LAST_BEAT);
     for (let i = 7; i < EVENTS.length; i++) expect(visibleCount(beatOfEvent(i))).toBe(i + 1);
   });
 
   it('maps beats to chapters and fills each bar once', () => {
     expect(chapterOf(0)).toBe(0);
     expect(chapterOf(8)).toBe(4);
+    expect(chapterOf(VERIFIED_BEAT)).toBe(6);
+    expect(chapterOf(REMEMBER_BEAT)).toBe(7);
     expect(chapterOf(LAST_BEAT)).toBe(CHAPTERS.length - 1);
+    expect(CHAPTERS).toHaveLength(9);
     expect(chapterFill(0, 0)).toBe(1);
     expect(chapterFill(6, 15)).toBe(0);
-    expect(chapterFill(6, LAST_BEAT)).toBe(1);
+    expect(chapterFill(6, VERIFIED_BEAT)).toBe(1);
+    expect(chapterFill(8, LAST_BEAT)).toBe(1);
   });
 
   it('never shows internal code names', () => {
@@ -94,5 +103,28 @@ describe('the read-back', () => {
   it('keeps the human edit as a conflict, never an overwrite', () => {
     const steps = recoverySteps(parse(DICTATION), 14);
     expect(steps.find((s) => s.k === 'keep')?.state).toBe('conflict');
+  });
+});
+
+describe('the standing order', () => {
+  it('reads the suggested words back as a standing order', () => {
+    const order = parseOrder(REMEMBER_DICTATION);
+    expect(order.ok).toBe(true);
+    expect(order.lines[1]).toBe('Checked as NoUndeclaredReads(senders)');
+  });
+
+  it('keeps nothing for words that are not a standing order', () => {
+    expect(parseOrder('').ok).toBe(false);
+    expect(parseOrder('hello there').ok).toBe(false);
+    expect(parseOrder('from now on be nice').ok).toBe(false);
+  });
+
+  it('refuses the read a week later, so no route ever opens', () => {
+    const red = (b: number) => edgeViews(b).filter((e) => e.march);
+    expect(red(19)).toEqual([]);
+    expect(red(LAST_BEAT)).toEqual([]);
+    expect(nodeView('scratch', 19).sub).toBe('a week later · Support’s notes allowed');
+    expect(nodeView('reporting', LAST_BEAT).tag).toEqual(['r-0420 ✓', 'green']);
+    expect(EVENTS[26].note).toBe('REFUSED · standing order SO-1 · no route forms');
   });
 });

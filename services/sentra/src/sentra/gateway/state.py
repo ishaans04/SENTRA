@@ -56,6 +56,18 @@ class DenyRule:
         return actor == self.source and _EFFECT_AS_ACTION.get(tool.effect) == self.action
 
 
+@dataclass(frozen=True)
+class StandingRule:
+    """A standing order compiled against this estate: these actors never read these resources."""
+
+    order_id: str
+    actors: frozenset[str]
+    resources: frozenset[str]
+
+    def denies(self, actor: str | None, tool: ToolSpec) -> bool:
+        return tool.effect == "read" and actor in self.actors and tool.resource in self.resources
+
+
 @dataclass
 class GatewayState:
     runs: dict[str, RunState] = field(default_factory=dict)
@@ -63,5 +75,7 @@ class GatewayState:
     #: only the decision service changes it.
     decisions: dict[str, Decision] = field(default_factory=dict)
     deny_rules: list[DenyRule] = field(default_factory=list)
+    #: Standing orders the operator confirmed, in this session or an earlier one.
+    standing_rules: list[StandingRule] = field(default_factory=list)
     #: (actor, tool, target) triples a person approved for one destructive call each.
     live_approvals: set[tuple[str, str, str]] = field(default_factory=set)

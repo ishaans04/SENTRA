@@ -134,6 +134,10 @@ def snapshot(session: Session) -> dict[str, Any]:
         ],
         "record": record,
         "deliveries": list(s.world.deliveries),
+        "storyline_name": s.storyline_name,
+        "standing_orders": [
+            o.model_dump() | {"read_back": s.order_read_back(o.id)} for o in s.orders.orders()
+        ],
         "last_seq": events[-1].seq if events else 0,
     }
 

@@ -181,3 +181,57 @@ async def test_human_edit_endpoint(client: httpx.AsyncClient) -> None:
 async def test_engine_routes_stay_available(client: httpx.AsyncClient) -> None:
     response = await client.get("/api/v1/health")
     assert response.status_code == 200
+
+
+STANDING_ORDER = (
+    "From now on, an agent that can send outside never reads from a store nobody declared."
+)
+
+
+async def test_standing_order_over_http(client: httpx.AsyncClient) -> None:
+    await client.post("/api/session")
+    for _ in range(12):  # through beat 14, the closed record
+        assert (await client.post("/api/story/step")).status_code == 200
+    response = await client.post("/api/standing-orders/interpret", json={"text": STANDING_ORDER})
+    assert response.status_code == 200
+    body = response.json()
+    assert body["order"]["id"] == "SO-1"
+    assert "Checked as: NoUndeclaredReads(senders)." in body["read_back"]
+    confirmed = await client.post("/api/standing-orders/SO-1/confirm")
+    assert confirmed.json()["order"]["status"] == "active"
+
+    # The storyline's own beats leave the operator's confirmed order alone.
+    state = (await client.post("/api/story/play")).json()
+    assert state["at_end"]
+    assert [o["id"] for o in state["standing_orders"]] == ["SO-1"]
+
+    # A new session for the same visitor is next week: the order comes with it.
+    state = (await client.post("/api/story/reset")).json()
+    assert state["storyline_name"] == "next-week"
+    assert state["standing_orders"][0]["status"] == "active"
+    state = (await client.post("/api/story/play")).json()
+    assert [a["order_id"] for a in state["alerts"]] == ["SO-1"]
+    assert state["deliveries"][0]["item"] == "draft-1"
+
+
+async def test_standing_order_bad_verb_and_state(client: httpx.AsyncClient) -> None:
+    await client.post("/api/session")
+    await client.post("/api/standing-orders/interpret", json={"text": STANDING_ORDER})
+    bad = await client.post("/api/standing-orders/SO-1/frobnicate")
+    assert (bad.status_code, bad.json()["error"]) == (404, "not_found")
+    early = await client.post("/api/standing-orders/SO-1/revoke")
+    assert (early.status_code, early.json()["error"]) == (409, "not_allowed")
+    missing = await client.post("/api/standing-orders/SO-9/confirm")
+    assert (missing.status_code, missing.json()["error"]) == (404, "not_found")
+    unclear = await client.post("/api/standing-orders/interpret", json={"text": "be careful"})
+    assert (unclear.status_code, unclear.json()["error"]) == (422, "not_understood")
+
+
+async def test_new_visitor_starts_with_no_orders(client: httpx.AsyncClient) -> None:
+    await client.post("/api/session")
+    await client.post("/api/standing-orders/interpret", json={"text": STANDING_ORDER})
+    await client.post("/api/standing-orders/SO-1/confirm")
+    other = httpx.AsyncClient(transport=client._transport, base_url="http://sentra.local")  # noqa: SLF001
+    state = (await other.post("/api/session")).json()
+    assert state["standing_orders"] == []
+    assert state["storyline_name"] == "storyline"

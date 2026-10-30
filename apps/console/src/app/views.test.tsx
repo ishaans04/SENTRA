@@ -53,6 +53,14 @@ describe('landing page', () => {
     expect(screen.getByText(/Only the report was redone/)).toBeInTheDocument();
   });
 
+  it('names four things it does, the fourth being Remember', () => {
+    render(<Landing />);
+    expect(screen.getByText('Four things. Done carefully.')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /Remember/ }));
+    expect(screen.getByText('REMEMBER · LIVE')).toBeInTheDocument();
+    expect(screen.getByText(/Refused before it started/)).toBeInTheDocument();
+  });
+
   it('shuts everything down, or pauses only the report', () => {
     render(<Landing />);
     fireEvent.click(screen.getByRole('button', { name: 'Shut everything down' }));
@@ -70,6 +78,20 @@ describe('guided walkthrough', () => {
     expect(screen.getByText('Something new shows up')).toBeInTheDocument();
     expect(document.body.textContent).not.toMatch(INTERNAL_NAMES);
   });
+
+  it('keeps a standing order, then shows the week after', () => {
+    vi.useFakeTimers();
+    render(<GuidedDemo />);
+    fireEvent.click(screen.getByRole('button', { name: /Step 8: Remember it for next time/ }));
+    expect(screen.getByText('STEP 08 OF 08')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Speak →' }));
+    expect(screen.getByText(/never reads from a store nobody declared/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Yes, keep it →' }));
+    act(() => vi.advanceTimersByTime(2000));
+    expect(screen.getByText('A WEEK LATER')).toBeInTheDocument();
+    expect(screen.getByText(/Turned away at the gateway/)).toBeInTheDocument();
+    expect(document.body.textContent).not.toMatch(INTERNAL_NAMES);
+  });
 });
 
 describe('console', () => {
@@ -81,6 +103,30 @@ describe('console', () => {
     expect(screen.getByText('The operator decides, in plain words')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /Confirm read-back and run/ }));
     expect(screen.getByText(/CONFIRMED #16/)).toBeInTheDocument();
+    expect(document.body.textContent).not.toMatch(INTERNAL_NAMES);
+  });
+
+  it('remembers the incident, then refuses the read a week later', () => {
+    vi.useFakeTimers();
+    render(<Console />);
+    fireEvent.click(screen.getByRole('button', { name: /08 Remember/ }));
+    expect(screen.getByText('Remembered for next time')).toBeInTheDocument();
+    const box = screen.getByRole('textbox', { name: /Tell SENTRA to remember/ });
+    fireEvent.change(box, { target: { value: 'hello there' } });
+    const keep = screen.getByRole('button', { name: /Keep this standing order/ });
+    expect(keep).toBeDisabled();
+    fireEvent.change(box, {
+      target: {
+        value:
+          'From now on, an agent that can send outside never reads from a store nobody declared.',
+      },
+    });
+    fireEvent.click(keep);
+    expect(screen.getByText(/CONFIRMED · SO-1/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /09 Next week/ }));
+    expect(screen.getByText('A week later, nothing to stop')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Next event' }));
+    expect(screen.getAllByText(/REFUSED · standing order SO-1/).length).toBeGreaterThan(0);
     expect(document.body.textContent).not.toMatch(INTERNAL_NAMES);
   });
 

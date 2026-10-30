@@ -21,6 +21,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from sentra.scenario import Session
+from sentra.standing.book import StandingOrderBook
 
 DEFAULT_FIXTURES = Path(__file__).resolve().parents[5] / "fixtures" / "reporting"
 
@@ -77,6 +78,9 @@ class SessionManager:
         *replacing* is the visitor's current session, if any: it is closed (its
         open streams end) and its slot reused. A new visitor is refused rather
         than evicting someone who is still using the site.
+
+        The visitor's standing orders come with them. A visitor who has kept an
+        order starts the week after the incident, ``next-week.yaml``.
         """
         self._evict()
         now = self.clock()
@@ -91,7 +95,10 @@ class SessionManager:
             raise SessionsFull()
         self._creates.append(now)
         session_id = self.new_id()
-        sandbox = Sandbox(Session(session_id, self.fixtures_dir), last_used=now)
+        orders = old.session.orders if old is not None else StandingOrderBook()
+        storyline = "next-week.yaml" if orders.active() else "storyline.yaml"
+        session = Session(session_id, self.fixtures_dir, orders=orders, storyline=storyline)
+        sandbox = Sandbox(session, last_used=now)
         self._sandboxes[session_id] = sandbox
         return sandbox
 

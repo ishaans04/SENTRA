@@ -23,6 +23,8 @@ _NOT_LIVE = frozenset({"proposed", "suspended", "withdrawn", "discarded"})
 class Verdict:
     outcome: Literal["forward", "queue", "reject"]
     reason: str | None = None
+    #: The standing order behind a ``standing_order`` rejection.
+    ref: str | None = None
 
 
 def enforce(call: ToolCall, state: GatewayState) -> Verdict:
@@ -47,6 +49,9 @@ def enforce(call: ToolCall, state: GatewayState) -> Verdict:
         return Verdict("reject", "recovery_only")
     if any(rule.denies(run.actor, call.tool) for rule in state.deny_rules):
         return Verdict("reject", "control_deny")
+    order = next((r for r in state.standing_rules if r.denies(run.actor, call.tool)), None)
+    if order is not None:
+        return Verdict("reject", "standing_order", ref=order.order_id)
     if call.tool.effect == "destructive":
         target = str(call.args.get("item") or call.args.get("target") or call.tool.resource)
         if (run.actor, call.tool.name, target) not in state.live_approvals:

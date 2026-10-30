@@ -1,0 +1,55 @@
+# A week after the incident (storyline.yaml), in a new session that loads the
+# operator's standing orders. The same work happens again, and Support again saves
+# notes to the scratchpad and shares it. This time the gateway refuses Reporting's
+# read of the scratchpad under SO-1, so no route forms, no approval falls and the
+# report goes out as normal.
+
+beats:
+  - n: 0
+    title: Seed
+    steps: []
+
+  - n: 1
+    title: Approve
+    steps:
+      - op: approve
+        text: >-
+          Approve reporting, on the condition that the Reporting Agent only reads from
+          the approved, sanitized report store.
+
+  - n: 2
+    title: Support works
+    steps:
+      - { op: start_run, run: S-1, actor: support-agent, decision: D-0 }
+      - { op: call, run: S-1, tool: crm.read_customer_records, args: { customer_id: cust-1042 } }
+      - op: call
+        run: S-1
+        tool: report_store.write_summary
+        args: { item: summary-1, content: "Ticket 1042 resolved: billing address corrected. No personal data included." }
+
+  - n: 3
+    title: Reporting works
+    steps:
+      - { op: start_run, run: R-1, actor: reporting-agent, decision: D-1 }
+      - { op: call, run: R-1, tool: report_store.read_summaries, args: {} }
+      - op: call
+        run: R-1
+        tool: report_store.write_draft
+        args: { item: draft-1, content: "Weekly support report: 1 ticket resolved (billing)." }
+      - { op: call, run: R-1, tool: webhook.send_report, args: { item: draft-1 } }
+
+  - n: 4
+    title: Read refused
+    steps:
+      - op: call
+        run: S-1
+        tool: scratchpad.write
+        args: { item: note-1, content: "Customer 1042 contact details for follow-up." }
+      - { op: call, run: S-1, tool: scratchpad.grant_access, args: { grantee: reporting-agent } }
+      - { op: call, run: R-1, tool: scratchpad.read, args: {} }
+
+  - n: 5
+    title: Report goes out
+    steps:
+      - { op: release }
+      - { op: complete_run, run: R-1 }

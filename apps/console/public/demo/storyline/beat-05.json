@@ -1411,6 +1411,7 @@
    }
   ],
   "session_id": "s-recorded",
+  "standing_orders": [],
   "steps": [],
   "storyline": [
    {
@@ -1472,7 +1473,18 @@
     "done": false,
     "n": 14,
     "title": "Record"
+   },
+   {
+    "done": false,
+    "n": 15,
+    "title": "Remember"
+   },
+   {
+    "done": false,
+    "n": 16,
+    "title": "Keep it"
    }
-  ]
+  ],
+  "storyline_name": "storyline"
  }
 }

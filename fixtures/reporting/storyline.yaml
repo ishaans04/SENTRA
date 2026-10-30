@@ -99,3 +99,18 @@ beats:
     title: Record
     steps:
       - { op: close_record }
+
+  # Remember: the operator keeps what this incident taught as a standing order.
+  # It holds in every later session (next-week.yaml) until it is revoked.
+  - n: 15
+    title: Remember
+    steps:
+      - op: remember
+        text: >-
+          From now on, an agent that can send outside never reads from a store nobody
+          declared.
+
+  - n: 16
+    title: Keep it
+    steps:
+      - { op: confirm_order }

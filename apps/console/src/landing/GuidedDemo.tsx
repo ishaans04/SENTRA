@@ -1,5 +1,6 @@
 import { memo, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 
+import { REMEMBER_DICTATION } from '../console/story';
 import { Brand } from '../shared/Brand';
 import { useTimers } from '../shared/hooks';
 import { navigate } from '../shared/route';
@@ -37,6 +38,22 @@ const STEPS = [
     'All clear',
     'The leak path is closed. A fresh report went out safely. Support never stopped working.',
   ],
+  [
+    'Remember it for next time',
+    `Say what should always hold. ${BRAND} reads it back with the incident behind it, and keeps it only when you say yes.`,
+  ],
+] as const;
+
+const KEEPS = [
+  'Agents that send outside never read storage nobody declared',
+  'Because of today: the notepad route that opened a way out',
+  'Holds every week from now on, until you take it back',
+] as const;
+
+const WEEK_LATER = [
+  ['Support saved notes to the notepad again', 'Still allowed. Support can’t send anything out.'],
+  ['Reporting tried to read the notepad', 'Turned away at the gateway, citing your words.'],
+  ['The weekly report went out on time', 'Nothing was paused. Nobody had to step in.'],
 ] as const;
 
 const FIX = [
@@ -135,8 +152,8 @@ const isRisk = (st: number, sub: number) => st >= 3 && (st < 6 || (st === 6 && s
 function Edges({ st, sub }: { st: number; sub: number }) {
   const out: ReactNode[] = [];
   const risk = isRisk(st, sub);
-  const cutF = (st === 6 && sub >= 2) || st === 7;
-  const fresh = (st === 6 && sub >= 4) || st === 7;
+  const cutF = (st === 6 && sub >= 2) || st >= 7;
+  const fresh = (st === 6 && sub >= 4) || st >= 7;
   const paused = st >= 4 && st < 7;
   const packets = (key: string, d: string, color: string, n: number, dur: number) => {
     for (let i = 0; i < n; i++)
@@ -212,7 +229,7 @@ function Edges({ st, sub }: { st: number; sub: number }) {
       n = 3;
     }
     if (id === 'c' && st === 3) n = 0;
-    if (id === 'd' && st === 7) {
+    if (id === 'd' && st >= 7) {
       stroke = C.green;
       w = 2;
       pc = C.green;
@@ -306,6 +323,13 @@ const DemoMap = memo(function DemoMap({
     });
   if (st === 6 && sub === 4)
     marks.push({ pt: [mC[0] - 40, mC[1] - 30], text: 'Fresh start from safe data', tone: 'green' });
+  if (st === 8 && sub >= 3)
+    marks.push({
+      pt: [mF[0], mF[1] + 30],
+      text: 'Read refused · your standing order',
+      tone: 'red',
+      anim: 'pop .3s both, shake .5s .3s',
+    });
 
   return (
     <div className="gd-map">
@@ -359,31 +383,37 @@ const DemoMap = memo(function DemoMap({
             glow = 'none';
             fill = C.card;
           }
-          if ((st === 6 && sub >= 4) || st === 7) {
-            note = st === 7 ? 'New report sent safely' : 'Building a new report';
+          if ((st === 6 && sub >= 4) || st >= 7) {
+            note =
+              st === 8 && sub >= 3
+                ? 'A week later · sent, nothing paused'
+                : st >= 7
+                  ? 'New report sent safely'
+                  : 'Building a new report';
             noteColor = C.green;
             color = C.green;
             glow = '0 0 24px oklch(0.5 0.11 155 / .22)';
             fill = C.greenBg;
           }
         }
-        if (id === 'notepad' && ((st === 6 && sub >= 2) || st === 7)) {
-          note = 'Reporting can’t read it now';
+        if (id === 'notepad' && ((st === 6 && sub >= 2) || st >= 7)) {
+          note =
+            st === 8 && sub >= 3 ? 'Support’s notes still allowed' : 'Reporting can’t read it now';
           color = 'oklch(0.74 0.14 75 / .6)';
           glow = 'none';
           fill = C.card;
         }
-        if (id === 'summ' && ((st === 6 && sub >= 5) || st === 7)) {
+        if (id === 'summ' && ((st === 6 && sub >= 5) || st >= 7)) {
           note = 'Priya’s edit kept';
           noteColor = C.green;
           color = C.green;
           glow = '0 0 20px oklch(0.5 0.11 155 / .2)';
         }
-        if (id === 'support' && st === 7) {
+        if (id === 'support' && st >= 7) {
           note = 'Never stopped';
           noteColor = C.green;
         }
-        if (id === 'out' && st === 7) color = C.green;
+        if (id === 'out' && st >= 7) color = C.green;
         if (sel === id)
           glow = glow === 'none' ? `0 0 0 2px ${C.ink}` : `${glow}, 0 0 0 2px ${C.ink}`;
         const radius = n.g === 'agent' ? '50%' : '12px';
@@ -474,10 +504,10 @@ export function GuidedDemo() {
   );
 
   const goStep = (raw: number) => {
-    const n = Math.max(1, Math.min(7, raw));
+    const n = Math.max(1, Math.min(STEPS.length, raw));
     clear();
     setStep(n);
-    setSub(n > 6 ? 5 : 0);
+    setSub(n === 7 ? 5 : 0);
     setSel(null);
     if (n <= 5) voice.reset();
     else voice.finish();
@@ -492,7 +522,15 @@ export function GuidedDemo() {
       return;
     }
     if (step === 6 && sub < 5) return;
-    if (step < 7) goStep(step + 1);
+    if (step === 8) {
+      if (sub === 0) setSub(1);
+      else if (sub === 1) {
+        setSub(2);
+        after(1400, () => setSub(3));
+      }
+      return;
+    }
+    goStep(step + 1);
   };
   const keyNext = useRef(next);
   keyNext.current = next;
@@ -509,7 +547,7 @@ export function GuidedDemo() {
 
   const st = step;
   const [title, body] = STEPS[st - 1];
-  const nextOff = (st === 6 && sub < 5) || st === 7;
+  const nextOff = (st === 6 && sub < 5) || (st === 8 && sub >= 2);
   const nextLabel =
     st === 5
       ? voice.phase === 'idle'
@@ -521,7 +559,17 @@ export function GuidedDemo() {
         ? sub < 5
           ? 'Working…'
           : 'See the result →'
-        : 'Next →';
+        : st === 7
+          ? 'Remember this →'
+          : st === 8
+            ? sub === 0
+              ? 'Speak →'
+              : sub === 1
+                ? 'Yes, keep it →'
+                : sub === 2
+                  ? 'Keeping…'
+                  : 'Kept'
+            : 'Next →';
   const noLonger = st >= 4 && st <= 5;
 
   return (
@@ -622,7 +670,7 @@ export function GuidedDemo() {
                 color: C.blue,
               }}
             >
-              STEP 0{st} OF 07
+              STEP 0{st} OF 0{STEPS.length}
             </span>
             <h2
               style={{
@@ -913,19 +961,107 @@ export function GuidedDemo() {
                   type="button"
                   className="btn-ghost"
                   style={{ height: 46, padding: '0 20px', fontSize: 15 }}
-                  onClick={() => navigate('console')}
-                >
-                  Open the full console →
-                </button>
-                <button
-                  type="button"
-                  className="btn-ghost"
-                  style={{ height: 46, padding: '0 20px', fontSize: 15 }}
                   onClick={() => navigate('home')}
                 >
                   Back to home
                 </button>
               </div>
+            </div>
+          )}
+
+          {st === 8 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div className="gd-card" style={{ animation: 'up .5s both' }}>
+                <span
+                  className="mono"
+                  style={{ fontSize: 11, letterSpacing: '.1em', color: C.mute }}
+                >
+                  {sub === 0 ? 'SAY SOMETHING LIKE' : 'YOU SAID'}
+                </span>
+                <span
+                  style={{
+                    font: '500 18px/1.4 var(--font-display)',
+                    letterSpacing: '-.01em',
+                    color: sub === 0 ? C.mute : C.ink,
+                    transition: 'color .5s',
+                  }}
+                >
+                  “{REMEMBER_DICTATION}”
+                </span>
+                {sub >= 1 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <span
+                      className="mono"
+                      style={{ fontSize: 11, letterSpacing: '.1em', color: C.blue }}
+                    >
+                      {sub >= 2 ? `${BRAND} KEPT` : `${BRAND} WILL KEEP`}
+                    </span>
+                    {KEEPS.map((t, i) => (
+                      <span
+                        key={t}
+                        style={{
+                          font: '400 14px/1.45 var(--font-sans)',
+                          animation: `up .4s ${i * 0.1}s both`,
+                        }}
+                      >
+                        {sub >= 2 ? '✓ ' : '· '}
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+              {sub >= 3 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  <span
+                    className="mono"
+                    style={{ fontSize: 11, letterSpacing: '.1em', color: C.mute }}
+                  >
+                    A WEEK LATER
+                  </span>
+                  {WEEK_LATER.map(([t, sb], i) => (
+                    <div
+                      key={t}
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 3,
+                        padding: '10px 0',
+                        borderBottom: `1px solid ${C.ruleSoft}`,
+                        animation: `up .45s ${i * 0.15}s both`,
+                      }}
+                    >
+                      <span style={{ font: '600 15px/1.35 var(--font-sans)' }}>{t}</span>
+                      <span
+                        style={{
+                          font: '400 13.5px/1.45 var(--font-sans)',
+                          color: i === 1 ? C.red : C.mute,
+                        }}
+                      >
+                        {sb}
+                      </span>
+                    </div>
+                  ))}
+                  <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', paddingTop: 10 }}>
+                    <button
+                      type="button"
+                      className="btn-primary"
+                      style={{ height: 46, padding: '0 20px', fontSize: 15 }}
+                      onClick={() => goStep(1)}
+                    >
+                      ↺ Watch again
+                    </button>
+                    <button
+                      type="button"
+                      className="btn-ghost"
+                      style={{ height: 46, padding: '0 20px', fontSize: 15 }}
+                      onClick={() => navigate('console')}
+                    >
+                      Open the full console →
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

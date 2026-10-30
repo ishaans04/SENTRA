@@ -28,6 +28,7 @@ from sentra.interpret.providers import FailoverChain, ProviderError
 from sentra.interpret.recorded import RecordedResponses
 from sentra.recovery.plan import Interpreter as Source
 from sentra.recovery.plan import PlanStep, RecoveryPlan, complete_plan, validate
+from sentra.standing.models import StandingOrderProposal
 
 if TYPE_CHECKING:
     from pydantic_ai.models import Model
@@ -39,6 +40,12 @@ os.environ.setdefault("PYDANTIC_AI_NO_BANNER", "1")
 Mode = Literal["chain", "grammar", "off"]
 _MODES: tuple[Mode, ...] = ("chain", "grammar", "off")
 _STEPS: TypeAdapter[list[PlanStep]] = TypeAdapter(list[PlanStep])
+Kind = Literal["recovery", "approval", "standing_order"]
+_WHAT: dict[str, str] = {
+    "recovery": "a recovery instruction",
+    "approval": "an approval",
+    "standing_order": "a standing order",
+}
 
 
 def configured_mode() -> Mode:
@@ -101,11 +108,12 @@ class Interpreter:
     async def approval(self, text: str) -> tuple[DecisionProposal, Source]:
         return await self._interpret("approval", text)
 
+    async def standing_order(self, text: str) -> tuple[StandingOrderProposal, Source]:
+        return await self._interpret("standing_order", text)
+
     # -- the chain ------------------------------------------------------------
 
-    async def _interpret(
-        self, kind: Literal["recovery", "approval"], text: str
-    ) -> tuple[Any, Source]:
+    async def _interpret(self, kind: Kind, text: str) -> tuple[Any, Source]:
         self.last_failures = []
         if self.mode == "off":
             raw = self.recorded.get(kind, text)
@@ -131,9 +139,9 @@ class Interpreter:
             result = await chain.run(text)
         except ProviderError:
             self.last_failures = chain.failures
-            what = "a recovery instruction" if kind == "recovery" else "an approval"
             raise ValueError(
-                f"I could not read that as {what}. Try one of the suggested phrasings, or type it."
+                f"I could not read that as {_WHAT[kind]}. "
+                "Try one of the suggested phrasings, or type it."
             ) from None
         self.last_failures = chain.failures
         used = chain.last_used or "grammar"
@@ -151,6 +159,8 @@ class Interpreter:
         try:
             if kind == "recovery":
                 steps = _STEPS.validate_python(raw["steps"] if isinstance(raw, dict) else raw)
+            elif kind == "standing_order":
+                order = StandingOrderProposal.model_validate(raw)
             else:
                 proposal = DecisionProposal.model_validate(raw)
         except (ValidationError, KeyError, TypeError) as exc:
@@ -168,6 +178,12 @@ class Interpreter:
                 raise ProviderError(f"{name} proposed a plan that does not validate: {messages}")
             return steps
         nodes = {n.id for n in self.session.bridge.manifest.nodes}
+        if kind == "standing_order":
+            if order.rule.actor is not None and order.rule.actor not in nodes:
+                raise ProviderError(
+                    f"{name} named something that is not in this estate: {order.rule.actor}"
+                )
+            return order
         names = {proposal.actor}
         for condition in proposal.conditions:
             data = condition.predicate.model_dump()
@@ -193,6 +209,12 @@ class Interpreter:
                 "Turn the operator's recovery instruction into plan steps. Use only these step "
                 "kinds: CANCEL_RUN, HOLD_ACTION, APPLY_CONTROL, REVOKE_ACCESS, COMPENSATE, "
                 "REBUILD, PRESERVE, ESCALATE. Use only the ids listed below."
+            )
+        elif kind == "standing_order":
+            task = (
+                "Turn the operator's standing order into a NoUndeclaredReads rule and restate "
+                "it in plain words. Leave actor empty for every agent that can send outside; "
+                "otherwise use an agent id listed below."
             )
         else:
             task = (
@@ -225,6 +247,8 @@ class _GrammarProvider(_Provider):
         session = self.interpreter.session
         if self.kind == "recovery":
             result: Any = session.grammar.parse_recovery(text, session)
+        elif self.kind == "standing_order":
+            result = session.grammar.parse_standing_order(text)
         else:
             result = session.grammar.parse_approval(text)
         if result is None:
@@ -242,7 +266,12 @@ class _ModelProvider(_Provider):
     async def run(self, text: str) -> Any:
         from pydantic_ai import Agent
 
-        output: type[BaseModel] = RecoveryDraft if self.kind == "recovery" else DecisionProposal
+        outputs: dict[str, type[BaseModel]] = {
+            "recovery": RecoveryDraft,
+            "approval": DecisionProposal,
+            "standing_order": StandingOrderProposal,
+        }
+        output = outputs[self.kind]
         agent = Agent(
             self.model,
             output_type=output,

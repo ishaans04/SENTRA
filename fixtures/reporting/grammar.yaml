@@ -73,3 +73,31 @@ confirmations: ["confirm", "confirmed", "yes", "yep", "run it", "go ahead", "do 
 
 # Fillers removed wherever they appear, not only at the start.
 fillers_anywhere: ["um", "uh", "erm", "hmm", "please"]
+
+# Standing orders: "<opener> <who> <never> <undeclared storage>". A sender phrase
+# means every agent the manifest lets send outside; an agent name means that agent.
+standing_orders:
+  openers: [from now on, going forward, from today, always]
+  never:
+    - never reads from
+    - never read from
+    - must never read from
+    - may never read from
+    - must not read from
+    - may not read from
+    - can never read from
+  senders:
+    - an agent that can send outside
+    - any agent that can send outside
+    - agents that can send outside
+    - an agent that sends outside
+    - any agent that sends outside
+    - agents that send outside
+  undeclared:
+    - a store nobody declared
+    - a store that nobody declared
+    - storage nobody declared
+    - anything nobody declared
+    - undeclared storage
+    - an undeclared store
+    - undeclared stores

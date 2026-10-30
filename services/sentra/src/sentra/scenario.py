@@ -4,6 +4,11 @@ Each visitor gets their own ``Session`` (PRD §8.14). The storyline in
 ``storyline.yaml`` drives it beat by beat; ``run_to(n)`` performs every beat up
 to and including *n*, in order.
 
+Standing orders outlive a session. A session is handed the operator's book of
+orders, records each active one as ``standing_order.loaded`` before anything
+else happens, and installs it at the gateway. ``next-week.yaml`` is the
+storyline for the session after the incident, run with that book.
+
 The session is also where a gateway call meets the engine: every recorded call goes
 to the bridge, and a new finding becomes ``finding.raised`` plus
 ``containment.proposed`` in the same ledger, citing the calls it rests on.
@@ -20,15 +25,18 @@ import yaml
 from sentra.agents.scripted import ScriptedAgent
 from sentra.clock import LogicalClock
 from sentra.decisions.models import Decision, DecisionProposal
-from sentra.decisions.service import DecisionService
+from sentra.decisions.service import DecisionError, DecisionService
 from sentra.engine_bridge import EngineBridge
 from sentra.gateway.server import Gateway
 from sentra.gateway.state import RECOVERY_ACTOR, RunState
 from sentra.interpret.chain import Interpreter
 from sentra.interpret.grammar import Grammar
+from sentra.interpret.readback import read_back_standing_order
 from sentra.ledger import LedgerEvent, SessionLedger
 from sentra.recovery.plan import RecoveryPlan
 from sentra.recovery.service import RecoveryService
+from sentra.standing.book import StandingOrderBook
+from sentra.standing.models import OrderProvenance, StandingOrder, compile_order
 from sentra.tools.catalogue import Catalogue
 from sentra.world import World
 from sentra_core.domain.models import Finding
@@ -37,8 +45,17 @@ FindingListener = Callable[[Finding, LedgerEvent], None]
 
 
 class Session:
-    def __init__(self, session_id: str, fixtures_dir: str | Path) -> None:
+    def __init__(
+        self,
+        session_id: str,
+        fixtures_dir: str | Path,
+        *,
+        orders: StandingOrderBook | None = None,
+        storyline: str = "storyline.yaml",
+    ) -> None:
         self.session_id = session_id
+        #: Which storyline drives this session: ``storyline`` or ``next-week``.
+        self.storyline_name = Path(storyline).stem
         self.fixtures_dir = Path(fixtures_dir)
         self.ledger = SessionLedger(session_id, LogicalClock())
         self.world = World.seed()
@@ -56,10 +73,16 @@ class Session:
         self.plan_id: str | None = None
         #: Who drafted it: the storyline may confirm its own plans, never the operator's.
         self.plan_by = "story"
+        #: The operator's standing orders, shared with their later sessions.
+        self.orders = orders if orders is not None else StandingOrderBook()
+        #: The standing order the storyline is working on, and who proposed it.
+        self.order_id: str | None = None
+        self.order_by = "story"
+        self._order_alerts: set[tuple[str, str]] = set()
         self.known_decisions: dict[str, Any] = yaml.safe_load(
             (self.fixtures_dir / "decisions.yaml").read_text(encoding="utf-8")
         )
-        story = yaml.safe_load((self.fixtures_dir / "storyline.yaml").read_text(encoding="utf-8"))
+        story = yaml.safe_load((self.fixtures_dir / storyline).read_text(encoding="utf-8"))
         self.beats: list[dict[str, Any]] = story["beats"]
         self.position = 0
         self.ledger.append(
@@ -67,6 +90,11 @@ class Session:
             "scenario",
             payload={"manifest_version": self.bridge.manifest.version, "fictional": True},
         )
+        for order in self.orders.active():
+            self.ledger.append(
+                "standing_order.loaded", "scenario", payload={"order": order.model_dump()}
+            )
+            self.gateway.state.standing_rules.append(compile_order(order, self.bridge.manifest))
         for seeded in self.known_decisions["seeded"]:
             decision = self.decisions.propose(DecisionProposal(**seeded), "", producer="scenario")
             self.decisions.confirm(decision.id)
@@ -140,6 +168,17 @@ class Session:
             await self.recovery.verify(self._plan().id)
         elif op == "close_record":
             self.recovery.close_record(self._plan().id)
+        elif op == "remember":
+            if self.order_id is None:
+                await self.propose_standing_order(step["text"], by="story")
+        elif op == "confirm_order":
+            if self.order_id is None:
+                raise ValueError("No standing order has been proposed yet.")
+            order = self.orders.get(self.order_id)
+            if order.status == "proposed" and self.order_by == "operator":
+                raise ValueError("Confirm or discard the standing order read-back first.")
+            if order.status == "proposed":
+                self.confirm_standing_order(order.id)
         else:
             raise ValueError(f"Unknown storyline op {op!r}.")
 
@@ -173,6 +212,85 @@ class Session:
         self.plan_by = by
         return plan
 
+    # -- standing orders --------------------------------------------------------
+
+    async def propose_standing_order(self, text: str, by: str = "operator") -> StandingOrder:
+        """Interpret a dictated standing order, ready to read back. Nothing is enforced yet."""
+        proposal, used = await self.interpreter.standing_order(text)
+        order = StandingOrder(
+            id=self.orders.next_id(),
+            rule=proposal.rule,
+            plain=proposal.plain,
+            dictated_text=text,
+            provenance=self._provenance(),
+            interpreted_by=used,
+        )
+        self.orders.put(order)
+        self.ledger.append(
+            "standing_order.proposed",
+            "interpret",
+            payload={"order": order.model_dump(), "read_back": self.order_read_back(order.id)},
+        )
+        self.order_id = order.id
+        self.order_by = by
+        return order
+
+    def order_read_back(self, order_id: str) -> str:
+        order = self.orders.get(order_id)
+        labels = {n.id: n.label for n in self.bridge.manifest.nodes}
+        return read_back_standing_order(order, compile_order(order, self.bridge.manifest), labels)
+
+    def confirm_standing_order(self, order_id: str) -> StandingOrder:
+        """The operator confirmed the read-back: keep the order and enforce it from now on."""
+        order = self._order_in(order_id, "proposed", "confirmed")
+        order.status = "active"
+        self.orders.put(order)
+        self.gateway.state.standing_rules.append(compile_order(order, self.bridge.manifest))
+        self.ledger.append("standing_order.confirmed", "operator", payload={"order_id": order.id})
+        return order
+
+    def discard_standing_order(self, order_id: str) -> StandingOrder:
+        order = self._order_in(order_id, "proposed", "discarded")
+        order.status = "discarded"
+        self.orders.put(order)
+        self.ledger.append("standing_order.discarded", "operator", payload={"order_id": order.id})
+        return order
+
+    def revoke_standing_order(self, order_id: str) -> StandingOrder:
+        """Lift an order now, and for every later session."""
+        order = self._order_in(order_id, "active", "revoked")
+        order.status = "revoked"
+        self.orders.put(order)
+        self.gateway.state.standing_rules = [
+            r for r in self.gateway.state.standing_rules if r.order_id != order.id
+        ]
+        self.ledger.append("standing_order.revoked", "operator", payload={"order_id": order.id})
+        return order
+
+    def _order_in(self, order_id: str, status: str, verb: str) -> StandingOrder:
+        order = self.orders.get(order_id)
+        if order.status != status:
+            raise DecisionError(f"{order_id} is {order.status} and cannot be {verb}.")
+        return order
+
+    def _provenance(self) -> OrderProvenance:
+        """Where an order comes from: the last closed record, if the session has one."""
+        events = self.ledger.events()
+        now = events[-1].at if events else ""
+        record = next((e.payload for e in reversed(events) if e.kind == "record.closed"), None)
+        finding = record["finding"] if record else None
+        if record is None or finding is None:
+            return OrderProvenance(session_id=self.session_id, decided_at=now)
+        return OrderProvenance(
+            session_id=self.session_id,
+            decided_at=now,
+            finding_id=finding["id"],
+            rule_id=finding["rule_id"],
+            plan_id=record["plan_id"],
+            evidence=list(finding["cited_events"]),
+            runs=[str(e.run_id) for e in events if e.kind == "run.cancelled"],
+        )
+
     def _plan(self) -> RecoveryPlan:
         if self.plan_id is None:
             raise ValueError("No recovery plan has been drafted yet.")
@@ -194,6 +312,8 @@ class Session:
     # -- Engine ---------------------------------------------------------------
 
     def _on_call(self, call: LedgerEvent) -> None:
+        if call.payload.get("reason") == "standing_order":
+            self._order_alert(call)
         for finding in self.bridge.observe(call):
             raised = self.ledger.append(
                 "finding.raised",
@@ -210,3 +330,28 @@ class Session:
             )
             for listener in self.finding_listeners:
                 listener(finding, raised)
+
+    def _order_alert(self, call: LedgerEvent) -> None:
+        """One alert per order and run: who tried what, and the operator's own words."""
+        order_id = str(call.payload["order_id"])
+        if (order_id, str(call.run_id)) in self._order_alerts:
+            return
+        self._order_alerts.add((order_id, str(call.run_id)))
+        labels = {n.id: n.label for n in self.bridge.manifest.nodes}
+        order = self.orders.get(order_id)
+        actor = labels.get(str(call.actor), str(call.actor))
+        resource = labels.get(str(call.payload["resource"]), str(call.payload["resource"]))
+        self.ledger.append(
+            "alert.raised",
+            "sentra",
+            decision_id=call.decision_id,
+            cites=[call.event_id],
+            payload={
+                "order_id": order_id,
+                "text": (
+                    f"{actor} tried to read {resource}. Standing order {order_id} forbids it: "
+                    f"“{order.dictated_text}” The read was refused and nothing else "
+                    "was stopped."
+                ),
+            },
+        )

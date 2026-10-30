@@ -180,6 +180,7 @@ class Gateway:
         reason: str | None = None,
         result: Any = None,
         action_id: str | None = None,
+        ref: str | None = None,
         notify: bool = True,
     ) -> LedgerEvent:
         run = self.state.runs.get(call.run_id or "")
@@ -196,6 +197,8 @@ class Gateway:
             payload["result"] = result
         if action_id:
             payload["action_id"] = action_id
+        if ref:
+            payload["order_id"] = ref
         event = self.ledger.append(
             "gateway.call",
             "gateway",
@@ -235,7 +238,7 @@ class EnforcementMiddleware(Middleware):
         verdict: Verdict = enforce(call, gw.state)
 
         if verdict.outcome == "reject":
-            gw.record_call(call, "rejected", reason=verdict.reason)
+            gw.record_call(call, "rejected", reason=verdict.reason, ref=verdict.ref)
             raise ToolError(str(verdict.reason))
 
         if verdict.outcome == "queue" and run is not None:
