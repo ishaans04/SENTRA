@@ -123,3 +123,28 @@ test('console replays the session through the operator’s decision', async ({ p
   await expect(glass.getByText('OUTCOME RECORD · REPLAYABLE')).toBeVisible();
   expect(errors).toEqual([]);
 });
+
+test('console answers a question and nudges typists to Wispr Flow', async ({ page }) => {
+  const errors = failOnConsoleErrors(page);
+  await page.goto('./#/console');
+  await page.getByRole('button', { name: 'Ask SENTRA' }).click();
+  const box = page.getByRole('textbox', { name: /Ask SENTRA a question/ });
+  await expect(box).toBeFocused();
+
+  // Typing, key by key, brings up the tip to speak instead.
+  await box.pressSequentially('How did this happen?');
+  const tip = page.getByText('Faster to say it than type it.');
+  await expect(tip).toBeVisible();
+  await page.keyboard.press('Enter');
+  await expect(page.getByText(/No single step broke a rule/)).toBeVisible();
+  await expect(page.locator('.cx-node.is-asked')).toHaveCount(5);
+  await page.getByRole('button', { name: 'Close tip' }).click();
+  await expect(tip).toBeHidden();
+
+  // Dictation arrives as inserted text, not key presses.
+  await box.fill('Who allowed the scratchpad?');
+  await page.keyboard.press('Enter');
+  await expect(page.getByText(/^Nobody\./)).toBeVisible();
+  await expect(page.locator('body')).not.toContainText(INTERNAL_NAMES);
+  expect(errors).toEqual([]);
+});

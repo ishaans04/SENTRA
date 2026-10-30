@@ -510,10 +510,13 @@ The console plays a session recorded from the service, so the site works from an
 
 <img src="docs/media/landing-voice.webp" alt="Just say it. Talk to SENTRA the way you'd talk to a teammate, using Wispr Flow. It repeats your words back as clear steps. Nothing happens until you say yes." width="100%">
 
-Every text box is a plain field, so Wispr Flow types straight into it: the approval, the recovery instruction, corrections and the spoken "Confirm". SENTRA never talks to Wispr and cannot tell dictated text from typed text, which is why every step also works by typing.
+Every text box is a plain field, so Wispr Flow types straight into it: the question, the approval, the recovery instruction, corrections and the spoken "Confirm". SENTRA never talks to Wispr. It notices only key presses in Ask SENTRA, to suggest speaking instead, and every step also works by typing.
+
+Voice runs the whole loop: **Ask** how it happened, **Tell** SENTRA what to do, and have it **Remember** for next time.
 
 | You say | SENTRA reads it back as |
 | :-- | :-- |
+| *"How did this happen?"* | An answer from the recorded events, citing #09, #10 and #12, with the route lit on the map |
 | *"Approve reporting, on the condition that the Reporting Agent only reads from the approved, sanitized report store."* | An approval with the typed condition `ReadsOnlyFrom(reporting-agent, [report_store/approved_summaries])` |
 | *"Stop this reporting run, remove its scratchpad access, and rebuild the report from approved summaries. Keep the support work."* | `CANCEL_RUN` → `REVOKE_ACCESS` → `REBUILD` from approved summaries, under `PRESERVE` support |
 | *"Confirm."* | The plan runs, then is verified |

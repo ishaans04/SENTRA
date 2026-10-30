@@ -165,6 +165,7 @@ The console replays one recorded session, event by event. It is the same story w
 | **▶ Play** | Plays on its own. It always stops where it's your turn to decide, and at the end. |
 | **1×** | Replay speed. Click to switch between 0.5×, 1× and 2×. |
 | **01 … 09** | The nine chapters. The bar under each one fills as you go; click a chapter to jump to it. |
+| **Ask SENTRA** | Jumps to the route chapter if you're earlier, pauses the replay and puts the cursor in the question box. |
 | **Tell SENTRA** | If you haven't reached your turn yet, jumps straight to it and puts the cursor in the instruction box. |
 | **SENTRA** (left) | Back to the landing page. |
 
@@ -183,6 +184,7 @@ Every event has one mark, in one of three lanes: **decisions** people made, what
 | **Decision D-07** | Your approval, its condition in plain words and in exact form, its status, and every run made under it. |
 | **Finding PS-001** | Appears when the route forms: the four hops, which ones were declared, and the evidence for each. It says plainly that a route is not proof of a leak. |
 | **Containment** | Five pre-approved ways to cut the route. Each one is tested first. Two would also break work that was agreed, so they are rejected. The cheapest safe one is recommended. |
+| **Ask SENTRA** | Ask about the incident in your own words, by voice with Wispr Flow or by typing. The answer cites event numbers and lights up those boxes on the map and those marks in the ledger. If you start typing, a small tip suggests speaking instead; ✕ closes it. |
 | **Tell SENTRA** | Your instruction box and the read-back. |
 | **Recovery** | Each step of the fix and its real result. |
 | **Outcome record** | The final summary and the four checks. |
@@ -214,6 +216,8 @@ The Support agent starts writing to a scratchpad nobody declared (#08–#09). It
 ### Chapter 3: Route
 
 The **glass case file slides in from the right**, carrying Decision D-07 with it. The Reporting agent finds the scratchpad (#10) and queues its next report, r-0412 (#11). Then it reads the scratchpad (#12). The red route lights up from the customer records, through the scratchpad and the Reporting agent, to the outside webhook. **Finding PS-001** and the **Containment** options appear.
+
+**Ask SENTRA** appears under them: the first of the three voice cards, **Ask → Tell → Remember**. Say *"How did this happen?"*, *"How did the agents talk to each other?"* or *"Who allowed the scratchpad?"*, or click one of the suggested questions. The answer uses only events already shown, cites them (#09, #10, #12 …) and outlines the boxes involved. Asking pauses the replay; the next step clears the answer. It never adds an event or changes anything.
 
 ### Chapter 4: Withdrawn
 
@@ -280,7 +284,8 @@ The same work, a week later. Support saves notes to the scratchpad again (#26), 
 | **Esc** | Console | Close the glass case file (or send the outcome record into it) |
 | **Space** | Console | Play / pause |
 | **Ctrl+K** (⌘+K) | Console | Jump to Tell SENTRA |
-| **Ctrl+Enter** (⌘+Enter) | Console | Confirm the read-back, or keep the standing order |
+| **Ctrl+Enter** (⌘+Enter) | Console | Confirm the read-back, or keep the standing order (in Ask SENTRA it only asks) |
+| **Enter** | Console, in Ask SENTRA | Ask the question (Shift+Enter for a new line) |
 | **Enter** | Console, at your turn | Confirm the read-back, or keep the standing order |
 
 ---
