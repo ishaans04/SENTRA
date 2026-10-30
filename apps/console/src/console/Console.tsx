@@ -17,6 +17,9 @@ import {
   DICTATION,
   EVENTS,
   LAST_BEAT,
+  REMEMBER_BEAT,
+  REMEMBER_DICTATION,
+  VERIFIED_BEAT,
   NODE_IDS,
   NODES,
   NOTE,
@@ -39,6 +42,7 @@ import {
   nodeView,
   observed,
   parse,
+  parseOrder,
   recoverySteps,
   runs,
   visibleCount,
@@ -621,7 +625,7 @@ function DecisionCard({ beat }: { beat: number }) {
 
 function FindingCard({ beat }: { beat: number }) {
   const state =
-    beat >= LAST_BEAT
+    beat >= VERIFIED_BEAT
       ? 'contained · verified #23'
       : beat >= 11
         ? 'contained · verifying'
@@ -1034,6 +1038,89 @@ function RecordCard({ onRestart }: { onRestart: () => void }) {
   );
 }
 
+function RememberCard({
+  beat,
+  text,
+  onText,
+  onKeep,
+}: {
+  beat: number;
+  text: string;
+  onText: (t: string) => void;
+  onKeep: () => void;
+}) {
+  const order = parseOrder(text);
+  return (
+    <article className="cx-card cx-tell" style={{ gap: 12 }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          gap: 10,
+          flexWrap: 'wrap',
+        }}
+      >
+        <span style={{ font: '600 14px var(--font-sans)' }}>Remember for next time</span>
+        <span className="cx-sub" style={{ fontSize: 10.5 }}>
+          a standing order · dictate or type
+        </span>
+      </div>
+      <textarea
+        value={text}
+        onChange={(e) => onText(e.target.value)}
+        disabled={beat !== REMEMBER_BEAT}
+        rows={3}
+        aria-label={`Tell ${BRAND} to remember`}
+        placeholder="Say what should always hold from now on."
+      />
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <span className="cx-label" style={{ marginBottom: 6 }}>
+          READ-BACK · KEPT ONLY WHEN YOU CONFIRM
+        </span>
+        {order.lines.map((line) => (
+          <div
+            key={line}
+            className="cx-row mono"
+            style={{
+              padding: '6px 0',
+              fontSize: 11,
+              lineHeight: 1.4,
+              color: order.ok ? C.ink : C.faint,
+              transition: 'color .3s',
+            }}
+          >
+            {line}
+          </div>
+        ))}
+      </div>
+      <span style={{ font: '400 11.5px/1.45 var(--font-sans)', color: C.mute }}>
+        Only your confirmed words write a standing order. Agents have no way to add one.
+      </span>
+      {beat === REMEMBER_BEAT && (
+        <button type="button" className="cx-confirm" disabled={!order.ok} onClick={onKeep}>
+          Keep this standing order · ↵
+        </button>
+      )}
+      {beat > REMEMBER_BEAT && (
+        <span
+          className="mono"
+          style={{
+            fontSize: 11,
+            fontWeight: 500,
+            color: C.blue,
+            padding: '9px 10px',
+            borderRadius: 8,
+            background: C.blueBg,
+          }}
+        >
+          CONFIRMED · SO-1 · LOADED INTO EVERY LATER SESSION
+        </span>
+      )}
+    </article>
+  );
+}
+
 function CaseFileTitle() {
   return (
     <div
@@ -1057,6 +1144,8 @@ export function Console() {
   const [playing, setPlaying] = useState(false);
   const [text, setText] = useState('');
   const [touched, setTouched] = useState(false);
+  const [orderText, setOrderText] = useState('');
+  const [orderTouched, setOrderTouched] = useState(false);
   const [sel, setSel] = useState<NodeId | null>(null);
   const [plan, setPlan] = useState<PlanStep[] | null>(null);
   const [landed, setLanded] = useState(false);
@@ -1072,6 +1161,8 @@ export function Console() {
   const prevStage = useRef(beat);
 
   const curText = (b = beat) => (touched ? text : b >= OPERATOR_BEAT ? DICTATION : '');
+  const curOrder = () =>
+    orderTouched ? orderText : beat >= REMEMBER_BEAT ? REMEMBER_DICTATION : '';
 
   const go = (raw: number) => {
     const b = Math.max(0, Math.min(LAST_BEAT, raw));
@@ -1089,6 +1180,15 @@ export function Console() {
     setPlaying(true);
   };
 
+  const keep = () => {
+    if (beat !== REMEMBER_BEAT || !parseOrder(curOrder()).ok) return;
+    setBeat(REMEMBER_BEAT + 1);
+    setPlaying(true);
+  };
+
+  /** Confirm whatever is waiting for the operator now. */
+  const confirmHere = () => (beat === REMEMBER_BEAT ? keep() : confirm());
+
   const togglePlay = () => {
     if (playing) return setPlaying(false);
     if (beat >= LAST_BEAT) {
@@ -1097,6 +1197,7 @@ export function Console() {
       return setPlaying(true);
     }
     if (beat === OPERATOR_BEAT) return confirm();
+    if (beat === REMEMBER_BEAT) return keep();
     setPlaying(true);
   };
 
@@ -1114,23 +1215,26 @@ export function Console() {
     setPlan(null);
     setTouched(false);
     setText('');
+    setOrderTouched(false);
+    setOrderText('');
     setBeat(0);
     setPlaying(true);
   };
 
-  const next = () => (beat === OPERATOR_BEAT ? confirm() : go(beat + 1));
+  const waiting = beat === OPERATOR_BEAT || beat === REMEMBER_BEAT;
+  const next = () => (waiting ? confirmHere() : go(beat + 1));
 
   // Autoplay: chapter openings hold longer than ordinary beats, and play
-  // always stops where the operator has to decide and at the record.
+  // always stops where the operator has to decide, at the record and at the end.
   useEffect(() => {
     if (!playing) return;
     const dur = (isChapterStart(beat) ? 3400 : 2200) / speed;
     const id = window.setTimeout(() => {
-      if (beat === OPERATOR_BEAT || beat >= LAST_BEAT) setPlaying(false);
+      if (waiting || beat === VERIFIED_BEAT || beat >= LAST_BEAT) setPlaying(false);
       else setBeat(beat + 1);
     }, dur);
     return () => window.clearTimeout(id);
-  }, [beat, playing, speed]);
+  }, [beat, playing, speed, waiting]);
 
   // Arriving at the operator beat with the suggested words: flash the box.
   useEffect(() => {
@@ -1150,15 +1254,23 @@ export function Console() {
     const was = prevStage.current;
     prevStage.current = beat;
     if (beat < CASE_FILE_BEAT) return setGlassOpen(false);
-    const stages = [CASE_FILE_BEAT, ROUTE_BEAT, WITHDRAWN_BEAT, OPERATOR_BEAT, RECOVER_BEAT];
+    const stages = [
+      CASE_FILE_BEAT,
+      ROUTE_BEAT,
+      WITHDRAWN_BEAT,
+      OPERATOR_BEAT,
+      RECOVER_BEAT,
+      REMEMBER_BEAT,
+    ];
     if (stages.some((s) => was < s && beat >= s)) setGlassOpen(true);
   }, [beat]);
 
   // The outcome record pops up mid-screen, then after three seconds moves
-  // into the case file.
+  // into the case file. Arriving later than the record, it is already there.
   useEffect(() => {
-    if (beat < LAST_BEAT) setRecord('none');
-    else setRecord((r) => (r === 'none' ? 'pop' : r));
+    if (beat < VERIFIED_BEAT) setRecord('none');
+    else if (beat === VERIFIED_BEAT) setRecord((r) => (r === 'none' ? 'pop' : r));
+    else setRecord((r) => (r === 'none' ? 'docked' : r));
   }, [beat]);
   useEffect(() => {
     if (record === 'pop') {
@@ -1176,15 +1288,17 @@ export function Console() {
 
   // Keep the card for what is happening now in view, and mark it.
   const focus =
-    record === 'docked'
-      ? 'record'
-      : beat >= RECOVER_BEAT
-        ? 'recovery'
-        : beat >= OPERATOR_BEAT
-          ? 'tell'
-          : beat === ROUTE_BEAT
-            ? 'finding'
-            : 'decision';
+    beat >= REMEMBER_BEAT
+      ? 'remember'
+      : record === 'docked'
+        ? 'record'
+        : beat >= RECOVER_BEAT
+          ? 'recovery'
+          : beat >= OPERATOR_BEAT
+            ? 'tell'
+            : beat === ROUTE_BEAT
+              ? 'finding'
+              : 'decision';
   useEffect(() => {
     const body = glassRef.current;
     if (!glassOpen || !body) return;
@@ -1210,8 +1324,8 @@ export function Console() {
     if (record === 'pop') setRecord('leaving');
     else setGlassOpen(false);
   };
-  const keys = useRef({ togglePlay, next, go, openTell, confirm, dismiss, beat });
-  keys.current = { togglePlay, next, go, openTell, confirm, dismiss, beat };
+  const keys = useRef({ togglePlay, next, go, openTell, confirmHere, dismiss, beat });
+  keys.current = { togglePlay, next, go, openTell, confirmHere, dismiss, beat };
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const k = keys.current;
@@ -1229,7 +1343,7 @@ export function Console() {
       if (inField) {
         if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
           e.preventDefault();
-          k.confirm();
+          k.confirmHere();
         }
         return;
       }
@@ -1237,10 +1351,12 @@ export function Console() {
       if (e.key === ' ') {
         e.preventDefault();
         k.togglePlay();
-      } else if (e.key === 'ArrowRight')
-        k.go(k.beat === OPERATOR_BEAT ? OPERATOR_BEAT : k.beat + 1);
-      else if (e.key === 'ArrowLeft') k.go(k.beat - 1);
-      else if (e.key === 'Enter' && k.beat === OPERATOR_BEAT) k.confirm();
+      } else if (e.key === 'ArrowRight') {
+        const held = k.beat === OPERATOR_BEAT || k.beat === REMEMBER_BEAT;
+        k.go(held ? k.beat : k.beat + 1);
+      } else if (e.key === 'ArrowLeft') k.go(k.beat - 1);
+      else if (e.key === 'Enter' && (k.beat === OPERATOR_BEAT || k.beat === REMEMBER_BEAT))
+        k.confirmHere();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -1258,7 +1374,9 @@ export function Console() {
       ? '↺  Replay'
       : beat === OPERATOR_BEAT
         ? 'Confirm ↵'
-        : '▶  Play';
+        : beat === REMEMBER_BEAT
+          ? 'Keep ↵'
+          : '▶  Play';
 
   return (
     <div className="cx">
@@ -1283,7 +1401,7 @@ export function Console() {
           </button>
           <button
             type="button"
-            className={`cx-play${beat === OPERATOR_BEAT && !playing ? ' is-confirm' : ''}`}
+            className={`cx-play${waiting && !playing ? ' is-confirm' : ''}`}
             onClick={togglePlay}
             title="Play / pause (space)"
           >
@@ -1348,7 +1466,7 @@ export function Console() {
                   className="cx-label"
                   style={{ fontSize: 11, letterSpacing: '.08em', marginRight: 6 }}
                 >
-                  CHAPTER {pad(ch + 1)} OF 07
+                  CHAPTER {pad(ch + 1)} OF {pad(CHAPTERS.length)}
                 </span>
                 <span className="cx-badge" style={{ border: `1px solid ${C.rule}`, color: C.mute }}>
                   RECORDED SESSION · FICTIONAL DATA
@@ -1460,8 +1578,21 @@ export function Console() {
               </div>
             )}
             {record === 'docked' && (
-              <div data-card="record" className="is-focus">
+              <div data-card="record" className={focus === 'record' ? 'is-focus' : undefined}>
                 <RecordCard onRestart={restart} />
+              </div>
+            )}
+            {beat >= REMEMBER_BEAT && (
+              <div data-card="remember" className={focus === 'remember' ? 'is-focus' : undefined}>
+                <RememberCard
+                  beat={beat}
+                  text={curOrder()}
+                  onText={(t) => {
+                    setOrderText(t);
+                    setOrderTouched(true);
+                  }}
+                  onKeep={keep}
+                />
               </div>
             )}
           </div>

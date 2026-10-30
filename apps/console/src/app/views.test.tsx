@@ -84,6 +84,30 @@ describe('console', () => {
     expect(document.body.textContent).not.toMatch(INTERNAL_NAMES);
   });
 
+  it('remembers the incident, then refuses the read a week later', () => {
+    vi.useFakeTimers();
+    render(<Console />);
+    fireEvent.click(screen.getByRole('button', { name: /08 Remember/ }));
+    expect(screen.getByText('Remembered for next time')).toBeInTheDocument();
+    const box = screen.getByRole('textbox', { name: /Tell SENTRA to remember/ });
+    fireEvent.change(box, { target: { value: 'hello there' } });
+    const keep = screen.getByRole('button', { name: /Keep this standing order/ });
+    expect(keep).toBeDisabled();
+    fireEvent.change(box, {
+      target: {
+        value:
+          'From now on, an agent that can send outside never reads from a store nobody declared.',
+      },
+    });
+    fireEvent.click(keep);
+    expect(screen.getByText(/CONFIRMED · SO-1/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /09 Next week/ }));
+    expect(screen.getByText('A week later, nothing to stop')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Next event' }));
+    expect(screen.getAllByText(/REFUSED · standing order SO-1/).length).toBeGreaterThan(0);
+    expect(document.body.textContent).not.toMatch(INTERNAL_NAMES);
+  });
+
   it('jumps to the instruction box with Ctrl+K', () => {
     render(<Console />);
     fireEvent.keyDown(window, { key: 'k', ctrlKey: true });
