@@ -50,6 +50,8 @@ import {
   type PlanStep,
   type StepState,
 } from './story';
+import type { Answer } from './ask';
+import { AskCard, VoiceSteps } from './AskCard';
 import './console.css';
 import './glass.css';
 
@@ -79,10 +81,13 @@ const MapPanel = memo(function MapPanel({
   beat,
   sel,
   onSelect,
+  asked,
 }: {
   beat: number;
   sel: NodeId | null;
   onSelect: (id: NodeId | null) => void;
+  /** Boxes the latest Ask SENTRA answer is about. */
+  asked?: readonly NodeId[];
 }) {
   const edges = edgeViews(beat);
   const detail = sel ? { ...NODES[sel], observed: observed(sel, beat) } : null;
@@ -204,7 +209,14 @@ const MapPanel = memo(function MapPanel({
               </span>
             ))}
             {NODE_IDS.map((id) => (
-              <MapNode key={id} id={id} beat={beat} selected={sel === id} onSelect={onSelect} />
+              <MapNode
+                key={id}
+                id={id}
+                beat={beat}
+                selected={sel === id}
+                asked={!!asked?.includes(id)}
+                onSelect={onSelect}
+              />
             ))}
             {detail && (
               <div className="cx-detail">
@@ -335,11 +347,13 @@ function MapNode({
   id,
   beat,
   selected,
+  asked,
   onSelect,
 }: {
   id: NodeId;
   beat: number;
   selected: boolean;
+  asked: boolean;
   onSelect: (id: NodeId | null) => void;
 }) {
   const v = nodeView(id, beat);
@@ -349,7 +363,7 @@ function MapNode({
   return (
     <button
       type="button"
-      className="cx-node"
+      className={asked ? 'cx-node is-asked' : 'cx-node'}
       aria-label={`${v.name}: ${v.sub}`}
       aria-pressed={selected}
       onClick={() => onSelect(selected ? null : id)}
@@ -400,9 +414,12 @@ function MapNode({
 const LedgerPanel = memo(function LedgerPanel({
   beat,
   onJump,
+  cited,
 }: {
   beat: number;
   onJump: (b: number) => void;
+  /** Event numbers the latest Ask SENTRA answer cites. */
+  cited?: readonly number[];
 }) {
   const vis = visibleCount(beat);
   const recent = EVENTS.slice(0, vis)
@@ -444,6 +461,7 @@ const LedgerPanel = memo(function LedgerPanel({
                     title={`#${pad(i + 1)} ${e.actor} ${e.verb} ${e.target}`}
                     aria-label={`Jump to event ${i + 1}`}
                     tabIndex={has ? 0 : -1}
+                    className={has && cited?.includes(i + 1) ? 'is-cited' : undefined}
                     onClick={() => onJump(beatOfEvent(i))}
                     style={{ background: cur ? 'oklch(0.94 0.012 80)' : undefined }}
                   >
@@ -796,6 +814,7 @@ function TellCard({
       : 'parsed by Gemini Flash-Lite · grammar fallback';
   return (
     <article className="cx-card cx-tell" style={{ gap: 12 }}>
+      <VoiceSteps active="tell" />
       <div
         style={{
           display: 'flex',
@@ -1052,6 +1071,7 @@ function RememberCard({
   const order = parseOrder(text);
   return (
     <article className="cx-card cx-tell" style={{ gap: 12 }}>
+      <VoiceSteps active="remember" />
       <div
         style={{
           display: 'flex',
@@ -1153,10 +1173,15 @@ export function Console() {
   const [modelOff, setModelOff] = useState(false);
   const [glassOpen, setGlassOpen] = useState(false);
   const [record, setRecord] = useState<'none' | 'pop' | 'leaving' | 'docked'>('none');
+  // A question belongs to the beat it was asked at; any step clears it.
+  const [ask, setAsk] = useState<{ beat: number; reply: Answer | null } | null>(null);
+  const [nudgeClosed, setNudgeClosed] = useState(false);
 
   const headRef = useRef<HTMLElement>(null);
   const glassRef = useRef<HTMLDivElement>(null);
   const taRef = useRef<HTMLTextAreaElement>(null);
+  const askRef = useRef<HTMLTextAreaElement>(null);
+  const askLive = ask && ask.beat === beat ? ask : null;
   const prevBeat = useRef(beat);
   const prevStage = useRef(beat);
 
@@ -1209,6 +1234,28 @@ export function Console() {
     }
     setGlassOpen(true);
     window.setTimeout(() => taRef.current?.focus({ preventScroll: true }), 420);
+  };
+
+  /** Asking pauses the replay, so the answer stays on screen while it is read. */
+  const startAsk = () => {
+    setPlaying(false);
+    setAsk((a) => (a && a.beat === beat ? a : { beat, reply: null }));
+  };
+
+  const onReply = (reply: Answer) => {
+    setPlaying(false);
+    setAsk({ beat, reply });
+  };
+
+  const openAsk = () => {
+    if (beat < ROUTE_BEAT) {
+      setBeat(ROUTE_BEAT);
+      setPlan(null);
+    }
+    setPlaying(false);
+    setAsk({ beat: Math.max(beat, ROUTE_BEAT), reply: null });
+    setGlassOpen(true);
+    window.setTimeout(() => askRef.current?.focus({ preventScroll: true }), 420);
   };
 
   const restart = () => {
@@ -1286,9 +1333,16 @@ export function Console() {
     }
   }, [record]);
 
+  // Stepping away ends a question, so coming back to its beat (or replaying)
+  // starts clean instead of bringing the old answer back.
+  useEffect(() => {
+    setAsk((a) => (a && a.beat !== beat ? null : a));
+  }, [beat]);
+
   // Keep the card for what is happening now in view, and mark it.
-  const focus =
-    beat >= REMEMBER_BEAT
+  const focus = askLive
+    ? 'ask'
+    : beat >= REMEMBER_BEAT
       ? 'remember'
       : record === 'docked'
         ? 'record'
@@ -1452,6 +1506,9 @@ export function Console() {
             </button>
           ))}
         </nav>
+        <button type="button" className="cx-tell-btn cx-ask-btn" onClick={openAsk}>
+          Ask {BRAND}
+        </button>
         <button type="button" className="cx-tell-btn" onClick={openTell}>
           Tell {BRAND} <span className="kbd">{MOD_KEY} K</span>
         </button>
@@ -1500,8 +1557,8 @@ export function Console() {
             </div>
           </div>
 
-          <MapPanel beat={beat} sel={sel} onSelect={setSel} />
-          <LedgerPanel beat={beat} onJump={jump} />
+          <MapPanel beat={beat} sel={sel} onSelect={setSel} asked={askLive?.reply?.nodes} />
+          <LedgerPanel beat={beat} onJump={jump} cited={askLive?.reply?.cites} />
         </main>
 
         {/* Before the route chapter the case file sits on the page. After
@@ -1551,6 +1608,17 @@ export function Console() {
                   <FindingCard beat={beat} />
                 </div>
                 <ContainmentCard beat={beat} />
+                <div data-card="ask" className={focus === 'ask' ? 'is-focus' : undefined}>
+                  <AskCard
+                    beat={beat}
+                    reply={askLive?.reply ?? null}
+                    nudgeClosed={nudgeClosed}
+                    onCloseNudge={() => setNudgeClosed(true)}
+                    onStart={startAsk}
+                    onReply={onReply}
+                    inputRef={askRef}
+                  />
+                </div>
               </>
             )}
             {beat >= OPERATOR_BEAT && (

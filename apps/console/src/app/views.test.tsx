@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Console } from '../console/Console';
@@ -139,7 +139,9 @@ describe('console', () => {
   it('cannot confirm words that ask for nothing', () => {
     render(<Console />);
     fireEvent.keyDown(window, { key: 'k', ctrlKey: true });
-    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'hello there' } });
+    fireEvent.change(screen.getByRole('textbox', { name: /Tell SENTRA what to do/ }), {
+      target: { value: 'hello there' },
+    });
     expect(screen.getByRole('button', { name: /Confirm read-back and run/ })).toBeDisabled();
   });
 
@@ -188,5 +190,97 @@ describe('console', () => {
     for (let i = 0; i < 8; i++) act(() => vi.advanceTimersByTime(3500));
     expect(screen.getByText('OUTCOME RECORD · REPLAYABLE')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Replay from the start' })).toBeInTheDocument();
+  });
+});
+
+describe('ask SENTRA', () => {
+  const askBox = () => screen.getByRole('textbox', { name: 'Ask SENTRA a question' });
+  const NUDGE = 'Faster to say it than type it.';
+
+  it('opens Ask from the header at the route, ready for dictation', () => {
+    vi.useFakeTimers();
+    render(<Console />);
+    fireEvent.click(screen.getByRole('button', { name: 'Ask SENTRA' }));
+    expect(screen.getByText('Four permitted hops compose a route')).toBeInTheDocument();
+    act(() => vi.advanceTimersByTime(500));
+    expect(askBox()).toHaveFocus();
+  });
+
+  it('answers how it happened and lights up the route', () => {
+    render(<Console />);
+    fireEvent.click(screen.getByRole('button', { name: 'Ask SENTRA' }));
+    fireEvent.change(askBox(), { target: { value: 'How did this happen?' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Ask the question' }));
+    expect(screen.getByText(/No single step broke a rule/)).toBeInTheDocument();
+    expect(document.querySelectorAll('.cx-node.is-asked')).toHaveLength(5);
+    expect(document.querySelectorAll('.is-cited')).toHaveLength(3);
+    expect(document.body.textContent).not.toMatch(INTERNAL_NAMES);
+  });
+
+  it('keeps the Tell read-back waiting when Ctrl+Enter is pressed in Ask', () => {
+    render(<Console />);
+    fireEvent.click(screen.getByRole('button', { name: /05 Decide/ }));
+    fireEvent.change(askBox(), { target: { value: 'Why was the report held?' } });
+    fireEvent.keyDown(askBox(), { key: 'Enter', ctrlKey: true });
+    expect(screen.getByText(/pre-authorised hold stopped run r-0412/)).toBeInTheDocument();
+    expect(screen.queryByText(/CONFIRMED #16/)).toBeNull();
+    expect(screen.getByText('The operator decides, in plain words')).toBeInTheDocument();
+  });
+
+  it('pauses the replay, and a step clears the answer', () => {
+    vi.useFakeTimers();
+    render(<Console />);
+    fireEvent.click(screen.getByRole('button', { name: /04 Withdrawn/ }));
+    fireEvent.click(screen.getByRole('button', { name: /▶\s+Play/ }));
+    expect(screen.getByRole('button', { name: /Pause/ })).toBeInTheDocument();
+    act(() => askBox().focus());
+    expect(screen.getByRole('button', { name: /▶\s+Play/ })).toBeInTheDocument();
+    fireEvent.change(askBox(), { target: { value: 'Did data actually leak?' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Ask the question' }));
+    expect(screen.getByText(/Not that SENTRA can show/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Next event' }));
+    expect(screen.queryByText(/Not that SENTRA can show/)).toBeNull();
+    expect(document.querySelectorAll('.cx-node.is-asked')).toHaveLength(0);
+  });
+
+  it('keeps the Wispr Flow tip closed once closed', () => {
+    render(<Console />);
+    fireEvent.click(screen.getByRole('button', { name: /04 Withdrawn/ }));
+    fireEvent.keyDown(askBox(), { key: 'h' });
+    expect(screen.getByText(NUDGE)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Close tip' }));
+    expect(screen.queryByText(NUDGE)).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: /01 Approved/ }));
+    fireEvent.click(screen.getByRole('button', { name: /04 Withdrawn/ }));
+    fireEvent.keyDown(askBox(), { key: 'h' });
+    expect(screen.queryByText(NUDGE)).toBeNull();
+  });
+
+  it('keeps Ctrl+Shift+Enter in Ask away from the Tell read-back', () => {
+    render(<Console />);
+    fireEvent.click(screen.getByRole('button', { name: /05 Decide/ }));
+    fireEvent.keyDown(askBox(), { key: 'Enter', ctrlKey: true, shiftKey: true });
+    expect(screen.queryByText(/CONFIRMED #16/)).toBeNull();
+    expect(screen.getByText('The operator decides, in plain words')).toBeInTheDocument();
+  });
+
+  it('does not bring a cleared answer back when stepping back to its beat', () => {
+    render(<Console />);
+    fireEvent.click(screen.getByRole('button', { name: /04 Withdrawn/ }));
+    fireEvent.change(askBox(), { target: { value: 'How did this happen?' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Ask the question' }));
+    expect(screen.getByText(/No single step broke a rule/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Next event' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Previous event' }));
+    expect(screen.queryByText(/No single step broke a rule/)).toBeNull();
+    expect(document.querySelectorAll('.cx-node.is-asked')).toHaveLength(0);
+  });
+
+  it('shows Ask, Tell, Remember as one flow', () => {
+    render(<Console />);
+    fireEvent.click(screen.getByRole('button', { name: /05 Decide/ }));
+    const flows = screen.getAllByRole('list', { name: 'Ask, tell, remember' });
+    expect(flows).toHaveLength(2);
+    expect(within(flows[1]).getByText('TELL')).toHaveAttribute('aria-current', 'step');
   });
 });
