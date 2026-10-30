@@ -31,6 +31,9 @@ describe('ask SENTRA: which question was asked', () => {
     expect(classify('why did this happen')).toBe('how');
     expect(classify('what is the weather')).toBeNull();
     expect(classify('   ')).toBeNull();
+    expect(classify('Who approved D-07?')).toBe('held');
+    expect(classify('Who approved this?')).toBeNull();
+    expect(classify('Who approved the scratchpad?')).toBe('allowed');
   });
 });
 

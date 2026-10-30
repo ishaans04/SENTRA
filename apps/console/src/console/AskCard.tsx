@@ -67,12 +67,12 @@ export function AskCard({
   };
   const onKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (isTyping(e)) setTyped(true);
-    if (e.key === 'Enter' && !e.shiftKey) {
-      // Ctrl/⌘+Enter elsewhere confirms the read-back; here it only asks.
-      e.preventDefault();
-      e.stopPropagation();
-      submit();
-    }
+    if (e.key !== 'Enter') return;
+    // Ctrl/⌘+Enter elsewhere confirms the read-back; no Enter here may reach it.
+    e.stopPropagation();
+    if (e.shiftKey) return;
+    e.preventDefault();
+    submit();
   };
 
   const chips = !reply ? ASK_SUGGESTIONS.slice(0, 3) : reply.intent === null ? ASK_SUGGESTIONS : [];

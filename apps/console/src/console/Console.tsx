@@ -1333,6 +1333,12 @@ export function Console() {
     }
   }, [record]);
 
+  // Stepping away ends a question, so coming back to its beat (or replaying)
+  // starts clean instead of bringing the old answer back.
+  useEffect(() => {
+    setAsk((a) => (a && a.beat !== beat ? null : a));
+  }, [beat]);
+
   // Keep the card for what is happening now in view, and mark it.
   const focus = askLive
     ? 'ask'

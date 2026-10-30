@@ -32,9 +32,10 @@ export const WISPR_URL = 'https://wisprflow.ai/';
 /** First match wins, so the narrower intents come before the catch-all "how". */
 const INTENTS: [AskIntent, RegExp][] = [
   ['leak', /leak|exfiltrat|escap|got out|get out|left the|sent out|outside/i],
-  ['held', /held|hold|paus|withdr|approval/i],
+  ['held', /held|hold|paus|withdr|approval|d-07/i],
   ['talk', /talk|communicat|messag|each other|between|shar/i],
-  ['allowed', /allow|permi|approv|declar|who let|without asking|unregistered|scratchpad|notepad/i],
+  // "Approved" alone is not here: the answer starts "Nobody", which is only true of the scratchpad.
+  ['allowed', /allow|permi|declar|who let|without asking|unregistered|scratchpad|notepad/i],
   ['next', /what (should|do|can) i\b|what now|fix|next step|undo|recover/i],
   ['how', /how|why|what happened|explain|cause/i],
 ];

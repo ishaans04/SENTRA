@@ -256,6 +256,26 @@ describe('ask SENTRA', () => {
     expect(screen.queryByText(NUDGE)).toBeNull();
   });
 
+  it('keeps Ctrl+Shift+Enter in Ask away from the Tell read-back', () => {
+    render(<Console />);
+    fireEvent.click(screen.getByRole('button', { name: /05 Decide/ }));
+    fireEvent.keyDown(askBox(), { key: 'Enter', ctrlKey: true, shiftKey: true });
+    expect(screen.queryByText(/CONFIRMED #16/)).toBeNull();
+    expect(screen.getByText('The operator decides, in plain words')).toBeInTheDocument();
+  });
+
+  it('does not bring a cleared answer back when stepping back to its beat', () => {
+    render(<Console />);
+    fireEvent.click(screen.getByRole('button', { name: /04 Withdrawn/ }));
+    fireEvent.change(askBox(), { target: { value: 'How did this happen?' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Ask the question' }));
+    expect(screen.getByText(/No single step broke a rule/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Next event' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Previous event' }));
+    expect(screen.queryByText(/No single step broke a rule/)).toBeNull();
+    expect(document.querySelectorAll('.cx-node.is-asked')).toHaveLength(0);
+  });
+
   it('shows Ask, Tell, Remember as one flow', () => {
     render(<Console />);
     fireEvent.click(screen.getByRole('button', { name: /05 Decide/ }));
