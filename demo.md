@@ -259,7 +259,7 @@ The rules run again over the contained setup (#23). The **Outcome record** pops 
 | Replacement completed | The new report went out under epoch 4. |
 | Unrelated work survived | Support's work and Priya's edit are untouched. |
 
-Press **▶ Play** to go on, or **Replay from the start** to watch it again.
+While playing, the record stays up long enough to read and then the replay goes on to Remember by itself. If you stepped here, press **Continue to Remember →** on the record (or **▶ Play** or **›**), or **Replay from the start** to watch it again.
 
 ### Chapter 8: Remember (your turn again)
 

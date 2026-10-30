@@ -193,6 +193,29 @@ describe('console', () => {
   });
 });
 
+describe('console: from the record into Remember', () => {
+  it('keeps playing from the outcome record into Remember, and waits there', () => {
+    vi.useFakeTimers();
+    render(<Console />);
+    fireEvent.click(screen.getByRole('button', { name: /06 Recover/ }));
+    fireEvent.click(screen.getByRole('button', { name: /▶\s+Play/ }));
+    for (let i = 0; i < 20; i++) act(() => vi.advanceTimersByTime(2000));
+    expect(screen.getByText('Remembered for next time')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Keep this standing order/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Keep ↵/ })).toBeInTheDocument();
+  });
+
+  it('offers to continue to Remember from the outcome record', () => {
+    vi.useFakeTimers();
+    render(<Console />);
+    fireEvent.click(screen.getByRole('button', { name: /07 Verified/ }));
+    const dialog = screen.getByRole('dialog', { name: 'Outcome record' });
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Continue to Remember →' }));
+    expect(screen.queryByRole('dialog', { name: 'Outcome record' })).not.toBeInTheDocument();
+    expect(screen.getByText('Remembered for next time')).toBeInTheDocument();
+  });
+});
+
 describe('ask SENTRA', () => {
   const askBox = () => screen.getByRole('textbox', { name: 'Ask SENTRA a question' });
   const NUDGE = 'Faster to say it than type it.';

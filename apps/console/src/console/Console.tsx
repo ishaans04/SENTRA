@@ -979,7 +979,14 @@ function RecoveryCard({ beat, plan }: { beat: number; plan: PlanStep[] }) {
   );
 }
 
-function RecordCard({ onRestart }: { onRestart: () => void }) {
+function RecordCard({
+  onRestart,
+  onContinue,
+}: {
+  onRestart: () => void;
+  /** Present until the replay has moved on to Remember. */
+  onContinue?: () => void;
+}) {
   return (
     <article className="cx-card cx-record">
       <span className="cx-label" style={{ fontSize: 11, color: 'oklch(0.75 0.01 80)' }}>
@@ -1017,6 +1024,24 @@ function RecordCard({ onRestart }: { onRestart: () => void }) {
         ))}
       </div>
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        {onContinue && (
+          <button
+            type="button"
+            onClick={onContinue}
+            style={{
+              height: 34,
+              padding: '0 14px',
+              border: 0,
+              background: 'oklch(0.97 0.006 85)',
+              color: 'var(--ink)',
+              borderRadius: 8,
+              cursor: 'pointer',
+              font: '500 12px var(--font-sans)',
+            }}
+          >
+            Continue to Remember →
+          </button>
+        )}
         <button
           type="button"
           onClick={onRestart}
@@ -1268,16 +1293,26 @@ export function Console() {
     setPlaying(true);
   };
 
+  /** From the outcome record straight to Remember, with the record docked. */
+  const continueToRemember = () => {
+    setRecord('docked');
+    setPlaying(false);
+    go(REMEMBER_BEAT);
+  };
+  const onContinue = beat < REMEMBER_BEAT ? continueToRemember : undefined;
+
   const waiting = beat === OPERATOR_BEAT || beat === REMEMBER_BEAT;
   const next = () => (waiting ? confirmHere() : go(beat + 1));
 
-  // Autoplay: chapter openings hold longer than ordinary beats, and play
-  // always stops where the operator has to decide, at the record and at the end.
+  // Autoplay: chapter openings hold longer than ordinary beats, and the
+  // outcome record longest, long enough to read before it moves into the case
+  // file. Play then goes on to Remember, and always stops where the operator
+  // has to decide and at the end.
   useEffect(() => {
     if (!playing) return;
-    const dur = (isChapterStart(beat) ? 3400 : 2200) / speed;
+    const dur = (beat === VERIFIED_BEAT ? 6500 : isChapterStart(beat) ? 3400 : 2200) / speed;
     const id = window.setTimeout(() => {
-      if (waiting || beat === VERIFIED_BEAT || beat >= LAST_BEAT) setPlaying(false);
+      if (waiting || beat >= LAST_BEAT) setPlaying(false);
       else setBeat(beat + 1);
     }, dur);
     return () => window.clearTimeout(id);
@@ -1647,7 +1682,7 @@ export function Console() {
             )}
             {record === 'docked' && (
               <div data-card="record" className={focus === 'record' ? 'is-focus' : undefined}>
-                <RecordCard onRestart={restart} />
+                <RecordCard onRestart={restart} onContinue={onContinue} />
               </div>
             )}
             {beat >= REMEMBER_BEAT && (
@@ -1685,7 +1720,7 @@ export function Console() {
             aria-label="Outcome record"
             onClick={(e) => e.stopPropagation()}
           >
-            <RecordCard onRestart={restart} />
+            <RecordCard onRestart={restart} onContinue={onContinue} />
             <div className="cx-record-pop-foot">
               <span>Moving to the case file</span>
               <span className="cx-record-pop-bar">
