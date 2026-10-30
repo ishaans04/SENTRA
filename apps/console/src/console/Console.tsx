@@ -836,7 +836,7 @@ function TellCard({
         disabled={beat !== OPERATOR_BEAT}
         rows={4}
         aria-label={`Tell ${BRAND} what to do`}
-        placeholder="Say what should stop, what should be recovered, and what must be kept."
+        placeholder={DICTATION}
         style={{ background: landed ? C.amberBg : C.card }}
       />
       <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -1117,7 +1117,7 @@ function RememberCard({
         disabled={beat !== REMEMBER_BEAT}
         rows={3}
         aria-label={`Tell ${BRAND} to remember`}
-        placeholder="Say what should always hold from now on."
+        placeholder={REMEMBER_DICTATION}
       />
       <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         <span className="cx-label" style={{ marginBottom: 6 }}>
@@ -1190,7 +1190,6 @@ export function Console() {
   const [text, setText] = useState('');
   const [touched, setTouched] = useState(false);
   const [orderText, setOrderText] = useState('');
-  const [orderTouched, setOrderTouched] = useState(false);
   const [sel, setSel] = useState<NodeId | null>(null);
   const [plan, setPlan] = useState<PlanStep[] | null>(null);
   const [landed, setLanded] = useState(false);
@@ -1210,20 +1209,21 @@ export function Console() {
   const prevBeat = useRef(beat);
   const prevStage = useRef(beat);
 
-  const curText = (b = beat) => (touched ? text : b >= OPERATOR_BEAT ? DICTATION : '');
-  const curOrder = () =>
-    orderTouched ? orderText : beat >= REMEMBER_BEAT ? REMEMBER_DICTATION : '';
+  // Both boxes start empty, with the suggested words only as a placeholder:
+  // the operator says (or types) them. Stepping past the decision without
+  // confirming replays the recorded session's own words.
+  const recordedText = touched ? text : DICTATION;
 
   const go = (raw: number) => {
     const b = Math.max(0, Math.min(LAST_BEAT, raw));
-    if (b > OPERATOR_BEAT && !plan) setPlan(parse(curText(OPERATOR_BEAT)));
+    if (b > OPERATOR_BEAT && !plan) setPlan(parse(recordedText));
     if (b <= OPERATOR_BEAT) setPlan(null);
     setBeat(b);
   };
 
   const confirm = () => {
     if (beat !== OPERATOR_BEAT) return;
-    const p = parse(curText());
+    const p = parse(text);
     if (!p.some((s) => s.on)) return;
     setPlan(p);
     setBeat(OPERATOR_BEAT + 1);
@@ -1231,7 +1231,7 @@ export function Console() {
   };
 
   const keep = () => {
-    if (beat !== REMEMBER_BEAT || !parseOrder(curOrder()).ok) return;
+    if (beat !== REMEMBER_BEAT || !parseOrder(orderText).ok) return;
     setBeat(REMEMBER_BEAT + 1);
     setPlaying(true);
   };
@@ -1287,7 +1287,6 @@ export function Console() {
     setPlan(null);
     setTouched(false);
     setText('');
-    setOrderTouched(false);
     setOrderText('');
     setBeat(0);
     setPlaying(true);
@@ -1455,8 +1454,7 @@ export function Console() {
   const vis = visibleCount(beat);
   const ch = chapterOf(beat);
   const cur = EVENTS[vis - 1];
-  const shownText = curText();
-  const activePlan = plan ?? parse(shownText);
+  const activePlan = plan ?? parse(recordedText);
   const playLabel = playing
     ? '❚❚  Pause'
     : beat >= LAST_BEAT
@@ -1660,7 +1658,7 @@ export function Console() {
               <div data-card="tell" className={focus === 'tell' ? 'is-focus' : undefined}>
                 <TellCard
                   beat={beat}
-                  text={shownText}
+                  text={text}
                   touched={touched}
                   landed={landed}
                   plan={plan}
@@ -1689,10 +1687,9 @@ export function Console() {
               <div data-card="remember" className={focus === 'remember' ? 'is-focus' : undefined}>
                 <RememberCard
                   beat={beat}
-                  text={curOrder()}
+                  text={orderText}
                   onText={(t) => {
                     setOrderText(t);
-                    setOrderTouched(true);
                   }}
                   onKeep={keep}
                 />

@@ -2,6 +2,7 @@ import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Console } from '../console/Console';
+import { DICTATION, REMEMBER_DICTATION } from '../console/story';
 import { GuidedDemo } from '../landing/GuidedDemo';
 import { Landing } from '../landing/Landing';
 import { App } from './App';
@@ -101,6 +102,9 @@ describe('console', () => {
     const next = screen.getByRole('button', { name: 'Next event' });
     for (let i = 0; i < 8; i++) fireEvent.click(next);
     expect(screen.getByText('The operator decides, in plain words')).toBeInTheDocument();
+    fireEvent.change(screen.getByRole('textbox', { name: /Tell SENTRA what to do/ }), {
+      target: { value: DICTATION },
+    });
     fireEvent.click(screen.getByRole('button', { name: /Confirm read-back and run/ }));
     expect(screen.getByText(/CONFIRMED #16/)).toBeInTheDocument();
     expect(document.body.textContent).not.toMatch(INTERNAL_NAMES);
@@ -186,10 +190,41 @@ describe('console', () => {
     render(<Console />);
     const next = screen.getByRole('button', { name: 'Next event' });
     for (let i = 0; i < 8; i++) fireEvent.click(next);
+    fireEvent.change(screen.getByRole('textbox', { name: /Tell SENTRA what to do/ }), {
+      target: { value: DICTATION },
+    });
     fireEvent.click(screen.getByRole('button', { name: /Confirm read-back and run/ }));
     for (let i = 0; i < 8; i++) act(() => vi.advanceTimersByTime(3500));
     expect(screen.getByText('OUTCOME RECORD · REPLAYABLE')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Replay from the start' })).toBeInTheDocument();
+  });
+});
+
+describe('console: the operator says the words', () => {
+  it('starts Tell SENTRA empty, with the suggested words only as a placeholder', () => {
+    render(<Console />);
+    fireEvent.click(screen.getByRole('button', { name: /05 Decide/ }));
+    const box = screen.getByRole('textbox', { name: /Tell SENTRA what to do/ });
+    expect(box).toHaveValue('');
+    expect(box).toHaveAttribute('placeholder', DICTATION);
+    expect(screen.getByRole('button', { name: /Confirm read-back and run/ })).toBeDisabled();
+    fireEvent.change(box, { target: { value: DICTATION } });
+    expect(screen.getByRole('button', { name: /Confirm read-back and run/ })).toBeEnabled();
+  });
+
+  it('starts Remember empty, with the suggested words only as a placeholder', () => {
+    render(<Console />);
+    fireEvent.click(screen.getByRole('button', { name: /08 Remember/ }));
+    const box = screen.getByRole('textbox', { name: /Tell SENTRA to remember/ });
+    expect(box).toHaveValue('');
+    expect(box).toHaveAttribute('placeholder', REMEMBER_DICTATION);
+    expect(screen.getByRole('button', { name: /Keep this standing order/ })).toBeDisabled();
+  });
+
+  it('still replays the recorded recovery when you skip past the decision', () => {
+    render(<Console />);
+    fireEvent.click(screen.getByRole('button', { name: /06 Recover/ }));
+    expect(screen.queryByText('not requested — left as it is')).toBeNull();
   });
 });
 

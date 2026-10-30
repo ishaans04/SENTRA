@@ -225,13 +225,13 @@ SENTRA links the finding to D-07. Its condition fails and no other reason to all
 
 ### Chapter 5: Decide (your turn)
 
-Playback stops here. The **Tell SENTRA** card is open, filled with the suggested instruction:
+Playback stops here. The **Tell SENTRA** card is open with an empty box. The suggested instruction shows faintly inside it as a guide, for you to say with Wispr Flow or type:
 
 > Stop this reporting run, remove its scratchpad access, and rebuild the report from approved summaries. Keep the support work.
 
-Under it, the **read-back** turns those words into four exact steps: cancel run r-0412, remove the Reporting agent's scratchpad access, rebuild the report as r-0413, and keep the support work. **Nothing runs until you confirm.**
+Once you've said it, the **read-back** turns those words into four exact steps: cancel run r-0412, remove the Reporting agent's scratchpad access, rebuild the report as r-0413, and keep the support work. **Nothing runs until you confirm.**
 
-You can dictate your own words with Wispr Flow, or type them. The read-back updates as you type, and steps you didn't ask for are greyed out. If your words ask for nothing, the confirm button stays disabled.
+You can say the suggested words or your own. The read-back updates as the words arrive, and steps you didn't ask for are greyed out. Until your words ask for something, the confirm button stays disabled.
 
 Press **Confirm read-back and run**, or **Ctrl+Enter** (**⌘+Enter** on a Mac). D-07 is renewed at **epoch 4** for the new run only (#16).
 
@@ -263,11 +263,11 @@ While playing, the record stays up long enough to read and then the replay goes 
 
 ### Chapter 8: Remember (your turn again)
 
-Play stops a second time. A **Remember for next time** card opens in the case file with the suggested words already in it:
+Play stops a second time. A **Remember for next time** card opens in the case file with an empty box, and the suggested words shown faintly inside it as a guide:
 
 > *From now on, an agent that can send outside never reads from a store nobody declared.*
 
-You can dictate your own with Wispr Flow or type them. The read-back says what will be kept: standing order SO-1, checked as `NoUndeclaredReads(senders)`, because of PS-001 and run r-0412, holding in every later session until you revoke it (#24). Words that are not a standing order leave the button disabled. Press **Keep this standing order**, or **Ctrl+Enter** (#25).
+Say them with Wispr Flow, or type them. The read-back says what will be kept: standing order SO-1, checked as `NoUndeclaredReads(senders)`, because of PS-001 and run r-0412, holding in every later session until you revoke it (#24). Words that are not a standing order leave the button disabled. Press **Keep this standing order**, or **Ctrl+Enter** (#25).
 
 ### Chapter 9: Next week
 
