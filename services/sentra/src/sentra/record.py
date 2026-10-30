@@ -5,6 +5,10 @@ Runs every beat with interpretation off and writes one frame per beat to
 the ledger up to it. The console plays these frames when the live sandbox is
 unreachable and says on screen that it is a recording.
 
+The storyline ends with a standing order kept. The week after is recorded too, in
+``storyline/next-week/``: a new session loaded with that order, where the
+scratchpad read is refused and the report goes out.
+
 Everything is deterministic (seeded clock, fixed session id, no model), so CI
 re-records and fails if the committed frames have drifted from the engine.
 """
@@ -32,11 +36,19 @@ def _write(path: Path, body: Any) -> None:
     )
 
 
-async def record(target: Path = TARGET) -> list[dict[str, Any]]:
+async def record(target: Path = TARGET) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     os.environ["SENTRA_INTERPRETER"] = "off"
-    session = Session("s-recorded", FIXTURES)
     if target.exists():
         shutil.rmtree(target)
+    session = Session("s-recorded", FIXTURES)
+    frames = await _record(session, target)
+    week = Session(
+        "s-recorded-next-week", FIXTURES, orders=session.orders, storyline="next-week.yaml"
+    )
+    return frames, await _record(week, target / "next-week")
+
+
+async def _record(session: Session, target: Path) -> list[dict[str, Any]]:
     target.mkdir(parents=True)
     frames: list[dict[str, Any]] = []
     while not session.at_end:
@@ -61,8 +73,8 @@ async def record(target: Path = TARGET) -> list[dict[str, Any]]:
 
 
 def main() -> None:
-    frames = asyncio.run(record())
-    print(f"recorded {len(frames)} frames to {TARGET}")
+    frames, week = asyncio.run(record())
+    print(f"recorded {len(frames)} frames and {len(week)} next-week frames to {TARGET}")
 
 
 if __name__ == "__main__":
