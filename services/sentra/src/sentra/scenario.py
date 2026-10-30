@@ -54,6 +54,8 @@ class Session:
         storyline: str = "storyline.yaml",
     ) -> None:
         self.session_id = session_id
+        #: Which storyline drives this session: ``storyline`` or ``next-week``.
+        self.storyline_name = Path(storyline).stem
         self.fixtures_dir = Path(fixtures_dir)
         self.ledger = SessionLedger(session_id, LogicalClock())
         self.world = World.seed()

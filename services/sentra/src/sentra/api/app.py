@@ -271,6 +271,37 @@ def create_app(
             raise ApiError(404, "not_found", f"No decision command {verb!r}.")
         return await decision_command(sentra_session, decision_id, verb)
 
+    # -- standing orders --------------------------------------------------------
+
+    @app.post("/api/standing-orders/interpret")
+    async def interpret_standing_order(
+        body: TextBody, sentra_session: SessionCookie = None
+    ) -> dict[str, Any]:
+        sandbox = sandbox_for(sentra_session)
+        text = text_of(body)
+        interpret_slot(sandbox)
+        async with sandbox.lock:
+            s = sandbox.session
+            try:
+                order = await s.propose_standing_order(text)
+            except ValueError as exc:
+                raise ApiError(422, "not_understood", str(exc)) from exc
+            return {"order": order.model_dump(), "read_back": s.order_read_back(order.id)}
+
+    @app.post("/api/standing-orders/{order_id}/{verb}")
+    async def standing_order_verb(
+        order_id: str, verb: str, sentra_session: SessionCookie = None
+    ) -> dict[str, Any]:
+        if verb not in {"confirm", "discard", "revoke"}:
+            raise ApiError(404, "not_found", f"No standing order command {verb!r}.")
+        sandbox = sandbox_for(sentra_session)
+        async with sandbox.lock:
+            try:
+                order = getattr(sandbox.session, f"{verb}_standing_order")(order_id)
+            except (DecisionError, KeyError) as exc:
+                raise failed(exc) from exc
+            return {"order": order.model_dump()}
+
     # -- recovery -------------------------------------------------------------
 
     @app.post("/api/recovery/interpret")
