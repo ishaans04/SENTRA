@@ -1,4 +1,4 @@
-"""The whole storyline, beats 0 to 14, headless and with the model off (AC-06 to AC-11)."""
+"""The whole storyline, beats 0 to 16, headless and with the model off (AC-06 to AC-11)."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ def _kinds(session: Session, kind: str) -> list:
 async def test_full_storyline_headless(fixtures_dir: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("SENTRA_INTERPRETER", "off")
     session = Session("s-story", fixtures_dir)
-    await session.run_to(14)
+    await session.run_to(16)
     assert session.at_end
 
     plan = session.recovery.get("P-1")
@@ -63,6 +63,15 @@ async def test_full_storyline_headless(fixtures_dir: Path, monkeypatch: pytest.M
         "Support work preserved.",
     ]
     assert len(record["conflicts"]) == 1
+
+    # Remember: SO-1 is kept, citing the incident it came from.
+    [order] = session.orders.active()
+    assert order.id == "SO-1"
+    assert order.provenance.rule_id == "PS-001"
+    assert order.provenance.plan_id == "P-1"
+    assert order.provenance.evidence == record["finding"]["cited_events"]
+    assert order.provenance.runs == ["R-1"]
+    assert [r.order_id for r in session.gateway.state.standing_rules] == ["SO-1"]
 
     # AC-11 and INV-2: none of this needed a model.
     assert not _kinds(session, "interpretation.requested")

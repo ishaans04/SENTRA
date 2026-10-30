@@ -75,6 +75,11 @@ EVENT_KINDS = frozenset(
         "conflict.resolved",
         "verification.check",
         "record.closed",
+        "standing_order.loaded",
+        "standing_order.proposed",
+        "standing_order.confirmed",
+        "standing_order.discarded",
+        "standing_order.revoked",
     }
 )
 

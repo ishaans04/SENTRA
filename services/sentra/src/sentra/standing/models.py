@@ -65,6 +65,8 @@ class StandingOrder(BaseModel):
     dictated_text: str
     status: OrderStatus = "proposed"
     provenance: OrderProvenance
+    #: What read it: the grammar, a recorded response, or a model.
+    interpreted_by: str = "grammar"
 
 
 def compile_order(order: StandingOrder, manifest: ArchitectureManifest) -> StandingRule:

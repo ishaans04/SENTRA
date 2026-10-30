@@ -6,10 +6,13 @@ from pathlib import Path
 
 import pytest
 
+from sentra.decisions.graph import DecisionGraph
+from sentra.decisions.service import DecisionError
 from sentra.engine_bridge import EngineBridge
 from sentra.gateway.enforce import Verdict, enforce
 from sentra.gateway.state import GatewayState, RunState, StandingRule, ToolCall
 from sentra.interpret.providers import ProviderError
+from sentra.ledger import SessionLedger
 from sentra.scenario import Session
 from sentra.standing.book import StandingOrderBook
 from sentra.standing.models import (
@@ -115,6 +118,7 @@ def test_standing_order_leaves_other_work_alone(fixtures_dir: Path) -> None:
 async def test_refused_call_is_recorded_with_its_order(fixtures_dir: Path) -> None:
     session = Session("s-refused", fixtures_dir)
     await session.run_to(3)
+    session.orders.put(_order(status="active"))
     session.gateway.state.standing_rules.append(SENDERS_RULE)
     result = await session.agent("R-1").call("scratchpad.read", {})
     assert (result.ok, result.error) == (False, "standing_order")
@@ -162,3 +166,111 @@ def test_model_output_naming_an_unknown_agent_is_refused(fixtures_dir: Path) -> 
         session.interpreter._check("standing_order", raw, "gemini")
     ok = {"rule": {"kind": "NoUndeclaredReads"}, "plain": "x"}
     assert session.interpreter._check("standing_order", ok, "gemini").rule.actor is None
+
+
+# -- the session remembers --------------------------------------------------------
+
+
+async def _remembered(fixtures_dir: Path) -> Session:
+    """The whole storyline, ending with SO-1 confirmed."""
+    session = Session("s-remember", fixtures_dir)
+    await session.run_to(16)
+    return session
+
+
+def _next_week(fixtures_dir: Path, book: StandingOrderBook) -> Session:
+    return Session("s-next", fixtures_dir, orders=book, storyline="next-week.yaml")
+
+
+async def test_read_back_names_the_incident(fixtures_dir: Path) -> None:
+    session = Session("s-readback", fixtures_dir)
+    await session.run_to(15)
+    [proposed] = [e for e in session.ledger.events() if e.kind == "standing_order.proposed"]
+    read_back = proposed.payload["read_back"]
+    assert read_back.startswith(
+        "I will keep this standing order: "
+        "an agent that can send outside never reads from storage nobody declared."
+    )
+    assert "Checked as: NoUndeclaredReads(senders)." in read_back
+    assert "Today it covers: Reporting Agent reading Shared scratchpad." in read_back
+    assert "Why: PS-001 in session s-readback, citing 4 calls." in read_back
+    assert read_back.endswith("Interpreted by: grammar (no model call)")
+    assert session.order_read_back("SO-1") == read_back
+    assert session.gateway.state.standing_rules == []
+
+
+async def test_next_week_refuses_the_read_and_pauses_nothing(fixtures_dir: Path) -> None:
+    first = await _remembered(fixtures_dir)
+    session = _next_week(fixtures_dir, first.orders)
+    assert [e.kind for e in session.ledger.events()][1] == "standing_order.loaded"
+    await session.run_to(5)
+    assert session.at_end
+
+    kinds = [e.kind for e in session.ledger.events()]
+    assert "finding.raised" not in kinds
+    d1 = session.decisions.get("D-1")
+    assert (d1.status, d1.epoch) == ("active", 1)
+    assert [d["item"] for d in session.world.deliveries] == ["draft-1"]
+
+    calls = [e for e in session.ledger.events() if e.kind == "gateway.call"]
+    [refused] = [c for c in calls if c.payload["outcome"] == "rejected"]
+    assert (refused.run_id, refused.payload["tool"]) == ("R-1", "scratchpad.read")
+    assert (refused.payload["reason"], refused.payload["order_id"]) == ("standing_order", "SO-1")
+    [write] = [c for c in calls if c.payload["tool"] == "scratchpad.write"]
+    assert write.payload["outcome"] == "executed"
+
+    [alert] = [e for e in session.ledger.events() if e.kind == "alert.raised"]
+    assert alert.cites == [refused.event_id]
+    assert alert.payload["order_id"] == "SO-1"
+    assert alert.payload["text"] == (
+        "Reporting Agent tried to read Shared scratchpad. Standing order SO-1 forbids it: "
+        f"“{DEMO}” The read was refused and nothing else was stopped."
+    )
+
+
+async def test_unconfirmed_order_is_not_kept(fixtures_dir: Path) -> None:
+    session = Session("s-unconfirmed", fixtures_dir)
+    await session.run_to(15)
+    assert session.orders.get("SO-1").status == "proposed"
+    assert session.orders.active() == []
+    assert session.gateway.state.standing_rules == []
+    later = _next_week(fixtures_dir, session.orders)
+    assert "standing_order.loaded" not in [e.kind for e in later.ledger.events()]
+    session.discard_standing_order("SO-1")
+    assert session.orders.get("SO-1").status == "discarded"
+
+
+async def test_revoked_order_lifts_now_and_later(fixtures_dir: Path) -> None:
+    session = await _remembered(fixtures_dir)
+    assert [r.order_id for r in session.gateway.state.standing_rules] == ["SO-1"]
+    session.revoke_standing_order("SO-1")
+    assert session.gateway.state.standing_rules == []
+    assert [e.kind for e in session.ledger.events()][-1] == "standing_order.revoked"
+    with pytest.raises(DecisionError):
+        session.confirm_standing_order("SO-1")
+
+    later = _next_week(fixtures_dir, session.orders)
+    await later.run_to(4)
+    read = [
+        e
+        for e in later.ledger.events()
+        if e.kind == "gateway.call" and e.payload["tool"] == "scratchpad.read"
+    ]
+    assert read[0].payload["outcome"] == "executed"
+    assert [f.rule_id for f in later.bridge.open_findings()] == ["PS-001"]
+
+
+async def test_next_week_ledger_replays_identically(fixtures_dir: Path) -> None:
+    first = await _remembered(fixtures_dir)
+    session = _next_week(fixtures_dir, first.orders)
+    await session.run_to(5)
+    replayed = DecisionGraph.replay(SessionLedger.parse_jsonl(session.ledger.to_jsonl()))
+    assert replayed.snapshot() == session.decisions.graph.snapshot()
+
+
+async def test_storyline_cannot_confirm_the_operators_order(fixtures_dir: Path) -> None:
+    session = Session("s-operator", fixtures_dir)
+    await session.run_to(14)
+    await session.propose_standing_order(DEMO)
+    with pytest.raises(ValueError, match="Confirm or discard the standing order read-back first."):
+        await session.run_to(16)
