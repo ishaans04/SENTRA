@@ -6,26 +6,22 @@
 
 **Voice-guided containment and recovery for teams of AI agents.**<br>
 SENTRA notices when allowed steps add up to something unsafe, pauses only the work that is affected,<br>
-and repairs it from instructions you say out loud with Wispr Flow.
+explains how it happened when you ask, and repairs it from instructions you say out loud with Wispr Flow.
 
 [![Live demo](https://img.shields.io/badge/Live_demo-Open_SENTRA-335AA6?style=for-the-badge&logo=githubpages&logoColor=white)](https://ishaans04.github.io/SENTRA/)
 [![No Hands: The Wispr Challenge](https://img.shields.io/badge/WeMakeDevs_%C3%97_Wispr_Flow-No_Hands_2026-211C17?style=for-the-badge)](https://www.wemakedevs.org/wispr#about)
 [![Track 1: Builders](https://img.shields.io/badge/Track_1-Builders-1E7546?style=for-the-badge)](https://www.wemakedevs.org/wispr#about)
 
-[![CI](https://img.shields.io/github/actions/workflow/status/ishaans04/SENTRA/ci.yml?branch=main&style=flat-square&logo=githubactions&logoColor=white&label=CI)](https://github.com/ishaans04/SENTRA/actions/workflows/ci.yml)
 [![Site](https://img.shields.io/github/actions/workflow/status/ishaans04/SENTRA/pages.yml?branch=main&style=flat-square&logo=githubpages&logoColor=white&label=site)](https://github.com/ishaans04/SENTRA/actions/workflows/pages.yml)
-[![Tests](https://img.shields.io/badge/tests-394_passing-1E7546?style=flat-square&logo=pytest&logoColor=white)](#tests-and-quality)
+[![Tests](https://img.shields.io/badge/tests-418_passing-1E7546?style=flat-square&logo=pytest&logoColor=white)](#tests-and-quality)
 [![Dictated with Wispr Flow](https://img.shields.io/badge/dictated_with-Wispr_Flow-211C17?style=flat-square)](https://wisprflow.ai)
 [![Fictional data](https://img.shields.io/badge/data-100%25_fictional-B07A12?style=flat-square)](#limits-stated-up-front)
 [![License: MIT](https://img.shields.io/badge/license-MIT-335AA6?style=flat-square)](LICENSE)
 
 [![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.160-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
-[![MCP](https://img.shields.io/badge/MCP-FastMCP_3-211C17?style=flat-square&logo=modelcontextprotocol&logoColor=white)](https://gofastmcp.com/)
-[![React](https://img.shields.io/badge/React-19-149ECA?style=flat-square&logo=react&logoColor=white)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-7-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vite.dev/)
-[![Gemini](https://img.shields.io/badge/Gemini-2.5_Flash--Lite-8E75B2?style=flat-square&logo=googlegemini&logoColor=white)](https://ai.google.dev/)
 [![Docker](https://img.shields.io/badge/Docker-one_container-2496ED?style=flat-square&logo=docker&logoColor=white)](Dockerfile)
 
 **[Live site](https://ishaans04.github.io/SENTRA/)** &nbsp;·&nbsp;
@@ -49,25 +45,25 @@ AI agents now do real work side by side: one answers support tickets, another wr
 
 | **01 · Notice** | **02 · Pause** | **03 · Repair** | **04 · Remember** |
 | :-- | :-- | :-- | :-- |
-| Sees when safe steps add up to an unsafe route, and shows exactly which calls did it. | Remembers *why* each job was approved. When that reason stops being true, it pauses that job alone and holds anything it was about to send. | You say how to recover, in your own words. SENTRA reads them back as exact steps, runs nothing until you confirm, rebuilds the work the right way and never overwrites a person's edit. | You say what should always hold. SENTRA reads it back with the incident behind it, keeps it once you confirm, and refuses the same risky step in every later session. |
+| Sees when safe steps add up to an unsafe route, and shows exactly which calls did it. Ask it *"How did this happen?"* and it answers from the recorded events, citing each one. | Remembers *why* each job was approved. When that reason stops being true, it pauses that job alone and holds anything it was about to send. | You say how to recover, in your own words. SENTRA reads them back as exact steps, runs nothing until you confirm, rebuilds the work the right way and never overwrites a person's edit. | You say what should always hold. SENTRA reads it back with the incident behind it, keeps it once you confirm, and refuses the same risky step in every later session. |
 
 ## See it work
 
 <div align="center">
 
-<a href="https://ishaans04.github.io/SENTRA/#/demo"><img src="docs/media/sentra-walkthrough.gif" alt="Recording of the SENTRA guided walkthrough: from the landing page through eight steps, a spoken recovery instruction and its read-back, All clear, and a standing order that refuses the same read a week later." width="100%"></a>
+<a href="https://ishaans04.github.io/SENTRA/#/demo"><img src="docs/media/sentra-walkthrough.gif" alt="Recording of SENTRA: from the landing page through the eight-step guided walkthrough, a spoken recovery instruction and its read-back, All clear, a standing order that refuses the same read a week later, then the console, where Ask SENTRA answers How did this happen? and lights up the route." width="100%"></a>
 
-<sub>The guided walkthrough, recorded from the live site. Made-up data, about a minute. <a href="https://ishaans04.github.io/SENTRA/#/demo"><b>Try it yourself →</b></a></sub>
+<sub>The guided walkthrough, then Ask SENTRA in the console, recorded from the live site. Made-up data, about a minute. <a href="https://ishaans04.github.io/SENTRA/#/demo"><b>Try it yourself →</b></a></sub>
 
 </div>
 
-This is how SENTRA is meant to be used: you watch the agents work, SENTRA flags the moment their allowed steps line up into a leak, you fix it by saying one sentence, and one more sentence makes sure it can't happen the same way again.
+This is how SENTRA is meant to be used: you watch the agents work, SENTRA flags the moment their allowed steps line up into a leak, you ask it how that happened, you fix it by saying one sentence, and one more sentence makes sure it can't happen the same way again.
 
 | Step | What happens | What SENTRA does |
 | :-- | :-- | :-- |
 | **01)  Meet the team** | Support helps customers. Reporting sends a weekly report to partners. You approved Reporting on one condition: it only reads approved summaries. | Records the approval *and its reason* as a typed condition it can re-check. |
 | **02)  Something new shows up** | Support starts saving notes to a shared notepad. That's allowed, but nobody planned for it. | Marks the notepad as observed but not in the manifest. |
-| **03)  The pieces line up** | Reporting reads the notepad too. | Finds a possible route from private customer data to the outside, through four steps that were each allowed. |
+| **03)  The pieces line up** | Reporting reads the notepad too. | Finds a possible route from private customer data to the outside, through four steps that were each allowed. Ask *"How did this happen?"* and it answers from the events (#09, #10, #12) and lights up the route. |
 | **04)  The reason is gone** | Reporting no longer reads only approved summaries, and a report is about to go out. | Pauses that one approval and holds the report at the gateway. |
 | **05)  Tell SENTRA what to do** | You speak normally with Wispr Flow: *"Stop this report, cut its access to the notepad, and rebuild it from approved summaries. Keep the support work."* | Reads it back as four clear steps. Nothing happens until you say yes. |
 | **06)  Fixing only what's broken** | One small change at a time. | Stops the old report, cuts one link, turns away a late send, rebuilds the report and keeps Priya's edit. |
@@ -134,10 +130,10 @@ SENTRA is entered in **Track 1: Builders**, the track for developers:
 
 | Track 1 asks for | How SENTRA answers |
 | :-- | :-- |
-| **A working software product** | A live site (landing page, guided walkthrough, replay console), a FastAPI service with an MCP gateway, a Docker image, and 394 automated tests run in CI on every push. |
+| **A working software product** | A live site (landing page, guided walkthrough, replay console), a FastAPI service with an MCP gateway, a Docker image, and 418 automated tests run in CI on every push. |
 | **That solves a problem in your own work** | The stop-everything problem above: when agents' allowed steps add up to something unsafe, stop and repair only that, and keep everything else running. |
 | **Dictate requirements and follow-ups into your coding tools** | SENTRA was specified and steered by voice. Requirements, design decisions, reviews and follow-ups were dictated with Wispr Flow into AI coding tools, which wrote the code. |
-| **Voice at the centre** | The product runs on voice too. Approvals, recovery instructions, standing orders, corrections and the final "Confirm" are all spoken with Wispr Flow, and SENTRA reads every instruction back before anything runs. |
+| **Voice at the centre** | The product runs on voice too. Questions about what happened, approvals, recovery instructions, standing orders, corrections and the final "Confirm" are all spoken with Wispr Flow, and SENTRA reads every instruction back before anything runs. |
 
 **Why voice fits this problem.** In an incident, the person in charge knows what they want ("stop the report, keep support running") long before they could write it as a policy or click through five consoles. Speaking is the fastest way to say it. The read-back is what makes it safe: your words become exact, checkable steps, and nothing runs until you confirm them.
 
@@ -451,7 +447,7 @@ sequenceDiagram
 | :-- | :-- |
 | **01 Approved** | The operator approves reporting on one condition, recorded as decision D-07. |
 | **02 Connection** | Support finds and writes to a scratchpad nobody declared. Reporting queues its next report. |
-| **03 Route** | Reporting reads the scratchpad. The red route lights up from the customer records to the webhook, and finding PS-001 cites the four calls behind it. |
+| **03 Route** | Reporting reads the scratchpad. The red route lights up from the customer records to the webhook, and finding PS-001 cites the four calls behind it. **Ask SENTRA** opens: ask how it happened, and the answer cites the events and outlines the boxes involved. |
 | **04 Withdrawn** | The condition fails, the approval falls, and the queued report is held at the gateway. |
 | **05 Decide** | The operator dictates the recovery in plain words. SENTRA reads it back as gateway steps, with the controls it rejected and why. |
 | **06 Recover** | The narrow recovery runs. A late send from the old run is rejected, and Priya's later edit to the draft survives as a conflict. |
@@ -462,6 +458,12 @@ sequenceDiagram
 ## Screenshots
 
 <table>
+  <tr>
+    <td colspan="2"><img src="docs/media/console-ask.webp" alt="Console: Ask SENTRA answers How did this happen? from the recorded events, with the route boxes outlined on the map, the cited events marked in the ledger, and a tip to speak instead of typing"></td>
+  </tr>
+  <tr>
+    <td colspan="2"><sub><b>Console · Ask SENTRA.</b> Ask how it happened, by voice with Wispr Flow or by typing. The answer comes only from events already shown, cites them (#09, #10, #12 …), outlines the boxes involved and marks the events in the ledger. Start typing and a small tip suggests speaking instead.</sub></td>
+  </tr>
   <tr>
     <td width="50%"><img src="docs/media/walkthrough-route.webp" alt="Walkthrough step 3: four allowed steps form a possible leak path"></td>
     <td width="50%"><img src="docs/media/walkthrough-readback.webp" alt="Walkthrough step 5: the spoken instruction read back as four steps"></td>
@@ -502,7 +504,7 @@ The site has three screens, all served from one static build:
 | :-- | :-- |
 | [`/`](https://ishaans04.github.io/SENTRA/) | **Landing page.** The idea in a few short sections, each with something to try. |
 | [`/#/demo`](https://ishaans04.github.io/SENTRA/#/demo) | **Guided walkthrough.** The whole story in eight steps on one map. |
-| [`/#/console`](https://ishaans04.github.io/SENTRA/#/console) | **Console.** The recorded session as an operator sees it, with every event, approval and check. |
+| [`/#/console`](https://ishaans04.github.io/SENTRA/#/console) | **Console.** The recorded session as an operator sees it, with every event, approval and check, and **Ask → Tell → Remember** by voice. |
 
 The console plays a session recorded from the service, so the site works from any static host. **[demo.md](demo.md)** walks through every screen.
 
@@ -525,7 +527,8 @@ Voice runs the whole loop: **Ask** how it happened, **Tell** SENTRA what to do, 
 | Keys | Where | What it does |
 | :-- | :-- | :-- |
 | <kbd>Ctrl</kbd>+<kbd>K</kbd> (<kbd>⌘</kbd>+<kbd>K</kbd>) | Console | Jump to **Tell SENTRA**, ready for dictation |
-| <kbd>Ctrl</kbd>+<kbd>Enter</kbd> (<kbd>⌘</kbd>+<kbd>Enter</kbd>) | Console | Confirm the read-back, or keep the standing order |
+| <kbd>Ctrl</kbd>+<kbd>Enter</kbd> (<kbd>⌘</kbd>+<kbd>Enter</kbd>) | Console | Confirm the read-back, or keep the standing order (in Ask SENTRA it only asks) |
+| <kbd>Enter</kbd> | Console, in Ask SENTRA | Ask the question (<kbd>Shift</kbd>+<kbd>Enter</kbd> for a new line) |
 | <kbd>→</kbd> / <kbd>←</kbd> | Walkthrough, console | Next or previous step |
 | <kbd>Space</kbd> | Console | Play or pause |
 | <kbd>Esc</kbd> | Walkthrough, console | Back to the landing page, or close the case file |
@@ -595,9 +598,9 @@ The tool is built and tested. Its run on real servers, and the write-up, are tra
 | :-- | :-- | --: |
 | Control engine | `cd services/core && uv run pytest -q` | 195 |
 | Gateway, decisions, recovery, standing orders, API and the whole storyline | `cd services/sentra && uv run pytest -q` | 167 |
-| Site: format, lint, types, unit tests (Vitest) | `pnpm console:check` | 29 |
-| Site end to end: landing, walkthrough, console (Playwright) | `cd apps/console && pnpm test:e2e` | 3 |
-| | **Total** | **394** |
+| Site: format, lint, types, unit tests (Vitest) | `pnpm console:check` | 52 |
+| Site end to end: landing, walkthrough, console, Ask SENTRA (Playwright) | `cd apps/console && pnpm test:e2e` | 4 |
+| | **Total** | **418** |
 
 CI runs the same commands on every push and pull request, and it checks more than tests:
 
@@ -663,7 +666,7 @@ SENTRA/
 │       └── tests/                  one file per area, plus the whole storyline end to end
 ├── apps/console/                   the site: React 19, TypeScript, Vite
 │   ├── src/landing/                the landing page and the guided walkthrough
-│   ├── src/console/                the console: approvals, alerts, recovery and the live sandbox
+│   ├── src/console/                the console: questions, approvals, alerts, recovery and the live sandbox
 │   ├── src/shared/                 theme, routing, scrolling and voice input
 │   ├── src/app/                    the app shell and its error boundary
 │   ├── public/demo/                the recordings the site replays with no service behind it
