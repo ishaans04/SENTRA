@@ -59,17 +59,25 @@ test('landing page tells the story and links to both demos', async ({ page }) =>
   expect(errors).toEqual([]);
 });
 
-test('guided walkthrough runs from first step to all clear', async ({ page }) => {
+test('guided walkthrough runs from first step to a week later', async ({ page }) => {
   const errors = failOnConsoleErrors(page);
   await page.goto('./#/demo');
-  await expect(page.getByText('STEP 01 OF 07')).toBeVisible();
+  await expect(page.getByText('STEP 01 OF 08')).toBeVisible();
   for (let i = 0; i < 4; i++) await page.keyboard.press('ArrowRight');
-  await expect(page.getByText('STEP 05 OF 07')).toBeVisible();
+  await expect(page.getByText('STEP 05 OF 08')).toBeVisible();
   await page.getByRole('button', { name: 'Speak →' }).click();
   await page.getByRole('button', { name: 'Yes, do it →' }).click({ timeout: 8000 });
-  await expect(page.getByText('STEP 06 OF 07')).toBeVisible({ timeout: 8000 });
+  await expect(page.getByText('STEP 06 OF 08')).toBeVisible({ timeout: 8000 });
   await page.getByRole('button', { name: 'See the result →' }).click({ timeout: 12000 });
   await expect(page.getByText('All clear')).toBeVisible();
+  await page.getByRole('button', { name: 'Remember this →' }).click();
+  await expect(page.getByText('STEP 08 OF 08')).toBeVisible();
+  await page.getByRole('button', { name: 'Speak →' }).click();
+  await page.getByRole('button', { name: 'Yes, keep it →' }).click();
+  await expect(page.getByText('Turned away at the gateway, citing your words.')).toBeVisible({
+    timeout: 8000,
+  });
+  await expect(page.locator('body')).not.toContainText(INTERNAL_NAMES);
   await page.getByRole('button', { name: 'Open the full console →' }).click();
   await expect(page).toHaveURL(/#\/console$/);
   expect(errors).toEqual([]);

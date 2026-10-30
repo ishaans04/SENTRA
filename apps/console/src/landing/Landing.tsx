@@ -46,6 +46,10 @@ const TABS = [
     'It remembers why you approved each job. When that reason stops being true, it pauses just that job.',
   ],
   ['Repair', 'It redoes the work the right way, and never overwrites a change a person made.'],
+  [
+    'Remember',
+    'Say it once. Next week the same risk is refused before it starts, and it cites your words.',
+  ],
 ] as const;
 
 const JOBS = [
@@ -477,6 +481,72 @@ function PauseStage() {
   );
 }
 
+function RememberStage() {
+  return (
+    <div
+      style={{
+        position: 'relative',
+        width: '100%',
+        maxWidth: 420,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 16,
+      }}
+    >
+      <div className="ld-mini-card" style={{ gap: 10, animation: 'up .6s both' }}>
+        <span className="mono" style={{ fontSize: 11, color: C.blue, letterSpacing: '.06em' }}>
+          STANDING ORDER · KEPT
+        </span>
+        <span style={{ font: '500 16px/1.4 var(--font-display)', letterSpacing: '-.01em' }}>
+          “From now on, an agent that can send outside never reads from a store nobody declared.”
+        </span>
+      </div>
+      <div
+        className="ld-mini-card"
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          gap: 12,
+          animation: 'up .6s 1.2s both',
+        }}
+      >
+        <span style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <span className="mono" style={{ fontSize: 11, color: C.mute, letterSpacing: '.06em' }}>
+            A WEEK LATER
+          </span>
+          <span style={{ font: '600 15px var(--font-sans)' }}>Reporting → shared notepad</span>
+        </span>
+        <span
+          className="mono"
+          style={{
+            fontSize: 11,
+            fontWeight: 500,
+            padding: '6px 9px',
+            borderRadius: 999,
+            color: C.red,
+            background: C.redBg,
+            animation: 'popIn .4s 1.9s both',
+          }}
+        >
+          ✕ REFUSED
+        </span>
+      </div>
+      <span
+        style={{
+          alignSelf: 'center',
+          font: '500 13px/1.4 var(--font-sans)',
+          color: C.blue,
+          textAlign: 'center',
+          animation: 'up .6s 2.3s both',
+        }}
+      >
+        Refused before it started — citing your words. Nothing else paused.
+      </span>
+    </div>
+  );
+}
+
 function RepairStage() {
   const bars = (widths: number[], color: string) =>
     widths.map((w) => (
@@ -618,7 +688,7 @@ function Verbs() {
 
   useEffect(() => {
     if (!seen) return;
-    const id = window.setInterval(() => setTab((t) => (t + 1) % 3), 5600);
+    const id = window.setInterval(() => setTab((t) => (t + 1) % TABS.length), 5600);
     return () => window.clearInterval(id);
   }, [seen, cycle]);
 
@@ -627,7 +697,7 @@ function Verbs() {
       <div className="ld-sec" style={{ gap: 48 }}>
         <div ref={ref} className={`ld-sec-head ld-reveal${seen ? ' is-seen' : ''}`}>
           <span className="ld-eyebrow">02 — WHAT {BRAND} DOES</span>
-          <h2 className="ld-h2">Three things. Done carefully.</h2>
+          <h2 className="ld-h2">Four things. Done carefully.</h2>
         </div>
         <div
           style={{
@@ -688,10 +758,13 @@ function Verbs() {
           </div>
           <div className="ld-stage" onMouseMove={tilt} onMouseLeave={untilt}>
             <div className="ld-dots-bg" />
-            <span className="ld-stage-tag mono">{['NOTICE', 'PAUSE', 'REPAIR'][tab]} · LIVE</span>
+            <span className="ld-stage-tag mono">
+              {['NOTICE', 'PAUSE', 'REPAIR', 'REMEMBER'][tab]} · LIVE
+            </span>
             {tab === 0 && <NoticeStage key={`n${cycle}`} />}
             {tab === 1 && <PauseStage key={`p${cycle}`} />}
             {tab === 2 && <RepairStage key={`r${cycle}`} />}
+            {tab === 3 && <RememberStage key={`m${cycle}`} />}
           </div>
         </div>
       </div>
