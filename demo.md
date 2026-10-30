@@ -7,7 +7,7 @@ SENTRA has three screens:
 | Screen | What it is | How long |
 | --- | --- | --- |
 | **Landing page** | The idea in five short sections, each with something to click. | 2 minutes |
-| **Guided walkthrough** | The whole story in seven simple steps, on one map. | 2 minutes |
+| **Guided walkthrough** | The whole story in eight simple steps, on one map. | 2 minutes |
 | **Console** | The same story as an operator sees it: every event, every approval, every check. | 3–5 minutes |
 
 ---
@@ -38,6 +38,7 @@ The tricky part is that **your approval still says "yes."** Nobody broke a rule,
 | 1 | **Notices.** | It sees when safe steps add up to something unsafe, and shows you exactly which steps. |
 | 2 | **Pauses.** | It remembers why you approved each job. When that reason stops being true, it pauses just that job. |
 | 3 | **Repairs.** | You say what to do in your own words. It reads your words back as clear steps, and nothing happens until you confirm. Then it redoes the work the right way and never overwrites a change a person made. |
+| 4 | **Remembers.** | You say what should always hold. It keeps that as a standing order, with the incident behind it, and refuses the same risky step in every later session. Only your confirmed words can write one. |
 
 It is built for voice. The instruction box is an ordinary text box, so **Wispr Flow** (a voice-dictation app) can type into it as you speak. Typing works just as well.
 
@@ -89,7 +90,7 @@ Three things stay with you the whole way down:
 | --- | --- | --- |
 | **Top: "Stop what went wrong. Keep everything else."** | A field of dots. Each dot is an agent or something an agent uses. Every ten seconds a red chain of five links forms, one link is cut, and the rest turn green. | Move your cursor over the field: nearby dots link to it in blue. |
 | **01 — The problem** | The section holds still while you scroll. Each scroll lights the next of four cards (**✓ Allowed**) and draws a line beneath them, with a large step counter on the right. At the end all four turn red, **Allowed · but linked**, and "private customer details now have **a way out**." | Scroll slowly, then back up to rewind. **↺ Play it again** takes you back to the start. |
-| **02 — What SENTRA does** | **Notice**, **Pause** and **Repair**, each with its own small animation in a panel on the right. They take turns every few seconds. | Click a word to jump to it. Move your cursor over the panel: it tilts towards you. |
+| **02 — What SENTRA does** | **Notice**, **Pause**, **Repair** and **Remember**, each with its own small animation in a panel on the right. They take turns every few seconds. | Click a word to jump to it. Move your cursor over the panel: it tilts towards you. |
 | **03 — You stay in charge** | A voice card, with small labels floating around it. | Tap the **mic**. Your words appear as if dictated, then SENTRA lists the four steps it will take. Click **Yes, do it** and watch each step tick off. |
 | **04 — The difference** | Eight jobs that are all running, and a counter of how many are still working. | Click **Shut everything down**: every job stops and the counter drops to 0. Click **Use SENTRA**: only the weekly report pauses and gets redone, and the counter climbs back to 8. |
 | **05 — Why not just an LLM?** | A dark panel that explains what SENTRA does that a general AI chatbot can't. See below. | Scroll through it. |
@@ -132,7 +133,8 @@ Shapes on the map: **circles** are agents, **rounded squares** are places data i
 | **4. The reason is gone** | Your approval is marked **NO LONGER TRUE**, and the weekly report is **paused** before it is sent. |
 | **5. Tell SENTRA what to do** | Tap the mic (or press **Speak →**). Your instruction appears, read back as four steps. Press **Yes, do it**. |
 | **6. Fixing only what's broken** | Five changes, one at a time: stop the old report, cut its access to the notepad, block a late send, rebuild the report from approved summaries, and keep Priya's edit. |
-| **7. All clear** | Four green results. From here you can **Watch again**, **Open the full console**, or go back home. |
+| **7. All clear** | Four green results. Press **Remember this →** to go on, **Watch again**, or go back home. |
+| **8. Remember it for next time** | Press **Speak →**: *"From now on, an agent that can send outside never reads from a store nobody declared."* appears, with what SENTRA will keep. Press **Yes, keep it →**. Then **A week later**: Support's notes are still allowed, Reporting is turned away from the notepad citing your words, and the report goes out on time. From here you can **Watch again** or **Open the full console**. |
 
 ---
 
@@ -142,7 +144,7 @@ The console replays one recorded session, event by event. It is the same story w
 
 ```text
 ┌──────────────────────────────────────────────────────────────────────────┐
-│ SENTRA  ‹ ▶Play ›  1×   01 Approved · 02 Connection · … · 07 Verified     │
+│ SENTRA  ‹ ▶Play ›  1×   01 Approved · 02 Connection · … · 09 Next week    │
 │                                                        [Tell SENTRA Ctrl K]│
 ├───────────────────────────────────────────────┬──────────────────────────┤
 │ Chapter title and what it means               │ Case file                │
@@ -162,7 +164,7 @@ The console replays one recorded session, event by event. It is the same story w
 | **‹ / ›** | One event back or forward. |
 | **▶ Play** | Plays on its own. It always stops where it's your turn to decide, and at the end. |
 | **1×** | Replay speed. Click to switch between 0.5×, 1× and 2×. |
-| **01 … 07** | The seven chapters. The bar under each one fills as you go; click a chapter to jump to it. |
+| **01 … 09** | The nine chapters. The bar under each one fills as you go; click a chapter to jump to it. |
 | **Tell SENTRA** | If you haven't reached your turn yet, jumps straight to it and puts the cursor in the instruction box. |
 | **SENTRA** (left) | Back to the landing page. |
 
@@ -199,7 +201,7 @@ From chapter 3 (**Route**) onwards, the case file becomes a frosted-glass panel 
 
 ## 7. Console walkthrough: the full story in about 3 minutes
 
-Press **▶ Play**, or step through with **›**. The event counter at the top right goes from #07 to #23.
+Press **▶ Play**, or step through with **›**. The event counter at the top right goes from #07 to #28.
 
 ### Chapter 1: Approved
 
@@ -253,7 +255,19 @@ The rules run again over the contained setup (#23). The **Outcome record** pops 
 | Replacement completed | The new report went out under epoch 4. |
 | Unrelated work survived | Support's work and Priya's edit are untouched. |
 
-Press **Replay from the start** to watch it again.
+Press **▶ Play** to go on, or **Replay from the start** to watch it again.
+
+### Chapter 8: Remember (your turn again)
+
+Play stops a second time. A **Remember for next time** card opens in the case file with the suggested words already in it:
+
+> *From now on, an agent that can send outside never reads from a store nobody declared.*
+
+You can dictate your own with Wispr Flow or type them. The read-back says what will be kept: standing order SO-1, checked as `NoUndeclaredReads(senders)`, because of PS-001 and run r-0412, holding in every later session until you revoke it (#24). Words that are not a standing order leave the button disabled. Press **Keep this standing order**, or **Ctrl+Enter** (#25).
+
+### Chapter 9: Next week
+
+The same work, a week later. Support saves notes to the scratchpad again (#26), which is still allowed: Support cannot send anything out. Reporting tries to read them and the gateway **refuses** that one read under **SO-1** (#27). No red route appears, no approval falls, and run r-0420 delivers the report on time (#28).
 
 ---
 
@@ -266,8 +280,8 @@ Press **Replay from the start** to watch it again.
 | **Esc** | Console | Close the glass case file (or send the outcome record into it) |
 | **Space** | Console | Play / pause |
 | **Ctrl+K** (⌘+K) | Console | Jump to Tell SENTRA |
-| **Ctrl+Enter** (⌘+Enter) | Console | Confirm the read-back |
-| **Enter** | Console, at your turn | Confirm the read-back |
+| **Ctrl+Enter** (⌘+Enter) | Console | Confirm the read-back, or keep the standing order |
+| **Enter** | Console, at your turn | Confirm the read-back, or keep the standing order |
 
 ---
 
@@ -287,6 +301,7 @@ These limits are stated on purpose:
 - Only actions that go **through the gateway** can be stopped.
 - Recovery only uses **pre-approved, reversible** fixes. A message that has already been sent can't be "unsent", so SENTRA says so plainly instead of pretending.
 - A person's later edit is **never** overwritten.
+- A standing order covers one thing: agents that can send outside reading storage nobody declared, through the gateway.
 - The console is a **recorded replay of made-up data**, not a live system.
 
 ---
@@ -298,6 +313,7 @@ These limits are stated on purpose:
 | **Agent** | An AI assistant that does tasks by using tools. |
 | **Decision (D-07)** | Your "yes" to some work, with a condition. |
 | **Condition (C-07a)** | The "as long as …" part, stored in an exact form so a computer can check it. |
+| **Standing order (SO-1)** | A rule you said should always hold, kept with the incident behind it and checked in every later session until you revoke it. |
 | **Epoch** | The approval's version number. It goes up when the approval is renewed, and anything still carrying an older number is refused. |
 | **Run (r-0411, r-0412, r-0413)** | One working session of an agent under an approval. |
 | **Gateway** | The single door every agent's actions go through. This is where holding and blocking happen. |
