@@ -48,24 +48,19 @@ def _order(
 # -- the book ------------------------------------------------------------------
 
 
-def test_book_round_trips_through_disk(tmp_path: Path) -> None:
-    path = tmp_path / "orders.jsonl"
-    book = StandingOrderBook(path)
-    book.put(_order("SO-1", "proposed"))
-    book.put(_order("SO-1", "active"))
-    book.put(_order("SO-2", "discarded"))
-
-    reopened = StandingOrderBook(path)
-    assert [o.id for o in reopened.active()] == ["SO-1"]
-    assert reopened.next_id() == "SO-3"
-    assert len(path.read_text(encoding="utf-8").splitlines()) == 3
-
-
-def test_in_memory_book_writes_nothing(tmp_path: Path) -> None:
+def test_book_keeps_the_latest_version_of_each_order() -> None:
     book = StandingOrderBook()
-    book.put(_order())
-    assert list(tmp_path.iterdir()) == []
+    order = _order("SO-1", "proposed")
+    book.put(order)
+    order.status = "active"
     assert book.get("SO-1").status == "proposed"
+    book.put(order)
+    book.put(_order("SO-2", "discarded"))
+    assert [o.id for o in book.active()] == ["SO-1"]
+    assert [o.id for o in book.orders()] == ["SO-1", "SO-2"]
+    assert book.next_id() == "SO-3"
+    with pytest.raises(KeyError, match="No standing order 'SO-9'"):
+        book.get("SO-9")
 
 
 # -- compiling against the estate ------------------------------------------------

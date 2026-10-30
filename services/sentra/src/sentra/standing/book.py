@@ -1,28 +1,19 @@
 """The book of standing orders, kept across sessions.
 
-Every change appends the whole order as one JSON line; opening the book folds
-the file, so the last line for an id wins and the file is its own history.
-Without a path the book lives in memory, which is what each visitor's sandbox
-and the recorded replay use.
+A session is handed the book; the sandbox carries a visitor's book into their
+next session, and the recorded replay hands the storyline's book to the week
+after. Each order is stored as a copy, so a caller holding an order cannot
+change the book without putting it back.
 """
 
 from __future__ import annotations
-
-import json
-from pathlib import Path
 
 from sentra.standing.models import StandingOrder
 
 
 class StandingOrderBook:
-    def __init__(self, path: str | Path | None = None) -> None:
-        self.path = Path(path) if path is not None else None
+    def __init__(self) -> None:
         self._orders: dict[str, StandingOrder] = {}
-        if self.path is not None and self.path.exists():
-            for line in self.path.read_text(encoding="utf-8").splitlines():
-                if line.strip():
-                    order = StandingOrder(**json.loads(line))
-                    self._orders[order.id] = order
 
     def orders(self) -> list[StandingOrder]:
         return list(self._orders.values())
@@ -41,7 +32,3 @@ class StandingOrderBook:
 
     def put(self, order: StandingOrder) -> None:
         self._orders[order.id] = order.model_copy(deep=True)
-        if self.path is not None:
-            self.path.parent.mkdir(parents=True, exist_ok=True)
-            with self.path.open("a", encoding="utf-8", newline="\n") as handle:
-                handle.write(json.dumps(order.model_dump(), sort_keys=True) + "\n")

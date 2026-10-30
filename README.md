@@ -14,7 +14,7 @@ and repairs it from instructions you say out loud with Wispr Flow.
 
 [![CI](https://img.shields.io/github/actions/workflow/status/ishaans04/SENTRA/ci.yml?branch=main&style=flat-square&logo=githubactions&logoColor=white&label=CI)](https://github.com/ishaans04/SENTRA/actions/workflows/ci.yml)
 [![Site](https://img.shields.io/github/actions/workflow/status/ishaans04/SENTRA/pages.yml?branch=main&style=flat-square&logo=githubpages&logoColor=white&label=site)](https://github.com/ishaans04/SENTRA/actions/workflows/pages.yml)
-[![Tests](https://img.shields.io/badge/tests-395_passing-1E7546?style=flat-square&logo=pytest&logoColor=white)](#tests-and-quality)
+[![Tests](https://img.shields.io/badge/tests-394_passing-1E7546?style=flat-square&logo=pytest&logoColor=white)](#tests-and-quality)
 [![Dictated with Wispr Flow](https://img.shields.io/badge/dictated_with-Wispr_Flow-211C17?style=flat-square)](https://wisprflow.ai)
 [![Fictional data](https://img.shields.io/badge/data-100%25_fictional-B07A12?style=flat-square)](#limits-stated-up-front)
 [![License: MIT](https://img.shields.io/badge/license-MIT-335AA6?style=flat-square)](LICENSE)
@@ -134,7 +134,7 @@ SENTRA is entered in **Track 1: Builders**, the track for developers:
 
 | Track 1 asks for | How SENTRA answers |
 | :-- | :-- |
-| **A working software product** | A live site (landing page, guided walkthrough, replay console), a FastAPI service with an MCP gateway, a Docker image, and 395 automated tests run in CI on every push. |
+| **A working software product** | A live site (landing page, guided walkthrough, replay console), a FastAPI service with an MCP gateway, a Docker image, and 394 automated tests run in CI on every push. |
 | **That solves a problem in your own work** | The stop-everything problem above: when agents' allowed steps add up to something unsafe, stop and repair only that, and keep everything else running. |
 | **Dictate requirements and follow-ups into your coding tools** | SENTRA was specified and steered by voice. Requirements, design decisions, reviews and follow-ups were dictated with Wispr Flow into AI coding tools, which wrote the code. |
 | **Voice at the centre** | The product runs on voice too. Approvals, recovery instructions, standing orders, corrections and the final "Confirm" are all spoken with Wispr Flow, and SENTRA reads every instruction back before anything runs. |
@@ -591,10 +591,10 @@ The tool is built and tested. Its run on real servers, and the write-up, are tra
 | Suite | Command | Tests |
 | :-- | :-- | --: |
 | Control engine | `cd services/core && uv run pytest -q` | 195 |
-| Gateway, decisions, recovery, standing orders, API and the whole storyline | `cd services/sentra && uv run pytest -q` | 168 |
+| Gateway, decisions, recovery, standing orders, API and the whole storyline | `cd services/sentra && uv run pytest -q` | 167 |
 | Site: format, lint, types, unit tests (Vitest) | `pnpm console:check` | 29 |
 | Site end to end: landing, walkthrough, console (Playwright) | `cd apps/console && pnpm test:e2e` | 3 |
-| | **Total** | **395** |
+| | **Total** | **394** |
 
 CI runs the same commands on every push and pull request, and it checks more than tests:
 
