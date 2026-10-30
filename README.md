@@ -26,7 +26,7 @@ and repairs it from instructions you say out loud with Wispr Flow.
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-7-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vite.dev/)
 [![Gemini](https://img.shields.io/badge/Gemini-2.5_Flash--Lite-8E75B2?style=flat-square&logo=googlegemini&logoColor=white)](https://ai.google.dev/)
-[![Docker](https://img.shields.io/badge/Docker-Hugging_Face_Space-2496ED?style=flat-square&logo=docker&logoColor=white)](deploy/huggingface)
+[![Docker](https://img.shields.io/badge/Docker-one_container-2496ED?style=flat-square&logo=docker&logoColor=white)](Dockerfile)
 
 **[Live site](https://ishaans04.github.io/SENTRA/)** &nbsp;·&nbsp;
 **[Guided walkthrough](https://ishaans04.github.io/SENTRA/#/demo)** &nbsp;·&nbsp;
@@ -131,7 +131,7 @@ SENTRA is entered in **Track 1: Builders**, the track for developers:
 
 | Track 1 asks for | How SENTRA answers |
 | :-- | :-- |
-| **A working software product** | A live site (landing page, guided walkthrough, replay console), a FastAPI service with an MCP gateway, a Docker image for Hugging Face Spaces, and 369 automated tests run in CI on every push. |
+| **A working software product** | A live site (landing page, guided walkthrough, replay console), a FastAPI service with an MCP gateway, a Docker image, and 369 automated tests run in CI on every push. |
 | **That solves a problem in your own work** | The stop-everything problem above: when agents' allowed steps add up to something unsafe, stop and repair only that, and keep everything else running. |
 | **Dictate requirements and follow-ups into your coding tools** | SENTRA was specified and steered by voice. Requirements, design decisions, reviews and follow-ups were dictated with Wispr Flow into AI coding tools, which wrote the code. |
 | **Voice at the centre** | The product runs on voice too. Approvals, recovery instructions, corrections and the final "Confirm" are all spoken with Wispr Flow, and SENTRA reads every instruction back before anything runs. |
@@ -470,11 +470,11 @@ SENTRA_INTERPRETER=off SENTRA_STATIC_DIR=../../apps/console/dist uv run uvicorn 
 
 Open <http://127.0.0.1:8765>. To let a model interpret free-form instructions, set `GEMINI_API_KEY` (and optionally `GROQ_API_KEY`) and leave `SENTRA_INTERPRETER` unset. The grammar is always the fallback.
 
-**With Docker**, exactly as the Hugging Face Space runs it:
+**With Docker**, the service and the built site in one container:
 
 ```bash
 docker build -t sentra .
-docker run --rm -p 7860:7860 sentra            # add -e GEMINI_API_KEY=... to enable the model
+docker run --rm -p 8765:8765 sentra            # add -e GEMINI_API_KEY=... to enable the model
 ```
 
 <details>
@@ -483,7 +483,7 @@ docker run --rm -p 7860:7860 sentra            # add -e GEMINI_API_KEY=... to en
 | Variable | Meaning |
 | :-- | :-- |
 | `SENTRA_INTERPRETER` | `chain` (models, then grammar), `grammar`, or `off` (recordings and grammar only) |
-| `GEMINI_API_KEY`, `GROQ_API_KEY` | Free-tier keys; Space secrets in production |
+| `GEMINI_API_KEY`, `GROQ_API_KEY` | Free-tier keys, set as environment variables |
 | `SENTRA_GEMINI_MODEL` | Gemini model id, default `gemini-2.5-flash-lite` |
 | `SENTRA_GROQ_MODEL` | Groq model id, default `openai/gpt-oss-120b` |
 | `SENTRA_SESSION_CAP`, `SENTRA_SESSION_IDLE_MINUTES` | Sandbox limits (default 40 sessions, 30 minutes) |
@@ -537,7 +537,7 @@ CI runs the same commands on every push and pull request, and it checks more tha
 | **Site** | React 19, TypeScript 5, Vite 7, hand-written CSS, canvas and SVG |
 | **Testing** | pytest, Hypothesis, Vitest, Testing Library, Playwright |
 | **Tooling** | uv, pnpm, Ruff, mypy, ESLint, Prettier |
-| **Delivery** | GitHub Actions, GitHub Pages, Docker, Hugging Face Spaces |
+| **Delivery** | GitHub Actions, GitHub Pages, Docker |
 | **Voice** | Wispr Flow, into every text field |
 
 ## Repository layout
@@ -592,10 +592,9 @@ SENTRA/
 │   ├── manifests/                  two more estates for the engine's own tests
 │   └── scenarios/                  fictional event streams for PS-001 and PS-002
 ├── contracts/                      the generated OpenAPI documents, plus example events
-├── deploy/huggingface/             the Space card and the publish script
 ├── docs/                           the real-servers write-up (REAL_RESULT.md) and the README images
 ├── .github/                        the CI and Pages workflows, Dependabot and the pull request template
-├── Dockerfile                      builds the site and serves it with the service, for the Space
+├── Dockerfile                      builds the site and serves it with the service, in one container
 ├── demo.md                         a plain-language guide to every screen
 └── CONTRIBUTING.md, SECURITY.md, LICENSE
 ```
@@ -607,9 +606,7 @@ Each Python service has its own `pyproject.toml` and `uv.lock`. The site is a pn
 | Target | How |
 | :-- | :-- |
 | **GitHub Pages** (the site) | Automatic. [`pages.yml`](.github/workflows/pages.yml) builds and publishes on every push to `main`. The site is fully static. |
-| **Hugging Face Space** (the service) | `deploy/huggingface/publish.sh <hf-user>/<space-name>`, then add `GEMINI_API_KEY` as a Space secret. |
-
-A Space reads its settings from the front matter of its own README and refuses plain binary files, so the script pushes a one-commit snapshot of `HEAD` with [the Space card](deploy/huggingface/README.md) as its README and the GitHub-only images left out.
+| **Docker** (the service and the site) | `docker build -t sentra .`, then run it on any container host. Pass `GEMINI_API_KEY` (and optionally `GROQ_API_KEY`) as environment variables to enable the model. |
 
 ## Limits, stated up front
 

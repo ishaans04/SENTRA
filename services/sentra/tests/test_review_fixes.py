@@ -197,7 +197,7 @@ def test_fillers_inside_an_approval(fixtures_dir: Path) -> None:
     assert grammar.parse_approval(text) is not None
 
 
-# -- 9, 10: sessions and rate limits on a public Space --------------------------------
+# -- 9, 10: sessions and rate limits on a public deployment ---------------------------
 
 
 async def test_full_sandbox_refuses_new_visitors_instead_of_evicting(

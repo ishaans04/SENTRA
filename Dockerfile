@@ -1,10 +1,8 @@
-# SENTRA on a Hugging Face Space (Docker SDK, free CPU Basic).
+# SENTRA in one container.
 #
 # Stage 1 builds the console. Stage 2 installs the service from the frozen
-# lockfile and serves the API and the built console from one Uvicorn worker,
-# on the port the Space card declares (app_port: 7860 in
-# deploy/huggingface/README.md, which deploy/huggingface/publish.sh installs as
-# the Space's README).
+# lockfile and serves the API and the built console from one Uvicorn worker
+# on port 8765.
 
 FROM node:22-slim AS console
 WORKDIR /app
@@ -30,5 +28,5 @@ ENV SENTRA_STATIC_DIR=/app/apps/console/dist \
     SENTRA_INTERPRETER=chain \
     PYTHONUNBUFFERED=1
 USER sentra
-EXPOSE 7860
-CMD ["/app/services/sentra/.venv/bin/uvicorn", "sentra.api.app:app", "--host", "0.0.0.0", "--port", "7860", "--workers", "1"]
+EXPOSE 8765
+CMD ["/app/services/sentra/.venv/bin/uvicorn", "sentra.api.app:app", "--host", "0.0.0.0", "--port", "8765", "--workers", "1"]
