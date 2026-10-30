@@ -349,6 +349,8 @@ Why: PS-001 in session s-recorded, citing 4 calls.
 It holds in every later session until you revoke it.
 ```
 
+<img src="docs/media/console-remember.webp" alt="Console chapter 8: the standing order dictated with Wispr Flow and read back, beside the outcome record" width="100%">
+
 Once you confirm, it is standing order **SO-1**. Every later session loads it before anything else happens and checks it at the gateway, right after the containment controls. A week later Support saves notes to the scratchpad again, which is still allowed because Support cannot send anything out. Reporting tries to read them and is refused under SO-1, with one alert that quotes your words. No route forms, no approval falls, and the report goes out on time.
 
 ```mermaid
