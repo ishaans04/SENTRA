@@ -4,9 +4,12 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from sentra.engine_bridge import EngineBridge
 from sentra.gateway.enforce import Verdict, enforce
 from sentra.gateway.state import GatewayState, RunState, StandingRule, ToolCall
+from sentra.interpret.providers import ProviderError
 from sentra.scenario import Session
 from sentra.standing.book import StandingOrderBook
 from sentra.standing.models import (
@@ -120,3 +123,42 @@ async def test_refused_call_is_recorded_with_its_order(fixtures_dir: Path) -> No
     assert last.payload["reason"] == "standing_order"
     assert last.payload["order_id"] == "SO-1"
     assert session.bridge.open_findings() == []
+
+
+# -- dictation -------------------------------------------------------------------
+
+
+def test_grammar_reads_the_demo_sentence(fixtures_dir: Path) -> None:
+    proposal = Session("s-g1", fixtures_dir).grammar.parse_standing_order(DEMO)
+    assert proposal is not None
+    assert proposal.rule.actor is None
+    assert proposal.plain == (
+        "an agent that can send outside never reads from storage nobody declared"
+    )
+
+
+def test_grammar_reads_a_named_agent(fixtures_dir: Path) -> None:
+    grammar = Session("s-g2", fixtures_dir).grammar
+    proposal = grammar.parse_standing_order(
+        "Going forward, the reporting agent must never read from undeclared storage."
+    )
+    assert proposal is not None
+    assert proposal.rule.actor == "reporting-agent"
+    assert proposal.plain == "the Reporting Agent never reads from storage nobody declared"
+
+
+async def test_grammar_refuses_unknown_phrasing(fixtures_dir: Path) -> None:
+    session = Session("s-g3", fixtures_dir)
+    assert session.grammar.parse_standing_order("remember to be careful") is None
+    assert session.grammar.parse_standing_order("From now on, Bob never reads from x.") is None
+    with pytest.raises(ValueError, match="^I could not read that as a standing order"):
+        await session.interpreter.standing_order("remember to be careful")
+
+
+def test_model_output_naming_an_unknown_agent_is_refused(fixtures_dir: Path) -> None:
+    session = Session("s-g4", fixtures_dir)
+    raw = {"rule": {"kind": "NoUndeclaredReads", "actor": "ghost-agent"}, "plain": "x"}
+    with pytest.raises(ProviderError, match="ghost-agent"):
+        session.interpreter._check("standing_order", raw, "gemini")
+    ok = {"rule": {"kind": "NoUndeclaredReads"}, "plain": "x"}
+    assert session.interpreter._check("standing_order", ok, "gemini").rule.actor is None

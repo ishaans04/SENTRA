@@ -32,6 +32,7 @@ from sentra.recovery.plan import (
     RevokeAccess,
     grant_call_for,
 )
+from sentra.standing.models import NoUndeclaredReads, StandingOrderProposal
 
 if TYPE_CHECKING:
     from sentra.gateway.state import RunState
@@ -147,6 +148,35 @@ class Grammar:
             )
         )
         return proposal
+
+    # -- standing orders ------------------------------------------------------
+
+    def parse_standing_order(self, text: str) -> StandingOrderProposal | None:
+        """``<opener> <who> <never> <undeclared storage>``, from ``standing_orders``."""
+        spec: dict[str, list[str]] = self.rules["standing_orders"]
+
+        def either(key: str) -> str:
+            return "|".join(re.escape(p) for p in sorted(spec[key], key=len, reverse=True))
+
+        match = re.match(
+            rf"^(?:{either('openers')}) (?P<who>.+?) (?:{either('never')}) (?P<what>.+)$",
+            self.normalise(text),
+        )
+        if not match or match["what"] not in spec["undeclared"]:
+            return None
+        who = match["who"]
+        if who in spec["senders"]:
+            return StandingOrderProposal(
+                rule=NoUndeclaredReads(),
+                plain="an agent that can send outside never reads from storage nobody declared",
+            )
+        actor = self.rules["agents"].get(_strip_article(who))
+        if actor is None:
+            return None
+        return StandingOrderProposal(
+            rule=NoUndeclaredReads(actor=str(actor)),
+            plain=f"the {self.labels[actor]} never reads from storage nobody declared",
+        )
 
     # -- confirmations --------------------------------------------------------
 
